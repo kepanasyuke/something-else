@@ -35,10 +35,15 @@ async def _delete_document_from_db(doc_id: int) -> bool:
 
 def _build_delete_response(db_ok: bool, es_ok: bool) -> tuple[int, dict]:
     if db_ok and es_ok:
-        return 200, {"status": "deleted"}
-    if db_ok or es_ok:
-        return 200, {"status": "partially_deleted", "detail": "Документ удалён частично"}
-    return 404, {"detail": "Документ не найден"}
+        status_code = 200
+        content = {"status": "deleted"}
+    elif db_ok or es_ok:
+        status_code = 200
+        content = {"status": "partially_deleted", "detail": "Документ удалён частично"}
+    else:
+        status_code = 404
+        content = {"detail": "Документ не найден"}
+    return status_code, content
 
 
 @asynccontextmanager
