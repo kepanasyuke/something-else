@@ -68,9 +68,11 @@ test:
 
 test-coverage:
 	PYTHONPATH=$(PYTHONPATH) pytest tests/ --cov=app --cov-report=term-missing --cov-report=html
-
-test-watch:
-	PYTHONPATH=$(PYTHONPATH) pytest-watch tests/
+	
+	@echo "Opening coverage report..."
+	@(open htmlcov/index.html 2>/dev/null || xdg-open htmlcov/index.html 2>/dev/null || echo "No browser found; open htmlcov/index.html manually")
+    
+	@python -c "import webbrowser; webbrowser.open('htmlcov/index.html')" 2>/dev/null || echo "Browser not available, open htmlcov/index.html manually"
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
