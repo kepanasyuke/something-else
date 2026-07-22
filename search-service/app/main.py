@@ -1,12 +1,14 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from app.models import SearchRequest, SearchResponse
 from app.db import get_db, get_documents_by_ids, delete_document, init_db
 from app.es import search_documents, delete_document_from_index, es_client, init_index
 from app.converters import row_to_document
 from app.config import settings
 from app.load_data import load_csv_from_file
+from app.ui import render_page
 import asyncio
 
 logging.basicConfig(
@@ -20,7 +22,6 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     await init_db()
     await init_index()
-    # Проверяем, есть ли данные в БД
     async with get_db() as db:
         cur = await db.execute("SELECT COUNT(*) FROM documents")
         count = (await cur.fetchone())[0]
@@ -35,6 +36,22 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Search Service", version="1.0", lifespan=lifespan)
 
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    query = request.query_params.get("query", "").strip()
+    if not query:
+        return render_page()
+    try:
+        ids = await search_documents(query, settings.search_size)
+        async with get_db() as db:
+            rows = await get_documents_by_ids(db, ids)
+            docs = [row_to_document(r) for r in rows]
+            docs.sort(key=lambda d: d.created_date, reverse=True)
+        return render_page(query=query, results=docs)
+    except Exception as e:
+        logger.error(f"Search UI error: {e}")
+        return render_page(query=query, error="Ошибка выполнения поиска")
+
 @app.get("/health", include_in_schema=False)
 async def health_check():
     return {"status": "ok"}
@@ -46,7 +63,6 @@ async def search(request: SearchRequest, db=Depends(get_db)):
     rows = await get_documents_by_ids(db, ids)
     docs = [row_to_document(r) for r in rows]
     docs.sort(key=lambda d: d.created_date, reverse=True)
-    logger.info("Returning %s documents", len(docs))
     return SearchResponse(results=docs)
 
 @app.delete("/documents/{doc_id}")
@@ -58,5 +74,4 @@ async def delete_doc(doc_id: int, db=Depends(get_db)):
     )
     if not db_ok and not es_ok:
         raise HTTPException(status_code=404, detail="Документ не найден")
-    logger.info("Document %s deleted", doc_id)
     return {"status": "deleted"}
