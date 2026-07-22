@@ -4,7 +4,7 @@
 
 ## О проекте
 
-<img width="101" height="113" alt="image" src="https://github.com/user-attachments/assets/60d79857-c71b-40bd-8abe-25f38f8abe62" />
+<img width="86" height="66" alt="image" src="https://github.com/user-attachments/assets/13451522-8f6f-4502-a53c-cfd513b49706" />
 
 **Search Service** — это асинхронный веб-сервис для полнотекстового поиска по документам, который сочетает удобство локального хранения (SQLite) с производительностью поискового движка (Elasticsearch).
 
