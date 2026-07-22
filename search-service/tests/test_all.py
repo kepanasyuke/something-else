@@ -1,7 +1,5 @@
 import warnings
-# Подавляем предупреждения elastic_transport (передача transport options устарела)
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="elastic_transport")
-# Остальные фильтры для чистоты вывода
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="starlette.testclient")
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="unittest.mock")
 
