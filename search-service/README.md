@@ -102,27 +102,17 @@ git clone <repository-url>
 cd search-service
 ```
 
-### 2. Создайте виртуальное окружение и установите зависимости
+### 2. Установите зависимости
 
 ```bash
 make install
 ```
 
-Или вручную:
+### 3. Можно сразу перейти к запуску
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+make run
 ```
-
-### 3. Настройте окружение
-
-```bash
-make env
-```
-
-Эта команда скопирует `.env.example` в `.env`. При необходимости отредактируйте параметры (см. раздел «Конфигурация»).
 
 ### 4. Запустите Elasticsearch
 
@@ -154,8 +144,6 @@ make run
 
 ### API
 
-
-
 | Метод | Эндпоинт | Описание |
 |-------|----------|----------|
 | `POST` | `/search` | Полнотекстовый поиск с пагинацией (параметры: `query`, `limit`, `offset`) |
@@ -177,12 +165,10 @@ make run
 | `make run` | Запуск сервера (порт 8000) с автоперезагрузкой |
 | `make lint` | Проверка стиля кода (flake8 + black --check) |
 | `make format` | Автоматическое форматирование кода (black) |
-| `make type-check` | Проверка типов (mypy) |
 | `make audit` | Проверка уязвимостей зависимостей (pip-audit) |
 | `make docker-build` | Сборка Docker-образов |
 | `make docker-up` | Запуск контейнеров |
 | `make clean` | Очистка временных файлов |
-| `make env` | Создать `.env` из `.env.example` |
 | `make kill` | Принудительно завершить процесс, занимающий порт 8000 |
 | `make kill-es` | Принудительно завершить процесс, занимающий порт 9200 |
 | `make kill-all` | Завершить процессы на портах 8000 и 9200 |
