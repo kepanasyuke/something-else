@@ -64,7 +64,7 @@ kill-all: kill kill-es
 PYTHONPATH := .
 
 test:
-	PYTHONPATH=$(PYTHONPATH) pytest tests/ -v
+	PYTHONPATH=$(PYTHONPATH) pytest tests/ -v 
 
 test-coverage:
 	PYTHONPATH=$(PYTHONPATH) pytest tests/ --cov=app --cov-report=term-missing --cov-report=html
