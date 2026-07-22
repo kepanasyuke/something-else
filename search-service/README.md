@@ -77,9 +77,10 @@ search-service/
 ├── static/              # Статические файлы (HTML, CSS, JS)
 ├── tests/               # Модульные тесты (87% покрытие)
 ├── .env.example         # Пример переменных окружения
+├── .env
 ├── .gitignore
 ├── Dockerfile
-├── Makefile
+├── Makefile             # Файл запуска
 ├── README.md
 ├── docker-compose.yml
 ├── requirements.txt     # Основные зависимости
