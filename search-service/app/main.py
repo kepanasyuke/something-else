@@ -57,21 +57,22 @@ async def health_check():
     return {"status": "ok"}
 
 @app.post("/search", response_model=SearchResponse)
-async def search(request: SearchRequest, db=Depends(get_db)):
+async def search(request: SearchRequest):
     logger.info("Search query: %s", request.query)
     ids = await search_documents(request.query, settings.search_size)
-    rows = await get_documents_by_ids(db, ids)
-    docs = [row_to_document(r) for r in rows]
-    docs.sort(key=lambda d: d.created_date, reverse=True)
+    async with get_db() as db:
+        rows = await get_documents_by_ids(db, ids)
+        docs = [row_to_document(r) for r in rows]
+        docs.sort(key=lambda d: d.created_date, reverse=True)
+    logger.info(f"Returning {len(docs)} documents")
     return SearchResponse(results=docs)
 
 @app.delete("/documents/{doc_id}")
-async def delete_doc(doc_id: int, db=Depends(get_db)):
+async def delete_doc(doc_id: int):
     logger.info("Deleting document %s", doc_id)
-    db_ok, es_ok = await asyncio.gather(
-        delete_document(db, doc_id),
-        delete_document_from_index(doc_id)
-    )
+    async with get_db() as db:
+        db_ok = await delete_document(db, doc_id)
+        es_ok = await delete_document_from_index(doc_id)
     if not db_ok and not es_ok:
         raise HTTPException(status_code=404, detail="Документ не найден")
     return {"status": "deleted"}

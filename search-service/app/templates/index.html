@@ -101,25 +101,6 @@
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
-        .api-input {
-            font-size: 12px;
-            color: #64748b;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .api-input input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 12px;
-            font-family: monospace;
-            outline: none;
-            min-width: 120px;
-        }
-        .api-input input:focus { border-color: #2563eb; }
         .action-btn-main {
             width: 100%;
             background: #0f172a;
@@ -309,10 +290,7 @@
         <div class="row">
             <input type="text" id="searchInput" placeholder="Введите поисковый запрос (например: политика)..." autocomplete="off">
         </div>
-        <div class="api-input">
-            <label for="apiHostInput">Эндпоинт FastAPI:</label>
-            <input type="text" id="apiHostInput" value="http://localhost:8000" placeholder="http://localhost:8000">
-        </div>
+        <!-- Поле ввода адреса API больше не нужно, т.к. все запросы идут на относительные пути -->
     </div>
 
     <!-- СТЕППЕР + ГРАФИК -->
@@ -417,7 +395,6 @@
         const hub = document.getElementById('enterpriseHub');
         const searchBtn = document.getElementById('hubActionBtn');
         const searchInput = document.getElementById('searchInput');
-        const apiHostInput = document.getElementById('apiHostInput');
         const tableBody = document.getElementById('documentsTableBody');
         const gridResult = document.getElementById('dataGridResult');
         const latencyBadge = document.getElementById('netLatency');
@@ -429,13 +406,6 @@
 
         const jazzBtn = document.getElementById('jazzToggleBtn');
         const jazzText = document.getElementById('jazzStatusText');
-
-        // ========== СОХРАНЕНИЕ АДРЕСА ==========
-        const savedHost = localStorage.getItem('fastapi_host');
-        if (savedHost) apiHostInput.value = savedHost;
-        apiHostInput.addEventListener('change', () => {
-            localStorage.setItem('fastapi_host', apiHostInput.value.trim());
-        });
 
         // ========== ДЖАЗ (WEB AUDIO API) ==========
         let audioCtx = null;
@@ -515,7 +485,6 @@
         // ========== ОСНОВНАЯ ФУНКЦИЯ ПОИСКА ==========
         async function executeFastAPISearch() {
             const queryText = searchInput.value.trim();
-            const host = apiHostInput.value.trim() || "http://localhost:8000";
 
             if (!queryText) {
                 alert("Пожалуйста, введите поисковый запрос.");
@@ -534,7 +503,8 @@
             const startTime = performance.now();
 
             try {
-                const response = await fetch(`${host}/search`, {
+                // Отправляем запрос на относительный путь /search
+                const response = await fetch('/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: queryText })
@@ -546,8 +516,7 @@
                 step2.className = "step-item active";
 
                 const data = await response.json();
-                // data может быть {results: [...]} или просто массив
-                const documents = data.results || (Array.isArray(data) ? data : []);
+                const documents = data.results || [];
 
                 step2.className = "step-item done";
                 step3.className = "step-item active";
@@ -560,7 +529,7 @@
 
             } catch (error) {
                 console.error("Критический сбой синхронизации:", error);
-                alert(`Не удалось связаться с FastAPI по адресу ${host}/search. Проверьте запуск контейнеров.`);
+                alert(`Не удалось связаться с FastAPI. Проверьте, что сервер запущен.`);
                 latencyBadge.textContent = `API: Сбой`;
                 statusLed.className = "status-indicator offline";
             } finally {
@@ -610,15 +579,13 @@
 
         // ========== УДАЛЕНИЕ ДОКУМЕНТА ==========
         window.deleteDocumentById = async function(id, buttonElement) {
-            const host = apiHostInput.value.trim() || "http://localhost:8000";
             if (!confirm(`Вы уверены, что хотите удалить документ ID: ${id} из базы?`)) return;
 
             try {
-                const response = await fetch(`${host}/documents/${id}`, { method: 'DELETE' });
+                const response = await fetch(`/documents/${id}`, { method: 'DELETE' });
                 if (response.ok) {
                     const row = buttonElement.closest('tr');
                     row.remove();
-                    // Обновляем счётчик, если нужно
                 } else {
                     alert("Бэкенд отклонил удаление документа.");
                 }
@@ -645,9 +612,8 @@
 
         // ========== ПРОВЕРКА ЗДОРОВЬЯ ==========
         async function checkHealth() {
-            const host = apiHostInput.value.trim() || "http://localhost:8000";
             try {
-                const resp = await fetch(`${host}/health`);
+                const resp = await fetch('/health');
                 if (resp.ok) {
                     statusLed.className = 'status-indicator online';
                     latencyBadge.textContent = 'API: Доступен';
