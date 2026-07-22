@@ -153,7 +153,7 @@ make run
 
 ### API
 
-<img width="691" height="122" alt="image" src="https://github.com/user-attachments/assets/c0ff7274-c705-4acc-a40d-63f312642b75" />
+
 
 | Метод | Эндпоинт | Описание |
 |-------|----------|----------|
@@ -162,6 +162,8 @@ make run
 | `GET` | `/health` | Проверка состояния сервиса |
 
 ### Документация API
+
+<img width="177" height="32" alt="image" src="https://github.com/user-attachments/assets/dbe522d7-7093-42fe-b1b6-914628b99a7d" />
 
 Доступна по адресу `/docs` (Swagger UI).
 
