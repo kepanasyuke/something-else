@@ -187,7 +187,7 @@ make run
 | `make test-coverage` | Запуск тестов с отчётом о покрытии |
 | `make test-watch` | Автоматический перезапуск тестов при изменениях |
 
-## Конфигурация (.env) <img width="311" height="36" alt="image" src="https://github.com/user-attachments/assets/588c2372-2915-4f2b-aae7-937e90c4bbf1" />
+## Конфигурация (.env) 
 
 | Параметр | Описание |
 |----------|----------|
