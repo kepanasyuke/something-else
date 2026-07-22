@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
@@ -24,17 +22,18 @@ services:
     build: .
     ports:
       - "8000:8000"
+    user: "0:0"  # временно от root
     environment:
-      - DATABASE_URL=sqlite:///app/data/documents.db
+      - DATABASE_URL=./data/documents.db
       - ES_HOST=http://elasticsearch:9200
-      - CSV_PATH=/app/data/posts.csv
+      - CSV_PATH=/data/posts.csv
     env_file:
       - .env
     depends_on:
       elasticsearch:
         condition: service_healthy
     volumes:
-      - ./data:/app/data
+      - ./data:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

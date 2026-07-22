@@ -9,8 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./app /app/app
 
-RUN addgroup --system --gid 1001 appgroup && \
-    adduser --system --uid 1001 --gid 1001 appuser
+RUN addgroup --system --gid 1000 appgroup && \
+    adduser --system --uid 1000 --gid 1000 appuser
 
 RUN mkdir -p /app/data && chown -R appuser:appgroup /app/data
 

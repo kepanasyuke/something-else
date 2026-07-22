@@ -23,14 +23,16 @@ def _ensure_db_directory() -> None:
 
 
 async def _execute_create_tables(db):
-    await db.execute("""
+    await db.execute(
+        """
         CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY,
             rubrics TEXT NOT NULL,
             text TEXT NOT NULL,
             created_date TEXT NOT NULL
         )
-    """)
+    """
+    )
     await db.execute(
         "CREATE INDEX IF NOT EXISTS idx_created_date ON documents(created_date)"
     )

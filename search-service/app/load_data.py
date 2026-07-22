@@ -3,7 +3,7 @@ import json
 import asyncio
 import logging
 from pathlib import Path
-import aiofiles
+import aiofiles  # type: ignore[import-untyped]
 import httpx
 import ast
 from app.db import init_db, insert_many, get_db
@@ -125,7 +125,6 @@ async def load_from_url(url: str, target_path: Path) -> None:
 
 if __name__ == "__main__":
     import argparse
-
     parser = argparse.ArgumentParser(description="Загрузка данных из CSV")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--csv", type=Path, help="Путь к локальному CSV")
