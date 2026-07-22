@@ -491,6 +491,7 @@ def test_root_ui(client, monkeypatch):
     assert response.status_code == 200
     assert b"result" in response.content
 
+
 def test_root_ui_error(client, monkeypatch):
     mock_search = AsyncMock(side_effect=Exception("Search error"))
     monkeypatch.setattr("app.main.search_documents", mock_search)
