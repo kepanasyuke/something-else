@@ -83,7 +83,6 @@ search-service/
 ├── README.md
 ├── docker-compose.yml
 ├── requirements.txt     # Основные зависимости
-└── requirements-dev.txt # Зависимости для разработки
 ```
 
 ## Требования
