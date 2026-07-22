@@ -153,6 +153,8 @@ make run
 
 ### API
 
+<img width="97" height="90" alt="image" src="https://github.com/user-attachments/assets/e7cd839c-5a80-48e1-a80d-61e73a52ac81" />
+
 | Метод | Эндпоинт | Описание |
 |-------|----------|----------|
 | `POST` | `/search` | Полнотекстовый поиск с пагинацией (параметры: `query`, `limit`, `offset`) |
@@ -187,6 +189,8 @@ make run
 
 ## Конфигурация (.env)
 
+<img width="311" height="36" alt="image" src="https://github.com/user-attachments/assets/588c2372-2915-4f2b-aae7-937e90c4bbf1" />
+
 | Параметр | Описание |
 |----------|----------|
 | `DATABASE_URL` | Путь к SQLite (по умолчанию `sqlite:///data/documents.db`) |
@@ -204,6 +208,7 @@ make run
 ```bash
 make test-coverage
 ```
+<img width="171" height="50" alt="image" src="https://github.com/user-attachments/assets/416d25d0-2606-4eea-9bb9-d78a827d945a" />
 
 Отчёт будет сгенерирован в папке `htmlcov/` и автоматически открыт в браузере (или доступен по адресу `http://localhost:8080`, если браузер недоступен).
 
@@ -212,8 +217,6 @@ make test-coverage
 MIT
 
 ---
-
-<img width="854" height="117" alt="image" src="https://github.com/user-attachments/assets/9e19b3ed-6f42-4eb6-809d-bd4a2e1244bd" />
 
 **Автор**: Кристина Панасюк  
 
