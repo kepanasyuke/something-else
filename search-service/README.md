@@ -59,7 +59,9 @@
 
 ## Структура проекта
 
+
 <img width="360" height="333" alt="image" src="https://github.com/user-attachments/assets/0f6ccb10-be13-486c-8b48-81a4ba6efdf0" />
+
 
 ```
 search-service/
