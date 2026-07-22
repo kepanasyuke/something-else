@@ -1,5 +1,4 @@
-ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -12,6 +11,8 @@ COPY ./app /app/app
 
 RUN addgroup --system --gid 1001 appgroup && \
     adduser --system --uid 1001 --gid 1001 appuser
+
+RUN mkdir -p /app/data && chown -R appuser:appgroup /app/data
 
 USER appuser
 

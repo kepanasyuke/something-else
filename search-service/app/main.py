@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     await init_db()
     await init_index()
+    # Проверяем, есть ли данные в БД
     async with get_db() as db:
         cur = await db.execute("SELECT COUNT(*) FROM documents")
         count = (await cur.fetchone())[0]

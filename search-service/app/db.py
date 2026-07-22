@@ -1,16 +1,31 @@
 import aiosqlite
 import logging
-from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-async def init_db() -> None:
-    db_path = Path(settings.database_url.replace("sqlite:///", ""))
+def _get_db_path() -> Path:
+    """Извлекает путь к файлу базы данных из settings.database_url."""
+    db_url = settings.database_url
+    if db_url.startswith("sqlite:///"):
+        db_path_str = db_url[10:]
+    else:
+        db_path_str = db_url
+    return Path(db_path_str)
+
+def _ensure_db_directory() -> None:
+    """Создаёт папку для базы данных, если её нет."""
+    db_path = _get_db_path()
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info("Database directory ensured: %s", db_path.parent)
+
+async def init_db() -> None:
+    _ensure_db_directory()
+    db_path = _get_db_path()
     try:
-        async with aiosqlite.connect(settings.database_url) as db:
+        async with aiosqlite.connect(str(db_path)) as db:
             await db.execute("PRAGMA journal_mode=WAL")
             await db.execute(f"PRAGMA synchronous={settings.sqlite_synchronous}")
             await db.execute("""
@@ -28,8 +43,11 @@ async def init_db() -> None:
         logger.error("DB init failed: %s", e)
         raise
 
-async def get_db() -> AsyncGenerator:
-    async with aiosqlite.connect(settings.database_url) as db:
+@asynccontextmanager
+async def get_db():
+    """Асинхронный контекстный менеджер для подключения к БД."""
+    db_path = _get_db_path()
+    async with aiosqlite.connect(str(db_path)) as db:
         db.row_factory = aiosqlite.Row
         yield db
 

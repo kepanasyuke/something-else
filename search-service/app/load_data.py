@@ -19,12 +19,14 @@ def _parse_row(row: list[str], columns: list[str], idx: int) -> dict | None:
     if len(row) != len(columns):
         return None
     doc = dict(zip(columns, row))
-    try:   
+    try:
+        # ID: если есть колонка 'id' – берём из неё, иначе генерируем
         if 'id' in columns:
             doc_id = int(doc['id'])
         else:
             doc_id = idx
 
+        # Парсим rubrics – поддерживаем как список Python, так и строку через запятую
         rubrics_str = doc.get('rubrics', '[]').strip()
         if rubrics_str.startswith('[') and rubrics_str.endswith(']'):
             rubrics = ast.literal_eval(rubrics_str)
@@ -47,6 +49,7 @@ def _parse_row(row: list[str], columns: list[str], idx: int) -> dict | None:
         return None
 
 async def _process_batch(db, batch: list[dict]) -> None:
+    """Обрабатывает одну пачку документов (вставка в БД + индексация в ES)."""
     if not batch:
         return
     results = await asyncio.gather(
@@ -60,6 +63,7 @@ async def _process_batch(db, batch: list[dict]) -> None:
     logger.info("Processed batch of %s documents", len(batch))
 
 async def load_csv_from_file(csv_path: Path) -> None:
+    """Загружает данные из CSV-файла (построчно, без загрузки всего файла в память)."""
     await init_db()
     await init_index()
     async with get_db() as db:
@@ -75,6 +79,7 @@ async def load_csv_from_file(csv_path: Path) -> None:
             async for line in f:
                 if not line.strip():
                     continue
+                # Парсим строку с учётом кавычек
                 row = next(csv.reader([line]))
                 doc = _parse_row(row, columns, idx)
                 if doc is None:
@@ -88,10 +93,12 @@ async def load_csv_from_file(csv_path: Path) -> None:
                     batch = []
             if batch:
                 await _process_batch(db, batch)
+    # После загрузки всех данных принудительно обновляем индекс, чтобы документы стали видимы
     await es_client.indices.refresh(index=settings.es_index)
     logger.info("Data loading completed with %s errors", error_count)
 
 async def load_from_url(url: str, target_path: Path) -> None:
+    """Скачивает CSV по URL и загружает его."""
     target_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info("Downloading %s ...", url)
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -101,16 +108,17 @@ async def load_from_url(url: str, target_path: Path) -> None:
             await f.write(resp.content)
     await load_csv_from_file(target_path)
 
+# Прямой запуск (для отладки или загрузки из командной строки)
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Загрузка данных из CSV в сервис")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--csv", type=Path, help="Path to local CSV")
-    group.add_argument("--url", help="URL to download CSV")
+    group.add_argument("--csv", type=Path, help="Путь к локальному CSV-файлу")
+    group.add_argument("--url", help="URL для скачивания CSV")
     args = parser.parse_args()
     if args.csv:
         asyncio.run(load_csv_from_file(args.csv))
     elif args.url:
         asyncio.run(load_from_url(args.url, settings.csv_path))
     else:
-        print("Specify --csv or --url")
+        print("Укажите --csv или --url")
