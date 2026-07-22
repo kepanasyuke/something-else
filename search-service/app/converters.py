@@ -3,10 +3,11 @@ from datetime import datetime
 from app.models import Document
 
 def parse_date(date_str: str) -> datetime:
-    try:
-        return datetime.fromisoformat(date_str)
-    except ValueError:
-        return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+    return next(
+        (dt for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d")
+         for dt in [datetime.strptime(date_str, fmt)] if dt),
+        datetime.now()
+    )
 
 def row_to_document(row: dict) -> Document:
     return Document(

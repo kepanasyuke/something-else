@@ -12,6 +12,7 @@ es_client = AsyncElasticsearch(
     request_timeout=settings.es_request_timeout
 )
 
+
 async def init_index() -> None:
     try:
         if not await es_client.indices.exists(index=settings.es_index):
@@ -29,26 +30,30 @@ async def init_index() -> None:
         logger.error("ES init failed: %s", e)
         raise
 
+
 async def bulk_index_documents(docs: list[dict], refresh: bool = True) -> int:
-    if not docs:
-        if refresh:
-            await es_client.indices.refresh(index=settings.es_index)
-        return 0
-    actions = [
-        {"_index": settings.es_index, "_id": d["id"], "_source": {"id": d["id"], "text": d["text"]}}
-        for d in docs
-    ]
-    success, _ = await async_bulk(
-        es_client,
-        actions,
-        refresh="wait_for" if refresh else False,
-        chunk_size=settings.es_chunk_size,
-        request_timeout=settings.es_request_timeout
-    )
-    logger.info("Indexed %s documents", success)
+    success = 0
+    if docs:
+        actions = (
+            {"_index": settings.es_index, "_id": d["id"], "_source": {"id": d["id"], "text": d["text"]}}
+            for d in docs
+        )
+        success, _ = await async_bulk(
+            es_client,
+            actions,
+            refresh="wait_for" if refresh else False,
+            chunk_size=settings.es_chunk_size,
+            request_timeout=settings.es_request_timeout
+        )
+        logger.info("Indexed %s documents", success)
+    elif refresh:
+        await es_client.indices.refresh(index=settings.es_index)
     return success
 
+
 async def search_documents(query: str, size: int, offset: int = 0) -> tuple[list[int], int]:
+    ids = []
+    total = 0
     try:
         resp = await es_client.search(
             index=settings.es_index,
@@ -64,18 +69,18 @@ async def search_documents(query: str, size: int, offset: int = 0) -> tuple[list
         total = hits.get("total", {}).get("value", 0)
         ids = [int(h["_source"]["id"]) for h in hits.get("hits", [])]
         logger.info("ES search found %s IDs, total %s", len(ids), total)
-        return ids, total
     except Exception as e:
         logger.error("ES search failed: %s", e)
-        return [], 0
+    return ids, total
+
 
 async def delete_document_from_index(doc_id: int) -> bool:
+    deleted = False
     try:
         resp = await es_client.delete(index=settings.es_index, id=doc_id, ignore=[404])
         deleted = resp.get("result") == "deleted"
         if deleted:
             logger.info("Document %s deleted from ES", doc_id)
-        return deleted
     except Exception as e:
         logger.error("ES delete failed: %s", e)
-        return False
+    return deleted
