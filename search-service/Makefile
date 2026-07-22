@@ -10,7 +10,7 @@ help:
 	@echo "  coverage         - Генерация HTML-отчёта о покрытии"
 	@echo "  coverage-xml     - Генерация XML-отчёта для CI"
 	@echo "  coverage-fail    - Проверка покрытия с порогом 80%"
-	@echo "  lint             - Проверка стиля кода (ruff)"
+	@echo "  lint             - Проверка стиля кода (black)"
 	@echo "  type-check       - Проверка типов (mypy)"
 	@echo "  audit            - Проверка уязвимостей зависимостей"
 	@echo "  docker-build     - Сборка Docker-образов"
@@ -26,7 +26,7 @@ run:
 	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
 
 test:
-	pytest -v tests/ --cov=app --cov-report=term-missing
+	pytest -v app/tests/ --cov=app --cov-report=term-missing
 
 coverage:
 	pytest --cov=app --cov-report=html

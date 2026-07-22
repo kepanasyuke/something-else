@@ -31,7 +31,9 @@ async def _execute_create_tables(db):
             created_date TEXT NOT NULL
         )
     """)
-    await db.execute("CREATE INDEX IF NOT EXISTS idx_created_date ON documents(created_date)")
+    await db.execute(
+        "CREATE INDEX IF NOT EXISTS idx_created_date ON documents(created_date)"
+    )
 
 
 async def _setup_pragmas(db):
@@ -65,7 +67,7 @@ async def insert_many(db, docs: list[dict]) -> None:
     if docs:
         await db.executemany(
             "INSERT OR REPLACE INTO documents (id, rubrics, text, created_date) VALUES (?, ?, ?, ?)",
-            [(d["id"], d["rubrics"], d["text"], d["created_date"]) for d in docs]
+            [(d["id"], d["rubrics"], d["text"], d["created_date"]) for d in docs],
         )
         await db.commit()
 
@@ -76,7 +78,7 @@ async def get_documents_by_ids(db, ids: list[int]) -> list[dict]:
         placeholders = ",".join("?" * len(ids))
         cursor = await db.execute(
             f"SELECT id, rubrics, text, created_date FROM documents WHERE id IN ({placeholders})",
-            ids
+            ids,
         )
         rows = await cursor.fetchall()
         result = list(map(dict, rows))

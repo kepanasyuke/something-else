@@ -13,7 +13,7 @@ from app.ui import render_page
 logging.basicConfig(
     level=settings.log_level,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,12 @@ async def health_check():
 
 @app.post("/search", response_model=SearchResponse)
 async def search_endpoint(request: SearchRequest):
-    logger.info("Search query: %s (limit=%s, offset=%s)", request.query, request.limit, request.offset)
+    logger.info(
+        "Search query: %s (limit=%s, offset=%s)",
+        request.query,
+        request.limit,
+        request.offset,
+    )
     ids, total = await search_documents(request.query, request.limit, request.offset)
     docs = await _fetch_documents_by_ids(ids)
     logger.info(f"Returning {len(docs)} documents, total {total}")

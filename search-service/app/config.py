@@ -1,9 +1,11 @@
 from pydantic_settings import BaseSettings
 from pathlib import Path
 
+
 class Settings(BaseSettings):
     """Настройки приложения, загружаемые из .env."""
-    database_url: str = "./data/documents.db"      
+
+    database_url: str = "./data/documents.db"
     es_host: str = "http://localhost:9200"
     es_index: str = "documents"
     search_size: int = 20
@@ -17,5 +19,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+
 
 settings = Settings()

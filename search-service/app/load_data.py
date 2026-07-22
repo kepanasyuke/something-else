@@ -14,20 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 def _extract_id(row_dict: dict, idx: int) -> int:
-    return int(row_dict['id']) if 'id' in row_dict and row_dict['id'].strip() else idx
+    return int(row_dict["id"]) if "id" in row_dict and row_dict["id"].strip() else idx
 
 
 def _parse_rubrics(rubrics_str: str) -> list[str]:
     rubrics_str = rubrics_str.strip()
     result = []
-    if rubrics_str.startswith('[') and rubrics_str.endswith(']'):
+    if rubrics_str.startswith("[") and rubrics_str.endswith("]"):
         rubrics = ast.literal_eval(rubrics_str)
         if isinstance(rubrics, list):
             result = rubrics
         else:
             result = [str(rubrics)]
     else:
-        result = [r.strip() for r in rubrics_str.split(',') if r.strip()]
+        result = [r.strip() for r in rubrics_str.split(",") if r.strip()]
     return result
 
 
@@ -35,13 +35,13 @@ def _build_document(row_dict: dict, idx: int) -> dict | None:
     result = None
     try:
         doc_id = _extract_id(row_dict, idx)
-        rubrics = _parse_rubrics(row_dict.get('rubrics', '[]'))
-        created_date = row_dict.get('created_date', '').replace(' ', 'T')
+        rubrics = _parse_rubrics(row_dict.get("rubrics", "[]"))
+        created_date = row_dict.get("created_date", "").replace(" ", "T")
         result = {
             "id": doc_id,
             "rubrics": json.dumps(rubrics),
-            "text": row_dict.get('text', ''),
-            "created_date": created_date
+            "text": row_dict.get("text", ""),
+            "created_date": created_date,
         }
     except (KeyError, ValueError, SyntaxError, Exception) as e:
         logger.warning("Ошибка парсинга строки %s: %s", row_dict, e)
@@ -53,7 +53,7 @@ async def _process_batch(db, batch: list[dict]) -> None:
         results = await asyncio.gather(
             insert_many(db, batch),
             bulk_index_documents(batch, refresh=False),
-            return_exceptions=True
+            return_exceptions=True,
         )
         for i, res in enumerate(results):
             if isinstance(res, Exception):
@@ -125,6 +125,7 @@ async def load_from_url(url: str, target_path: Path) -> None:
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Загрузка данных из CSV")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--csv", type=Path, help="Путь к локальному CSV")

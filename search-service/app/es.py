@@ -9,7 +9,7 @@ es_client = AsyncElasticsearch(
     [settings.es_host],
     retry_on_timeout=True,
     max_retries=3,
-    request_timeout=settings.es_request_timeout
+    request_timeout=settings.es_request_timeout,
 )
 
 
@@ -21,9 +21,9 @@ async def init_index() -> None:
                 mappings={
                     "properties": {
                         "id": {"type": "integer"},
-                        "text": {"type": "text", "analyzer": "russian"}
+                        "text": {"type": "text", "analyzer": "russian"},
                     }
-                }
+                },
             )
             logger.info("Index %s created", settings.es_index)
     except Exception as e:
@@ -35,7 +35,11 @@ async def bulk_index_documents(docs: list[dict], refresh: bool = True) -> int:
     success = 0
     if docs:
         actions = (
-            {"_index": settings.es_index, "_id": d["id"], "_source": {"id": d["id"], "text": d["text"]}}
+            {
+                "_index": settings.es_index,
+                "_id": d["id"],
+                "_source": {"id": d["id"], "text": d["text"]},
+            }
             for d in docs
         )
         success, _ = await async_bulk(
@@ -43,7 +47,7 @@ async def bulk_index_documents(docs: list[dict], refresh: bool = True) -> int:
             actions,
             refresh="wait_for" if refresh else False,
             chunk_size=settings.es_chunk_size,
-            request_timeout=settings.es_request_timeout
+            request_timeout=settings.es_request_timeout,
         )
         logger.info("Indexed %s documents", success)
     elif refresh:
@@ -51,7 +55,9 @@ async def bulk_index_documents(docs: list[dict], refresh: bool = True) -> int:
     return success
 
 
-async def search_documents(query: str, size: int, offset: int = 0) -> tuple[list[int], int]:
+async def search_documents(
+    query: str, size: int, offset: int = 0
+) -> tuple[list[int], int]:
     ids = []
     total = 0
     try:
@@ -62,8 +68,8 @@ async def search_documents(query: str, size: int, offset: int = 0) -> tuple[list
                 "from": offset,
                 "size": size,
                 "_source": ["id"],
-                "track_total_hits": True
-            }
+                "track_total_hits": True,
+            },
         )
         hits = resp.get("hits", {})
         total = hits.get("total", {}).get("value", 0)
