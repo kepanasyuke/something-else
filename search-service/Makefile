@@ -9,24 +9,19 @@ help:
 	@echo "  run              - Запуск сервиса локально (порт $(PORT))"
 	@echo "  lint             - Проверка стиля кода (flake8 с лимитом 100 символов + black --check)"
 	@echo "  format           - Автоформатирование кода (black)"
-	@echo "  type-check       - Проверка типов (mypy, игнорируя отсутствие библиотечных стабов)"
 	@echo "  audit            - Проверка уязвимостей зависимостей (pip-audit)"
 	@echo "  docker-build     - Сборка Docker-образов"
 	@echo "  docker-up        - Запуск контейнеров (создаёт папку data с правами 777)"
-	@echo "  clean            - Очистка временных файлов"
-	@echo "  env              - Создать .env из .env.example"
 	@echo "  kill             - Принудительно завершить процесс на порту $(PORT) (приложение)"
 	@echo "  kill-es          - Принудительно завершить процесс на порту $(ES_PORT) (Elasticsearch)"
 	@echo "  kill-all         - Завершить процессы на портах $(PORT) и $(ES_PORT)"
 	@echo "  test             - Запуск тестов (pytest)"
 	@echo "  test-coverage    - Запуск тестов с отчётом о покрытии"
 	@echo "  test-watch       - Автоматический перезапуск тестов при изменениях"
+	@echo "  clean            - Очистка временных файлов"
 
 install:
 	pip install -r requirements.txt
-
-install-dev: install
-	pip install -r requirements-dev.txt
 
 run:
 	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
@@ -38,9 +33,6 @@ lint:
 format:
 	black app/
 
-type-check:
-	mypy app/ --ignore-missing-imports
-
 audit:
 	pip-audit --requirement requirements.txt
 
@@ -50,16 +42,6 @@ docker-build:
 docker-up:
 	mkdir -p data && chmod 777 data
 	docker-compose up -d
-
-env:
-	cp .env.example .env
-	@echo "Создан .env файл. Отредактируйте при необходимости."
-
-clean:
-	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type d -name .pytest_cache -exec rm -rf {} +
-	rm -rf htmlcov coverage.xml .coverage
-	rm -rf data/*.db
 
 kill:
 	@echo "Проверка порта $(PORT)..."
@@ -90,3 +72,8 @@ test-coverage:
 test-watch:
 	PYTHONPATH=$(PYTHONPATH) pytest-watch tests/
 
+clean:
+	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -type d -name .pytest_cache -exec rm -rf {} +
+	rm -rf htmlcov coverage.xml .coverage
+	rm -rf data/*.db

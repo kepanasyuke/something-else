@@ -4,7 +4,6 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
-
     database_url: str = "./data/documents.db"
     es_host: str = "http://localhost:9200"
     es_index: str = "documents"
