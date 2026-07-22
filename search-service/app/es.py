@@ -42,14 +42,12 @@ async def bulk_index_documents(docs: list[dict], refresh: bool = True) -> int:
             }
             for d in docs
         )
-        bulk_client = es_client.options(
-            refresh="wait_for" if refresh else False,
-            request_timeout=settings.es_request_timeout,
-        )
         success, _ = await async_bulk(
-            bulk_client,
+            es_client,
             actions,
+            refresh="wait_for" if refresh else False,
             chunk_size=settings.es_chunk_size,
+            request_timeout=settings.es_request_timeout,
         )
         logger.info("Indexed %s documents", success)
     elif refresh:

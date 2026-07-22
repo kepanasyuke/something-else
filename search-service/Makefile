@@ -24,6 +24,8 @@ install:
 	pip install -r requirements.txt
 
 run:
+	@echo "Starting server on port $(PORT)..."
+	@(sleep 4 && python -c "import webbrowser; webbrowser.open('http://localhost:$(PORT)')") &
 	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
 
 lint:
@@ -45,19 +47,23 @@ docker-up:
 
 kill:
 	@echo "Проверка порта $(PORT)..."
-	@lsof -ti :$(PORT) > /dev/null 2>&1 || (echo "Порт $(PORT) свободен" && exit 0)
-	@PID=$$(lsof -ti :$(PORT)); \
-	echo "Завершение процесса с PID $$PID на порту $(PORT)"; \
-	kill -9 $$PID 2>/dev/null || echo "Не удалось завершить процесс (возможно, уже завершён)"
-	@echo "Порт $(PORT) освобождён."
+	@PID=$$(lsof -ti :$(PORT) 2>/dev/null || true); \
+	if [ -z "$$PID" ]; then \
+		echo "Порт $(PORT) свободен"; \
+	else \
+		echo "Завершение процесса с PID $$PID на порту $(PORT)"; \
+		kill -9 $$PID 2>/dev/null && echo "Порт $(PORT) освобождён" || echo "Не удалось завершить процесс"; \
+	fi
 
 kill-es:
 	@echo "Проверка порта $(ES_PORT)..."
-	@lsof -ti :$(ES_PORT) > /dev/null 2>&1 || (echo "Порт $(ES_PORT) свободен" && exit 0)
-	@PID=$$(lsof -ti :$(ES_PORT)); \
-	echo "Завершение процесса с PID $$PID на порту $(ES_PORT)"; \
-	kill -9 $$PID 2>/dev/null || echo "Не удалось завершить процесс (возможно, уже завершён)"
-	@echo "Порт $(ES_PORT) освобождён."
+	@PID=$$(lsof -ti :$(ES_PORT) 2>/dev/null || true); \
+	if [ -z "$$PID" ]; then \
+		echo "Порт $(ES_PORT) свободен"; \
+	else \
+		echo "Завершение процесса с PID $$PID на порту $(ES_PORT)"; \
+		kill -9 $$PID 2>/dev/null && echo "Порт $(ES_PORT) освобождён" || echo "Не удалось завершить процесс"; \
+	fi
 
 kill-all: kill kill-es
 

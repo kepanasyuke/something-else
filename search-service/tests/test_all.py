@@ -1,4 +1,10 @@
 import warnings
+# Подавляем предупреждения elastic_transport (передача transport options устарела)
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="elastic_transport")
+# Остальные фильтры для чистоты вывода
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="starlette.testclient")
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="unittest.mock")
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -26,12 +32,6 @@ from app.load_data import (
 from app.main import app
 from app.models import Document
 from app.ui import render_page
-
-# Подавляем все предупреждения, чтобы тесты были чистыми
-warnings.filterwarnings("ignore")
-# Подавляем конкретные предупреждения
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="starlette.testclient")
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="unittest.mock")
 
 
 @pytest.fixture(autouse=True)
@@ -394,10 +394,6 @@ def test_render_page_with_results():
     html = render_page(results=results)
     assert isinstance(html, str)
 
-
-# ============================================================
-# API TESTS (синхронные с TestClient)
-# ============================================================
 
 @pytest.fixture
 def client():
