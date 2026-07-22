@@ -1,9 +1,11 @@
-.PHONY: help install run test coverage coverage-html coverage-xml coverage-fail lint type-check audit docker-build docker-up clean env
+.PHONY: help install run test coverage coverage-html coverage-xml coverage-fail lint type-check audit docker-build docker-up clean env kill-port
+
+PORT := 8000  # можно переопределить через переменную окружения, например: make run PORT=8001
 
 help:
 	@echo "Доступные команды:"
 	@echo "  install          - Установка зависимостей"
-	@echo "  run              - Запуск сервиса локально"
+	@echo "  run              - Запуск сервиса локально (порт $(PORT))"
 	@echo "  test             - Запуск тестов с покрытием"
 	@echo "  coverage         - Генерация HTML-отчёта о покрытии"
 	@echo "  coverage-xml     - Генерация XML-отчёта для CI"
@@ -15,12 +17,13 @@ help:
 	@echo "  docker-up        - Запуск контейнеров"
 	@echo "  clean            - Очистка временных файлов"
 	@echo "  env              - Создать .env из .env.example"
+	@echo "  kill-port        - Принудительно завершить процесс, занимающий порт $(PORT)"
 
 install:
 	pip install -r requirements.txt
 
 run:
-	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
 
 test:
 	pytest -v app/tests/ --cov=app --cov-report=term-missing
@@ -61,3 +64,11 @@ clean:
 	find . -type d -name .pytest_cache -exec rm -rf {} +
 	rm -rf htmlcov coverage.xml .coverage
 	rm -rf data/*.db
+
+kill:
+	@echo "Проверка порта $(PORT)..."
+	@lsof -ti :$(PORT) > /dev/null 2>&1 || (echo "Порт $(PORT) свободен" && exit 0)
+	@PID=$$(lsof -ti :$(PORT)); \
+	echo "Завершение процесса с PID $$PID на порту $(PORT)"; \
+	kill -9 $$PID 2>/dev/null || echo "Не удалось завершить процесс (возможно, уже завершён)"
+	@echo "Порт $(PORT) освобождён."

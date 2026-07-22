@@ -12,22 +12,17 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-def _parse_row(row: list[str], columns: list[str], idx: int) -> dict | None:
-    """Преобразует строку CSV в словарь документа.
-       idx – порядковый номер строки, используется как ID, если колонка 'id' отсутствует.
+def _parse_row(row_dict: dict, idx: int) -> dict | None:
+    """Преобразует словарь строки CSV в документ.
+       idx – порядковый номер строки, используется как ID.
     """
-    if len(row) != len(columns):
-        return None
-    doc = dict(zip(columns, row))
     try:
-        # ID: если есть колонка 'id' – берём из неё, иначе генерируем
-        if 'id' in columns:
-            doc_id = int(doc['id'])
+        if 'id' in row_dict and row_dict['id'].strip():
+            doc_id = int(row_dict['id'])
         else:
             doc_id = idx
 
-        # Парсим rubrics – поддерживаем как список Python, так и строку через запятую
-        rubrics_str = doc.get('rubrics', '[]').strip()
+        rubrics_str = row_dict.get('rubrics', '[]').strip()
         if rubrics_str.startswith('[') and rubrics_str.endswith(']'):
             rubrics = ast.literal_eval(rubrics_str)
             if not isinstance(rubrics, list):
@@ -35,21 +30,20 @@ def _parse_row(row: list[str], columns: list[str], idx: int) -> dict | None:
         else:
             rubrics = [r.strip() for r in rubrics_str.split(',') if r.strip()]
 
-        # Приводим дату к ISO-формату (заменяем пробел на 'T')
-        created_date = doc.get('created_date', '').replace(' ', 'T')
+        # Приводим дату к ISO (заменяем пробел на 'T')
+        created_date = row_dict.get('created_date', '').replace(' ', 'T')
 
         return {
             "id": doc_id,
             "rubrics": json.dumps(rubrics),
-            "text": doc.get('text', ''),
+            "text": row_dict.get('text', ''),
             "created_date": created_date
         }
     except (KeyError, ValueError, SyntaxError, Exception) as e:
-        logger.warning("Ошибка парсинга строки %s: %s", row, e)
+        logger.warning("Ошибка парсинга строки %s: %s", row_dict, e)
         return None
 
 async def _process_batch(db, batch: list[dict]) -> None:
-    """Обрабатывает одну пачку документов (вставка в БД + индексация в ES)."""
     if not batch:
         return
     results = await asyncio.gather(
@@ -63,42 +57,45 @@ async def _process_batch(db, batch: list[dict]) -> None:
     logger.info("Processed batch of %s documents", len(batch))
 
 async def load_csv_from_file(csv_path: Path) -> None:
-    """Загружает данные из CSV-файла (построчно, без загрузки всего файла в память)."""
+    """Загружает данные из CSV-файла (читает весь файл в память)."""
     await init_db()
     await init_index()
+    
+    # Читаем весь CSV как текст
+    async with aiofiles.open(csv_path, "r", encoding="utf-8") as f:
+        content = await f.read()
+    
+    # Парсим через csv.DictReader (поддерживает многострочные поля)
+    reader = csv.DictReader(content.splitlines())
+    columns = reader.fieldnames
+    if not columns:
+        logger.error("CSV is empty or has no header")
+        return
+    
+    logger.info("CSV columns: %s", columns)
+    
+    batch = []
+    error_count = 0
+    idx = 1
+    
     async with get_db() as db:
-        async with aiofiles.open(csv_path, "r", encoding="utf-8") as f:
-            header = await f.readline()
-            if not header:
-                logger.error("CSV is empty")
-                return
-            columns = [col.strip() for col in header.strip().split(",")]
-            batch = []
-            error_count = 0
-            idx = 1  # счётчик для генерации ID
-            async for line in f:
-                if not line.strip():
-                    continue
-                # Парсим строку с учётом кавычек
-                row = next(csv.reader([line]))
-                doc = _parse_row(row, columns, idx)
-                if doc is None:
-                    error_count += 1
-                    logger.warning("Skipping malformed line: %s", line.strip())
-                    continue
-                batch.append(doc)
-                idx += 1
-                if len(batch) >= settings.batch_size:
-                    await _process_batch(db, batch)
-                    batch = []
-            if batch:
+        for row_dict in reader:
+            doc = _parse_row(row_dict, idx)
+            if doc is None:
+                error_count += 1
+                continue
+            batch.append(doc)
+            idx += 1
+            if len(batch) >= settings.batch_size:
                 await _process_batch(db, batch)
-    # После загрузки всех данных принудительно обновляем индекс, чтобы документы стали видимы
+                batch = []
+        if batch:
+            await _process_batch(db, batch)
+    
     await es_client.indices.refresh(index=settings.es_index)
     logger.info("Data loading completed with %s errors", error_count)
 
 async def load_from_url(url: str, target_path: Path) -> None:
-    """Скачивает CSV по URL и загружает его."""
     target_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info("Downloading %s ...", url)
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -108,12 +105,11 @@ async def load_from_url(url: str, target_path: Path) -> None:
             await f.write(resp.content)
     await load_csv_from_file(target_path)
 
-# Прямой запуск (для отладки или загрузки из командной строки)
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Загрузка данных из CSV в сервис")
+    parser = argparse.ArgumentParser(description="Загрузка данных из CSV")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--csv", type=Path, help="Путь к локальному CSV-файлу")
+    group.add_argument("--csv", type=Path, help="Путь к локальному CSV")
     group.add_argument("--url", help="URL для скачивания CSV")
     args = parser.parse_args()
     if args.csv:
