@@ -1,5 +1,0 @@
--r requirements.txt
-ruff==0.1.6
-black==23.11.0
-mypy==1.7.0
-pip-audit==2.6.0

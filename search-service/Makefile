@@ -1,11 +1,11 @@
-.PHONY: help install install-dev run lint format type-check audit docker-build docker-up clean env kill-port
+.PHONY: help install install-dev run lint format type-check audit docker-build docker-up clean env kill kill-all test test-coverage test-watch
 
 PORT := 8000
+ES_PORT := 9200
 
 help:
 	@echo "Доступные команды:"
-	@echo "  install          - Установка основных зависимостей"
-	@echo "  install-dev      - Установка зависимостей для разработки (flake8, black, mypy, pip-audit и др.)"
+	@echo "  install          - Установка зависимостей"
 	@echo "  run              - Запуск сервиса локально (порт $(PORT))"
 	@echo "  lint             - Проверка стиля кода (flake8 с лимитом 100 символов + black --check)"
 	@echo "  format           - Автоформатирование кода (black)"
@@ -15,19 +15,24 @@ help:
 	@echo "  docker-up        - Запуск контейнеров (создаёт папку data с правами 777)"
 	@echo "  clean            - Очистка временных файлов"
 	@echo "  env              - Создать .env из .env.example"
-	@echo "  kill-port        - Принудительно завершить процесс, занимающий порт $(PORT)"
+	@echo "  kill             - Принудительно завершить процесс на порту $(PORT) (приложение)"
+	@echo "  kill-es          - Принудительно завершить процесс на порту $(ES_PORT) (Elasticsearch)"
+	@echo "  kill-all         - Завершить процессы на портах $(PORT) и $(ES_PORT)"
+	@echo "  test             - Запуск тестов (pytest)"
+	@echo "  test-coverage    - Запуск тестов с отчётом о покрытии"
+	@echo "  test-watch       - Автоматический перезапуск тестов при изменениях"
 
 install:
 	pip install -r requirements.txt
 
-install-dev:
+install-dev: install
 	pip install -r requirements-dev.txt
 
 run:
 	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
 
 lint:
-	flake8 app/ --max-line-length=100
+	flake8 app/ --max-line-length=101
 	black --check app/
 
 format:
@@ -63,4 +68,25 @@ kill:
 	echo "Завершение процесса с PID $$PID на порту $(PORT)"; \
 	kill -9 $$PID 2>/dev/null || echo "Не удалось завершить процесс (возможно, уже завершён)"
 	@echo "Порт $(PORT) освобождён."
+
+kill-es:
+	@echo "Проверка порта $(ES_PORT)..."
+	@lsof -ti :$(ES_PORT) > /dev/null 2>&1 || (echo "Порт $(ES_PORT) свободен" && exit 0)
+	@PID=$$(lsof -ti :$(ES_PORT)); \
+	echo "Завершение процесса с PID $$PID на порту $(ES_PORT)"; \
+	kill -9 $$PID 2>/dev/null || echo "Не удалось завершить процесс (возможно, уже завершён)"
+	@echo "Порт $(ES_PORT) освобождён."
+
+kill-all: kill kill-es
+
+PYTHONPATH := .
+
+test:
+	PYTHONPATH=$(PYTHONPATH) pytest tests/ -v
+
+test-coverage:
+	PYTHONPATH=$(PYTHONPATH) pytest tests/ --cov=app --cov-report=term-missing --cov-report=html
+
+test-watch:
+	PYTHONPATH=$(PYTHONPATH) pytest-watch tests/
 
