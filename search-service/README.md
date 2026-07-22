@@ -153,7 +153,7 @@ make run
 
 ### API
 
-<img width="97" height="90" alt="image" src="https://github.com/user-attachments/assets/e7cd839c-5a80-48e1-a80d-61e73a52ac81" />
+<img width="691" height="122" alt="image" src="https://github.com/user-attachments/assets/c0ff7274-c705-4acc-a40d-63f312642b75" />
 
 | Метод | Эндпоинт | Описание |
 |-------|----------|----------|
