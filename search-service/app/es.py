@@ -48,23 +48,26 @@ async def bulk_index_documents(docs: list[dict], refresh: bool = True) -> int:
     logger.info("Indexed %s documents", success)
     return success
 
-async def search_documents(query: str, size: int) -> list[int]:
+async def search_documents(query: str, size: int, offset: int = 0) -> tuple[list[int], int]:
     try:
         resp = await es_client.search(
             index=settings.es_index,
             body={
                 "query": {"match": {"text": query}},
+                "from": offset,
                 "size": size,
                 "_source": ["id"],
-                "track_total_hits": False
+                "track_total_hits": True
             }
         )
-        ids = [int(h["_source"]["id"]) for h in resp["hits"]["hits"]]
-        logger.info("ES search found %s IDs", len(ids))
-        return ids
+        hits = resp.get("hits", {})
+        total = hits.get("total", {}).get("value", 0)
+        ids = [int(h["_source"]["id"]) for h in hits.get("hits", [])]
+        logger.info("ES search found %s IDs, total %s", len(ids), total)
+        return ids, total
     except Exception as e:
         logger.error("ES search failed: %s", e)
-        return []
+        return [], 0
 
 async def delete_document_from_index(doc_id: int) -> bool:
     try:

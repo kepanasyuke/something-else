@@ -42,7 +42,7 @@ async def root(request: Request):
     if not query:
         return render_page()
     try:
-        ids = await search_documents(query, settings.search_size)
+        ids, total = await search_documents(query, settings.search_size, offset=0)
         async with get_db() as db:
             rows = await get_documents_by_ids(db, ids)
             docs = [row_to_document(r) for r in rows]
@@ -58,14 +58,14 @@ async def health_check():
 
 @app.post("/search", response_model=SearchResponse)
 async def search(request: SearchRequest):
-    logger.info("Search query: %s", request.query)
-    ids = await search_documents(request.query, settings.search_size)
+    logger.info("Search query: %s (limit=%s, offset=%s)", request.query, request.limit, request.offset)
+    ids, total = await search_documents(request.query, request.limit, request.offset)
     async with get_db() as db:
         rows = await get_documents_by_ids(db, ids)
         docs = [row_to_document(r) for r in rows]
         docs.sort(key=lambda d: d.created_date, reverse=True)
-    logger.info(f"Returning {len(docs)} documents")
-    return SearchResponse(results=docs)
+    logger.info(f"Returning {len(docs)} documents, total {total}")
+    return SearchResponse(results=docs, total=total)
 
 @app.delete("/documents/{doc_id}")
 async def delete_doc(doc_id: int):

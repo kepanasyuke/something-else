@@ -16,6 +16,9 @@ class Document(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str
+    limit: int = 30
+    offset: int = 0
 
 class SearchResponse(BaseModel):
     results: list[Document]
+    total: int              

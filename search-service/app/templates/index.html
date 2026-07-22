@@ -4,153 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Поисковый сервис документов</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%233b82f6'/><stop offset='100%' stop-color='%231d4ed8'/></linearGradient><linearGradient id='a' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2310b981'/><stop offset='100%' stop-color='%23059669'/></linearGradient><filter id='s' x='-10%' y='-10%' width='130%' height='130%'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-opacity='0.15'/></filter></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><g filter='url(%23s)'><path d='M25 35 L52 35 L64 47 L64 78 L25 78 Z' fill='%23ffffff' opacity='0.25'/><path d='M18 24 L45 24 L57 36 L57 68 L18 68 Z' fill='%23ffffff'/></g><rect x='24' y='36' width='20' height='3' fill='url(%23g)' rx='1.5'/><rect x='24' y='44' width='14' height='3' fill='url(%23g)' rx='1.5'/><circle cx='72' cy='28' r='9' fill='url(%23a)' stroke='%23ffffff' stroke-width='2'/></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* ===== БАЗОВЫЕ СТИЛИ ===== */
         * { box-sizing: border-box; }
-        body { margin: 0; background: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
-        .ent-hub {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 28px;
-            max-width: 720px;
-            margin: 40px auto;
-            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
-        }
-        /* ===== ШАПКА ===== */
-        .ent-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .ent-title-block { display: flex; align-items: center; gap: 12px; }
-        .ent-title-block h2 { margin: 0; font-size: 16px; font-weight: 600; color: #0f172a; }
-        .status-indicator { width: 8px; height: 8px; border-radius: 50%; }
-        .status-indicator.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
-        .status-indicator.warning { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
-        .status-indicator.offline { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
-        .telemetry-chips {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .chip {
-            font-size: 11px;
-            font-family: monospace;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            background: #f1f5f9;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        /* ===== ДЖАЗ-КОНТРОЛЛЕР ===== */
-        .jazz-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 6px 12px;
-            border-radius: 20px;
-            color: #475569;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-        .jazz-btn:hover { background: #f1f5f9; color: #1e293b; }
+        body { margin: 0; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; min-height: 100vh; display: flex; align-items: center; }
+        .ent-hub { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 24px; padding: 36px; max-width: 820px; margin: 40px auto; backdrop-filter: blur(16px); box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.03), 0 35px 60px -15px rgba(15, 23, 42, 0.08); }
+        .ent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; border-bottom: 1px solid #edf2f7; padding-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .ent-title-block { display: flex; align-items: center; gap: 14px; }
+        .ent-title-block h2 { margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px; }
+        .status-indicator { width: 10px; height: 10px; border-radius: 50%; position: relative; }
+        .status-indicator::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; top: 0; left: 0; transform: scale(1); animation: radarPulse 2s infinite ease-out; opacity: 0; }
+        .status-indicator.online { background: #10b981; }
+        .status-indicator.online::after { background: #10b981; }
+        .status-indicator.warning { background: #f59e0b; }
+        .status-indicator.warning::after { background: #f59e0b; }
+        .status-indicator.offline { background: #ef4444; }
+        .status-indicator.offline::after { background: #ef4444; }
+        @keyframes radarPulse { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.5); opacity: 0; } }
+        .telemetry-chips { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .chip { font-size: 11px; font-family: monospace; padding: 6px 12px; border-radius: 8px; font-weight: 700; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .jazz-btn { display: flex; align-items: center; gap: 10px; background: #ffffff; border: 1px solid #e2e8f0; padding: 7px 16px; border-radius: 30px; color: #475569; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-family: inherit; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .jazz-btn:hover { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; transform: translateY(-1px); }
+        .jazz-btn:active { transform: translateY(0); }
         .jazz-icon-svg { width: 14px; height: 14px; overflow: visible; }
-        .wave-bar { transform-origin: center; opacity: 0.3; }
-        .jazz-btn.music-playing { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+        .wave-bar { transform-origin: center; opacity: 0.25; }
+        .jazz-btn.music-playing { background: #eff6ff; border-color: #3b82f6; color: #2563eb; font-weight: 700; }
         .music-playing .wave-bar { opacity: 1; }
         .music-playing .bar-1 { animation: j-wave 0.5s infinite alternate ease-in-out; }
         .music-playing .bar-2 { animation: j-wave 0.3s infinite alternate 0.1s ease-in-out; }
         .music-playing .bar-3 { animation: j-wave 0.4s infinite alternate 0.15s ease-in-out; }
         @keyframes j-wave { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1.4); } }
-        /* ===== ПОЛЯ ВВОДА ===== */
-        .search-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .row {
-            display: flex;
-            gap: 10px;
-        }
-        .search-input-group input[type="text"] {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: border 0.2s;
-        }
-        .search-input-group input[type="text"]:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-        }
-        .action-btn-main {
-            width: 100%;
-            background: #0f172a;
-            color: #ffffff;
-            border: none;
-            padding: 14px;
-            font-size: 13px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            white-space: nowrap;
-        }
-        .action-btn-main:hover { background: #1e293b; }
-        .action-btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
-        .action-btn-main .spinner {
-            display: none;
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: btnSpin 0.6s infinite linear;
-            margin: 0 auto;
-        }
+        .search-input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .search-input-group input[type="text"] { width: 100%; padding: 14px 18px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #ffffff; color: #0f172a; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); }
+        .search-input-group input[type="text"]:focus { border-color: #2563eb; background: #ffffff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12), inset 0 2px 4px rgba(0,0,0,0.01); }
+        .action-btn-main { width: 100%; background: #0f172a; color: #ffffff; border: none; padding: 15px; font-size: 14px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; white-space: nowrap; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
+        .action-btn-main:hover { background: #1e293b; box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2); transform: translateY(-1px); }
+        .action-btn-main:active { transform: translateY(0); }
+        .action-btn-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .action-btn-main .spinner { display: none; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.25); border-top-color: #ffffff; border-radius: 50%; animation: btnSpin 0.6s infinite linear; margin: 0 auto; }
         .action-btn-main.loading .spinner { display: block; }
         .action-btn-main.loading .btn-text { display: none; }
         @keyframes btnSpin { to { transform: rotate(360deg); } }
-        /* ===== СТЕППЕР ===== */
-        .workspace-grid {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 24px;
-            margin-bottom: 26px;
-        }
+        .workspace-grid { display: grid; grid-template-columns: 260px 1fr; gap: 28px; margin-bottom: 28px; }
         .stepper-panel { display: flex; flex-direction: column; gap: 14px; }
-        .step-item { display: flex; gap: 14px; padding: 12px; border-radius: 10px; border: 1px solid transparent; transition: all 0.3s ease; }
-        .step-item.active { background: #f8fafc; border-color: #e2e8f0; }
-        .step-item.done { opacity: 0.5; }
-        .step-item.done .step-num { background: #10b981; color: #ffffff; }
-        .step-num { width: 24px; height: 24px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
-        .step-item.active .step-num { background: #2563eb; color: #ffffff; box-shadow: 0 0 8px rgba(37,99,235,0.4); }
-        .step-body { display: flex; flex-direction: column; gap: 2px; }
+        .step-item { display: flex; gap: 14px; padding: 14px; border-radius: 12px; border: 1px solid transparent; transition: all 0.3s ease; }
+        .step-item.active { background: #f8fafc; border-color: #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .step-item.done { opacity: 0.45; }
+        .step-item.done .step-num { background: #10b981; color: #ffffff; box-shadow: 0 0 8px rgba(16,185,129,0.3); }
+        .step-num { width: 26px; height: 26px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; transition: all 0.3s; }
+        .step-item.active .step-num { background: #2563eb; color: #ffffff; box-shadow: 0 0 10px rgba(37,99,235,0.35); }
+        .step-body { display: flex; flex-direction: column; gap: 3px; }
         .step-t { font-size: 13px; font-weight: 600; color: #1e293b; }
         .step-d { font-size: 11px; color: #64748b; line-height: 1.3; }
-        /* ===== ГРАФИК ===== */
-        .graph-panel { background: #fafafa; border-radius: 12px; border: 1px solid #f1f5f9; padding: 10px; }
+        .graph-panel { background: #fafafa; border-radius: 16px; border: 1px solid #f1f5f9; padding: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); }
         .hub-svg { width: 100%; overflow: visible; }
         .stream-line { opacity: 0; }
+        .paper-sheet { transform-origin: bottom center; opacity: 0; }
         .processing .stream-line { opacity: 1; }
         .processing .line-top { animation: b2bFlow 0.5s infinite linear; }
         .processing .line-bottom { animation: b2bFlow reverse 0.5s infinite linear; }
@@ -160,110 +70,56 @@
         .processing .led-1 { animation: b2bFlicker 0.3s infinite alternate; }
         .processing .led-2 { animation: b2bFlicker 0.4s infinite alternate 0.1s; }
         .processing .led-3 { animation: b2bFlicker 0.2s infinite alternate 0.15s; }
+        .processing .paper-1 { animation: paperFlipComplex 1.4s infinite linear; }
+        .processing .paper-2 { animation: paperFlipComplex 1.4s infinite linear 0.45s; }
+        .processing .paper-3 { animation: paperFlipComplex 1.4s infinite linear 0.9s; }
         @keyframes b2bFlow { to { stroke-dashoffset: -24; } }
         @keyframes b2bSpin { to { transform: rotate(360deg); } }
         @keyframes b2bFlicker { from { opacity: 0.2; } to { opacity: 1; } }
-        @keyframes b2bDetectorMove {
-            0% { transform: translate(100px, 80px); }
-            50% { transform: translate(100px, 65px); filter: drop-shadow(0 6px 12px rgba(37,99,235,0.25)); }
-            100% { transform: translate(100px, 80px); }
-        }
-        /* ===== ТАБЛИЦА ===== */
-        .datagrid-panel {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            border-top: 1px solid #f1f5f9;
-        }
-        .datagrid-panel.open {
-            max-height: 600px;
-            opacity: 1;
-            margin-top: 24px;
-            padding-top: 24px;
-        }
-        .grid-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-        .grid-header {
-            font-size: 12px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .grid-count { font-size: 12px; color: #64748b; }
-        .b2b-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
-        .b2b-table th {
-            color: #475569;
-            font-weight: 600;
-            padding: 10px 14px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .b2b-table td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
-            vertical-align: middle;
-        }
-        .mono-hash { font-family: monospace; font-weight: 600; color: #64748b; }
-        .entity-tag {
-            background: #eff6ff;
-            color: #2563eb;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-            font-family: monospace;
-            display: inline-block;
-            margin: 2px 4px 2px 0;
-        }
-        .btn-table-delete {
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            color: #ef4444;
-            padding: 4px 8px;
-            font-size: 11px;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-table-delete:hover { background: #fca5a5; color: #b91c1c; }
-        .btn-export {
-            background: #2563eb;
-            border: none;
-            color: #ffffff;
-            padding: 6px 14px;
-            font-size: 11px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-export:hover { background: #1d4ed8; }
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #94a3b8;
-        }
-        .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.3; }
-        @media (max-width: 600px) {
-            .workspace-grid { grid-template-columns: 1fr; }
-            .ent-header { flex-direction: column; align-items: stretch; gap: 10px; }
-            .telemetry-chips { flex-wrap: wrap; }
-            .row { flex-wrap: wrap; }
-            .action-btn-main { width: 100%; }
-        }
+        @keyframes b2bDetectorMove { 0% { transform: translate(100px, 80px); } 50% { transform: translate(100px, 62px); filter: drop-shadow(0 8px 16px rgba(37,99,235,0.3)); } 100% { transform: translate(100px, 80px); } }
+        @keyframes paperFlipComplex { 0% { transform: translate(5px, 20px) scale(0.7) rotate(15deg); opacity: 0; } 25% { transform: translate(-8px, -5px) scale(1.05) rotate(-5deg); opacity: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.06)); } 70% { transform: translate(-22px, -22px) scale(0.9) rotate(-18deg); opacity: 0.7; } 100% { transform: translate(-35px, -40px) scale(0.6) rotate(-30deg); opacity: 0; } }
+        .datagrid-panel { max-height: 0; overflow: hidden; opacity: 0; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid #edf2f7; }
+        .datagrid-panel.open { max-height: 800px; opacity: 1; margin-top: 28px; padding-top: 24px; display: flex; flex-direction: column; }
+        .grid-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+        .grid-header { font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; }
+        .btn-export { background: #2563eb; border: none; color: #ffffff; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+        .btn-export:hover { background: #1d4ed8; box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2); }
+        .btn-export svg { width: 14px; height: 14px; fill: currentColor; }
+        .table-wrapper { flex: 1; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; max-height: 480px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .table-wrapper::-webkit-scrollbar { width: 6px; }
+        .table-wrapper::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .table-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .b2b-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; font-size: 13px; }
+        .b2b-table th { color: #475569; font-weight: 700; padding: 14px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 5; backdrop-filter: blur(4px); }
+        .clickable-row { cursor: pointer; transition: all 0.15s ease; }
+        .clickable-row:hover { background: #f8fafc; }
+        .clickable-row.active { background: #f1f5f9; }
+        .clickable-row td { padding: 14px; border-bottom: 1px solid #edf2f7; color: #1e293b; vertical-align: middle; }
+        .expandable-row { background: #fafafa; }
+        .expandable-row td { padding: 0 14px; border-bottom: 1px solid #e2e8f0; }
+        .expand-container { max-height: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); color: #334155; font-size: 13px; line-height: 1.6; padding-right: 30px; }
+        .expandable-row.expanded .expand-container { max-height: 300px; padding-top: 16px; padding-bottom: 16px; }
+        .chevron-indicator { display: inline-block; width: 18px; height: 18px; border-radius: 6px; background: #f1f5f9; color: #64748b; text-align: center; line-height: 18px; font-size: 8px; font-weight: 900; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); margin-right: 8px; }
+        .clickable-row.active .chevron-indicator { transform: rotate(90deg); background: #2563eb; color: #ffffff; }
+        .highlight { background: rgba(245, 158, 11, 0.18); color: #b45309; font-weight: 600; padding: 1px 4px; border-radius: 4px; border-bottom: 1px solid rgba(245, 158, 11, 0.4); }
+        .preview-text-node .highlight { background: rgba(37, 99, 235, 0.1); color: #1d4ed8; border-bottom-color: rgba(37, 99, 235, 0.3); }
+        .mono-hash { font-family: monospace; font-weight: 700; color: #475569; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+        .entity-tag { background: #eff6ff; color: #2563eb; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-family: monospace; display: inline-block; margin: 2px 4px 2px 0; border: 1px solid #dbeafe; }
+        .btn-table-delete { background: #fee2e2; border: 1px solid #fecaca; color: #ef4444; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-table-delete:hover { background: #ef4444; color: #ffffff; border-color: #ef4444; box-shadow: 0 2px 6px rgba(239,68,68,0.2); }
+        .btn-table-delete svg { width: 14px; height: 14px; fill: currentColor; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 13px; }
+        #paginationControls { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 0 4px; }
+        #docCounter { font-size: 13px; color: #64748b; font-weight: 500; }
+        #loadMoreBtn { background: #2563eb; border: none; color: #ffffff; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 12px; font-family: inherit; }
+        #loadMoreBtn:hover:not(:disabled) { background: #1d4ed8; }
+        #loadMoreBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+        @media (max-width: 650px) { .workspace-grid { grid-template-columns: 1fr; } .ent-header { flex-direction: column; align-items: stretch; gap: 12px; } }
     </style>
 </head>
 <body>
-
 <div id="enterpriseHub" class="ent-hub">
-    <!-- ШАПКА -->
     <div class="ent-header">
         <div class="ent-title-block">
             <div id="hubStatusLed" class="status-indicator online"></div>
@@ -271,7 +127,7 @@
         </div>
         <div class="telemetry-chips">
             <button id="jazzToggleBtn" class="jazz-btn" title="Включить фоновый джаз для ожидания">
-                <svg xmlns="http://w3.org" viewBox="0 0 24 24" class="jazz-icon-svg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="jazz-icon-svg">
                     <path d="M5 9v6h4l5 5V4L9 9H5z" fill="currentColor"/>
                     <g class="sound-waves">
                         <line x1="16" y1="10" x2="16" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="wave-bar bar-1"/>
@@ -284,15 +140,11 @@
             <span id="netLatency" class="chip telemetry-neutral">API Пинг: --</span>
         </div>
     </div>
-
-    <!-- ПОЛЯ ВВОДА -->
     <div class="search-input-group">
         <div class="row">
             <input type="text" id="searchInput" placeholder="Введите поисковый запрос (например: политика)..." autocomplete="off">
         </div>
     </div>
-
-    <!-- СТЕППЕР + ГРАФИК -->
     <div class="workspace-grid">
         <div class="stepper-panel">
             <div class="step-item" id="step1">
@@ -317,9 +169,8 @@
                 </div>
             </div>
         </div>
-
         <div class="graph-panel">
-            <svg xmlns="http://w3.org" viewBox="0 0 200 160" class="hub-svg">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" class="hub-svg">
                 <defs>
                     <pattern id="hubGrid" width="10" height="10" patternUnits="userSpaceOnUse">
                         <circle cx="1" cy="1" r="1" fill="#cbd5e1" opacity="0.5"/>
@@ -350,47 +201,50 @@
                     <line x1="11" y1="11" x2="24" y2="24" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
                     <line x1="-8" y1="0" x2="8" y2="0" stroke="#ef4444" stroke-width="2" class="lens-target"/>
                 </g>
+                <g class="paper-sheet paper-1"><rect x="140" y="20" width="8" height="10" fill="#e2e8f0" rx="1"/></g>
+                <g class="paper-sheet paper-2"><rect x="155" y="25" width="8" height="10" fill="#d1d5db" rx="1"/></g>
+                <g class="paper-sheet paper-3"><rect x="170" y="22" width="8" height="10" fill="#cbd5e1" rx="1"/></g>
             </svg>
         </div>
     </div>
-
-    <!-- КНОПКА ПОИСКА -->
     <div class="control-console">
         <button id="hubActionBtn" class="action-btn-main">
             <span class="btn-text">Инициировать сквозной поиск</span>
             <div class="spinner"></div>
         </button>
     </div>
-
-    <!-- ТАБЛИЦА РЕЗУЛЬТАТОВ -->
     <div id="dataGridResult" class="datagrid-panel">
         <div class="grid-toolbar">
             <span class="grid-header">Документы, найденные в репозитории</span>
             <div class="export-actions">
-                <button onclick="triggerExport('XLSX')" class="btn-export">Выгрузить в .XLSX</button>
+                <button onclick="exportToXLSX()" class="btn-export">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/><path d="M8 12l2.5 4.5L13 12l2.5 4.5L18 12"/></svg>
+                    Выгрузить в .XLSX
+                </button>
             </div>
         </div>
-        <table class="b2b-table">
-            <thead>
-                <tr>
-                    <th style="width: 60px;">ID</th>
-                    <th>Рубрики</th>
-                    <th>Текст документа</th>
-                    <th style="width: 90px; text-align: right;">Управление</th>
-                </tr>
-            </thead>
-            <tbody id="documentsTableBody">
-                <!-- Динамически -->
-            </tbody>
-        </table>
+        <div class="table-wrapper" id="tableWrapper">
+            <table class="b2b-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th style="min-width: 120px;">Рубрики</th>
+                        <th>Текст документа</th>
+                        <th style="width: 110px; text-align: right;">Управление</th>
+                    </tr>
+                </thead>
+                <tbody id="documentsTableBody"></tbody>
+            </table>
+        </div>
+        <div id="paginationControls">
+            <span id="docCounter">Показано 0 из 0</span>
+            <button id="loadMoreBtn" style="display:none;">Загрузить ещё</button>
+        </div>
     </div>
 </div>
-
 <script>
     (function() {
         'use strict';
-
-        // ========== DOM ЭЛЕМЕНТЫ ==========
         const hub = document.getElementById('enterpriseHub');
         const searchBtn = document.getElementById('hubActionBtn');
         const searchInput = document.getElementById('searchInput');
@@ -398,24 +252,26 @@
         const gridResult = document.getElementById('dataGridResult');
         const latencyBadge = document.getElementById('netLatency');
         const statusLed = document.getElementById('hubStatusLed');
-
         const step1 = document.getElementById('step1');
         const step2 = document.getElementById('step2');
         const step3 = document.getElementById('step3');
-
         const jazzBtn = document.getElementById('jazzToggleBtn');
         const jazzText = document.getElementById('jazzStatusText');
-
-        // ========== ДЖАЗ (WEB AUDIO API) ==========
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const docCounter = document.getElementById('docCounter');
+        let currentPage = 0;
+        const pageSize = 30;
+        let currentQuery = '';
+        let totalResults = 0;
+        let allDocuments = [];
+        let isLoadingMore = false;
         let audioCtx = null;
         let isMusicActive = false;
         let isUserWantsMusic = false;
         let musicIntervalId = null;
         let currentMusicStep = 0;
         let biquadFilter = null;
-
         const chords = [[53, 57, 60, 64], [50, 53, 57, 60], [55, 59, 62, 65], [48, 52, 55, 59]];
-
         function createTone(freq, type, duration, startTime, volume) {
             if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
@@ -430,12 +286,10 @@
             osc.start(startTime);
             osc.stop(startTime + duration);
         }
-
         function playMusicStep() {
             const sTime = audioCtx.currentTime + 0.02;
             const chord = chords[Math.floor(currentMusicStep / 16) % chords.length];
             const step = currentMusicStep % 16;
-
             if (step % 4 === 0) {
                 const bNote = 440 * Math.pow(2, ((chord[0] - 24) - 69) / 12);
                 createTone(bNote, 'triangle', 0.35, sTime, 0.25);
@@ -448,7 +302,6 @@
             }
             currentMusicStep++;
         }
-
         function startJazzSound() {
             if (isMusicActive || !isUserWantsMusic) return;
             if (!audioCtx) {
@@ -461,128 +314,198 @@
             musicIntervalId = setInterval(playMusicStep, 150);
             isMusicActive = true;
         }
-
         function stopJazzSound() {
             if (!isMusicActive) return;
             clearInterval(musicIntervalId);
             isMusicActive = false;
         }
-
-        // Обработчик кнопки джаза: включает/выключает музыку всегда, независимо от поиска
         jazzBtn.addEventListener('click', () => {
             isUserWantsMusic = !isUserWantsMusic;
             if (isUserWantsMusic) {
                 jazzBtn.classList.add('music-playing');
                 jazzText.textContent = "Джаз: Вкл";
-                startJazzSound();
+                if (hub.classList.contains('processing')) startJazzSound();
             } else {
                 jazzBtn.classList.remove('music-playing');
                 jazzText.textContent = "Джаз: Выкл";
                 stopJazzSound();
             }
         });
-
-        // ========== ОСНОВНАЯ ФУНКЦИЯ ПОИСКА ==========
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+        function highlightSearchKeywords(text, query) {
+            if (!text) return 'Текст отсутствует';
+            if (!query) return escapeHtml(text);
+            const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3).map(w => w.substring(0, w.length - 2));
+            if (words.length === 0) return escapeHtml(text);
+            const pattern = new RegExp('(' + words.join('|') + ')[a-zA-Zа-яА-Я0-9]*', 'gi');
+            return escapeHtml(text).replace(pattern, match => `<span class="highlight">${match}</span>`);
+        }
+        function renderFetchedDocuments(docs, query) {
+            tableBody.innerHTML = "";
+            if (!docs || docs.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="empty-state">Документы по запросу не найдены</td></tr>`;
+                gridResult.classList.add('open');
+                updatePaginationControls();
+                return;
+            }
+            docs.forEach(doc => {
+                const mainTr = document.createElement('tr');
+                mainTr.className = "clickable-row";
+                mainTr.dataset.id = doc.id;
+                let rubricsHtml = "";
+                if (Array.isArray(doc.rubrics)) {
+                    doc.rubrics.forEach(r => rubricsHtml += `<span class="entity-tag">${escapeHtml(r)}</span>`);
+                } else if (doc.rubrics) {
+                    rubricsHtml = `<span class="entity-tag">${escapeHtml(doc.rubrics)}</span>`;
+                }
+                const plainText = doc.text || '';
+                const previewLength = 75;
+                const previewText = plainText.length > previewLength ? plainText.substring(0, previewLength) + '...' : plainText;
+                const highlightedPreview = highlightSearchKeywords(previewText, query);
+                const highlightedFullText = highlightSearchKeywords(plainText, query);
+                mainTr.innerHTML = `
+                    <td><span class="mono-hash">${doc.id || '--'}</span></td>
+                    <td>${rubricsHtml || '—'}</td>
+                    <td>
+                        <span class="chevron-indicator">▶</span>
+                        <span class="preview-text-node">${highlightedPreview}</span>
+                    </td>
+                    <td style="text-align: right;" onclick="event.stopPropagation()">
+                        <button onclick="window.deleteDocumentById(${doc.id}, this)" class="btn-table-delete">
+                            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            Удалить
+                        </button>
+                    </td>
+                `;
+                const expandTr = document.createElement('tr');
+                expandTr.className = "expandable-row";
+                expandTr.id = `expand-row-${doc.id}`;
+                expandTr.innerHTML = `
+                    <td></td>
+                    <td colspan="3" style="padding: 0 14px;">
+                        <div class="expand-container">
+                            <strong style="color: #0f172a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Полный текст документа:</strong>
+                            <div style="margin-top: 8px; white-space: pre-wrap; color: #334155; background: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0;">${highlightedFullText}</div>
+                        </div>
+                    </td>
+                `;
+                mainTr.addEventListener('click', () => {
+                    const isExpanded = expandTr.classList.toggle('expanded');
+                    mainTr.classList.toggle('active');
+                    const indicator = mainTr.querySelector('.chevron-indicator');
+                    if (isExpanded) {
+                        indicator.textContent = "▼";
+                        indicator.style.color = "#2563eb";
+                    } else {
+                        indicator.textContent = "▶";
+                        indicator.style.color = "#64748b";
+                    }
+                });
+                tableBody.appendChild(mainTr);
+                tableBody.appendChild(expandTr);
+            });
+            gridResult.classList.add('open');
+            updatePaginationControls();
+        }
+        function updatePaginationControls() {
+            const shown = allDocuments.length;
+            const total = totalResults || shown;
+            docCounter.textContent = `Показано ${shown} из ${total}`;
+            if (shown >= total) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'inline-block';
+                loadMoreBtn.disabled = false;
+            }
+        }
+        async function loadPage(page) {
+            if (isLoadingMore) return;
+            isLoadingMore = true;
+            loadMoreBtn.disabled = true;
+            try {
+                const offset = page * pageSize;
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: currentQuery,
+                        limit: pageSize,
+                        offset: offset
+                    })
+                });
+                if (!response.ok) throw new Error(`Ошибка сервера: ${response.status}`);
+                const data = await response.json();
+                const docs = data.results || [];
+                totalResults = data.total || docs.length;
+                allDocuments = allDocuments.concat(docs);
+                renderFetchedDocuments(allDocuments, currentQuery);
+                updatePaginationControls();
+                if (docs.length < pageSize) {
+                    totalResults = allDocuments.length;
+                    updatePaginationControls();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка загрузки страницы: ' + err.message);
+            } finally {
+                isLoadingMore = false;
+                loadMoreBtn.disabled = false;
+            }
+        }
         async function executeFastAPISearch() {
             const queryText = searchInput.value.trim();
-
             if (!queryText) {
                 alert("Пожалуйста, введите поисковый запрос.");
                 return;
             }
-
+            currentPage = 0;
+            currentQuery = queryText;
+            allDocuments = [];
+            totalResults = 0;
+            tableBody.innerHTML = '';
+            gridResult.classList.remove('open');
+            loadMoreBtn.style.display = 'none';
+            docCounter.textContent = 'Показано 0 из 0';
             searchBtn.disabled = true;
             searchBtn.classList.add('loading');
             hub.classList.add('processing');
-
+            startJazzSound();
             step1.className = "step-item active";
             step2.className = "step-item";
             step3.className = "step-item";
-
             const startTime = performance.now();
-
             try {
-                const response = await fetch('/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: queryText })
-                });
-
-                if (!response.ok) throw new Error(`Ошибка сервера: ${response.status}`);
-
-                step1.className = "step-item done";
-                step2.className = "step-item active";
-
-                const data = await response.json();
-                const documents = data.results || [];
-
-                step2.className = "step-item done";
-                step3.className = "step-item active";
-
-                renderFetchedDocuments(documents);
-
+                await loadPage(0);
                 const duration = Math.round(performance.now() - startTime);
                 latencyBadge.textContent = `API Ответ: ${duration}мс`;
                 statusLed.className = "status-indicator online";
-
             } catch (error) {
-                console.error("Критический сбой синхронизации:", error);
-                alert(`Не удалось связаться с FastAPI. Проверьте, что сервер запущен.`);
-                latencyBadge.textContent = `API: Сбой`;
+                console.error("Критический сбой:", error);
+                alert("Не удалось связаться с FastAPI. Проверьте, что сервер запущен.");
+                latencyBadge.textContent = "API: Сбой";
                 statusLed.className = "status-indicator offline";
             } finally {
+                stopJazzSound();
                 searchBtn.disabled = false;
                 searchBtn.classList.remove('loading');
                 hub.classList.remove('processing');
                 step3.className = "step-item done";
             }
         }
-
-        // ========== ОТРИСОВКА ТАБЛИЦЫ ==========
-        function renderFetchedDocuments(docs) {
-            tableBody.innerHTML = "";
-
-            if (!docs || docs.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">Документы по запросу не найдены</td></tr>`;
-                gridResult.classList.add('open');
-                return;
-            }
-
-            docs.forEach(doc => {
-                const tr = document.createElement('tr');
-
-                let rubricsHtml = "";
-                if (Array.isArray(doc.rubrics)) {
-                    doc.rubrics.forEach(r => rubricsHtml += `<span class="entity-tag">${r}</span>`);
-                } else if (doc.rubrics) {
-                    rubricsHtml = `<span class="entity-tag">${doc.rubrics}</span>`;
-                }
-
-                tr.innerHTML = `
-                    <td class="mono-hash">${doc.id || '--'}</td>
-                    <td>${rubricsHtml || '—'}</td>
-                    <td style="max-width: 340px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${doc.text || ''}">
-                        ${doc.text || ''}
-                    </td>
-                    <td style="text-align: right;">
-                        <button onclick="window.deleteDocumentById(${doc.id}, this)" class="btn-table-delete">Удалить</button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-
-            gridResult.classList.add('open');
-        }
-
-        // ========== УДАЛЕНИЕ ДОКУМЕНТА ==========
         window.deleteDocumentById = async function(id, buttonElement) {
             if (!confirm(`Вы уверены, что хотите удалить документ ID: ${id} из базы?`)) return;
-
             try {
                 const response = await fetch(`/documents/${id}`, { method: 'DELETE' });
                 if (response.ok) {
                     const row = buttonElement.closest('tr');
+                    const expandRow = document.getElementById(`expand-row-${id}`);
+                    if (expandRow) expandRow.remove();
                     row.remove();
+                    allDocuments = allDocuments.filter(d => d.id !== id);
+                    updatePaginationControls();
                 } else {
                     alert("Бэкенд отклонил удаление документа.");
                 }
@@ -591,23 +514,45 @@
                 alert("Ошибка при отправке DELETE-запроса.");
             }
         };
-
-        // ========== ЗАГЛУШКА ЭКСПОРТА ==========
-        window.triggerExport = function(format) {
-            alert(`Формирование выгрузки данных таблицы в формат ${format}. Файл будет загружен автоматически.`);
+        window.exportToXLSX = function() {
+            if (allDocuments.length === 0) {
+                alert("Нет документов для экспорта. Сначала выполните поиск.");
+                return;
+            }
+            const data = allDocuments.map(doc => ({
+                'ID': doc.id,
+                'Рубрики': Array.isArray(doc.rubrics) ? doc.rubrics.join(', ') : (doc.rubrics || ''),
+                'Текст': doc.text || '',
+                'Дата создания': doc.created_date ? new Date(doc.created_date).toLocaleString() : ''
+            }));
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "Документы");
+            const colWidths = [{ wch: 10 }, { wch: 30 }, { wch: 50 }, { wch: 20 }];
+            ws['!cols'] = colWidths;
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `search_results_${new Date().toISOString().slice(0,10)}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         };
-
-        // ========== ПРИВЯЗКА КНОПОК ==========
         searchBtn.addEventListener('click', executeFastAPISearch);
-
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 searchBtn.click();
             }
         });
-
-        // ========== ПРОВЕРКА ЗДОРОВЬЯ ==========
+        loadMoreBtn.addEventListener('click', function() {
+            if (isLoadingMore) return;
+            currentPage++;
+            loadPage(currentPage);
+        });
         async function checkHealth() {
             try {
                 const resp = await fetch('/health');
@@ -625,13 +570,10 @@
             }
         }
         checkHealth();
-
-        // Автозапуск, если есть значение в поле
         if (searchInput.value.trim()) {
             setTimeout(() => searchBtn.click(), 400);
         }
     })();
 </script>
-
 </body>
 </html>
