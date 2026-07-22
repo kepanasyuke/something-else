@@ -290,7 +290,6 @@
         <div class="row">
             <input type="text" id="searchInput" placeholder="Введите поисковый запрос (например: политика)..." autocomplete="off">
         </div>
-        <!-- Поле ввода адреса API больше не нужно, т.к. все запросы идут на относительные пути -->
     </div>
 
     <!-- СТЕППЕР + ГРАФИК -->
@@ -469,12 +468,13 @@
             isMusicActive = false;
         }
 
+        // Обработчик кнопки джаза: включает/выключает музыку всегда, независимо от поиска
         jazzBtn.addEventListener('click', () => {
             isUserWantsMusic = !isUserWantsMusic;
             if (isUserWantsMusic) {
                 jazzBtn.classList.add('music-playing');
                 jazzText.textContent = "Джаз: Вкл";
-                if (hub.classList.contains('processing')) startJazzSound();
+                startJazzSound();
             } else {
                 jazzBtn.classList.remove('music-playing');
                 jazzText.textContent = "Джаз: Выкл";
@@ -494,7 +494,6 @@
             searchBtn.disabled = true;
             searchBtn.classList.add('loading');
             hub.classList.add('processing');
-            startJazzSound();
 
             step1.className = "step-item active";
             step2.className = "step-item";
@@ -503,7 +502,6 @@
             const startTime = performance.now();
 
             try {
-                // Отправляем запрос на относительный путь /search
                 const response = await fetch('/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -533,7 +531,6 @@
                 latencyBadge.textContent = `API: Сбой`;
                 statusLed.className = "status-indicator offline";
             } finally {
-                stopJazzSound();
                 searchBtn.disabled = false;
                 searchBtn.classList.remove('loading');
                 hub.classList.remove('processing');
