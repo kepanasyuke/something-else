@@ -1,6 +1,6 @@
 .PHONY: help install run test coverage coverage-html coverage-xml coverage-fail lint type-check audit docker-build docker-up clean env kill-port
 
-PORT := 8000  # можно переопределить через переменную окружения, например: make run PORT=8001
+PORT := 8000
 
 help:
 	@echo "Доступные команды:"
@@ -26,7 +26,7 @@ run:
 	uvicorn app.main:app --reload --host 0.0.0.0 --port $(PORT)
 
 test:
-	pytest -v app/tests/ --cov=app --cov-report=term-missing
+	pytest -v tests/ --cov=app --cov-report=term-missing
 
 coverage:
 	pytest --cov=app --cov-report=html
@@ -65,7 +65,7 @@ clean:
 	rm -rf htmlcov coverage.xml .coverage
 	rm -rf data/*.db
 
-kill:
+kill-port:
 	@echo "Проверка порта $(PORT)..."
 	@lsof -ti :$(PORT) > /dev/null 2>&1 || (echo "Порт $(PORT) свободен" && exit 0)
 	@PID=$$(lsof -ti :$(PORT)); \
