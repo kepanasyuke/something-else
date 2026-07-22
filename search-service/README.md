@@ -120,10 +120,10 @@ make run
 Локально через Docker:
 
 ```bash
-docker run -d -p 9200:9200 -e "discovery.type=single-node" elasticsearch:8.11.0
+docker-compose build
+mkdir -p data && chmod 777 data
+docker-compose up -d
 ```
-
-Или используйте `docker-compose up -d` (если есть `docker-compose.yml`).
 
 ### 5. Загрузите данные
 
