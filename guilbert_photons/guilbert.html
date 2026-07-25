@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поисковый сервис документов</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%233b82f6'/><stop offset='100%25' stop-color='%231d4ed8'/></linearGradient><linearGradient id='a' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2310b981'/><stop offset='100%25' stop-color='%23059669'/></linearGradient><filter id='s' x='-10%25' y='-10%25' width='130%25' height='130%25'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-opacity='0.15'/></filter></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><g filter='url(%23s)'><path d='M25 35 L52 35 L64 47 L64 78 L25 78 Z' fill='%23ffffff' opacity='0.25'/><path d='M18 24 L45 24 L57 36 L57 68 L18 68 Z' fill='%23ffffff'/></g><rect x='24' y='36' width='20' height='3' fill='url(%23g)' rx='1.5'/><rect x='24' y='44' width='14' height='3' fill='url(%23g)' rx='1.5'/><circle cx='72' cy='28' r='9' fill='url(%23a)' stroke='%23ffffff' stroke-width='2'/></svg>">
+
+    <!-- Библиотеки -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        /* ===== LUXURY TECH DESIGN SYSTEM ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            margin: 0; 
+            background: linear-gradient(135deg, #090d16 0%, #111827 100%); 
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+            min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 40px 20px;
+        }
+        .quantum-canvas-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px; padding: 40px; max-width: 840px; width: 100%;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transition: all 0.3s;
+        }
+        .hub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
+        .hub-title { margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+        .hub-subtitle { margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.5; max-width: 85%; }
+        .live-badge { font-family: monospace; font-size: 11px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); }
+
+        .export-toolbar { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; }
+        .btn-export {
+            background: white; border: 1px solid #e2e8f0; color: #0f172a;
+            padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-export:hover { background: #f8fafc; border-color: #38bdf8; }
+        .btn-export:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .sandbox-controls { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 24px; 
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 18px; border-radius: 16px; margin-bottom: 24px; 
+        }
+        .control-block { display: flex; flex-direction: column; gap: 8px; }
+        .control-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
+        .apple-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: #1e293b; border-radius: 2px; outline: none; }
+        .apple-slider::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 14px; height: 16px; border-radius: 4px; 
+            background: #38bdf8; cursor: pointer; transition: transform 0.15s; box-shadow: 0 0 10px #38bdf8;
+        }
+        .basis-switcher { display: flex; gap: 8px; }
+        .basis-btn { flex: 1; background: #1e293b; border: 1px solid rgba(255,255,255,0.05); color: #94a3b8; padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .basis-btn.active { background: #38bdf8; color: #090d16; border-color: #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.3); }
+
+        .search-input-group { margin-bottom: 24px; }
+        .search-input-group input[type="text"] { 
+            width: 100%; padding: 14px 18px; border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; 
+            font-size: 14px; outline: none; background: rgba(0,0,0,0.2); color: #ffffff;
+        }
+        .search-input-group input:focus { border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15); }
+
+        .jazz-btn {
+            display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08); padding: 7px 16px; border-radius: 30px;
+            color: #94a3b8; font-size: 11px; font-weight: 600; cursor: pointer;
+            transition: all 0.25s; margin-bottom: 14px;
+        }
+        .jazz-btn:hover { background: rgba(255,255,255,0.06); color: #ffffff; }
+        .jazz-btn.music-playing { background: rgba(56, 189, 248, 0.1); border-color: #38bdf8; color: #38bdf8; font-weight: 700; }
+
+        /* Гелиевое поле */
+        .field-viewport { 
+            background: #040711; border-radius: 20px; border: 1px solid rgba(255,255,255,0.04); padding: 24px; margin-bottom: 24px; 
+            position: relative; overflow: hidden; box-shadow: inset 0 4px 20px rgba(0,0,0,0.8); transition: all 0.3s;
+        }
+        .field-svg { width: 100%; height: auto; overflow: visible; }
+        .liquid-stream { fill: none; stroke-linecap: round; transform-origin: center; }
+        .stream-deep { stroke: url(#silverLiquidGrad); stroke-width: 5; filter: url(#liquidRefraction); opacity: 0.9; }
+        .stream-surface { stroke: #38bdf8; stroke-width: 1.5; opacity: 0.6; filter: drop-shadow(0 0 2px #38bdf8); }
+        .stream-vector { stroke: #a855f7; stroke-width: 0.8; stroke-dasharray: 4 4; opacity: 0.3; }
+        .field-viewport.ears-blocked { filter: contrast(0.9) brightness(0.8) blur(1px); background: #0c1020; }
+
+        .action-btn-main { 
+            width: 100%; background: #ffffff; color: #090d16; border: none; padding: 15px; 
+            font-size: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; 
+            transition: all 0.2s; box-shadow: 0 4px 12px rgba(255,255,255,0.05); 
+            position: relative;
+        }
+        .action-btn-main:hover { background: #e2e8f0; transform: translateY(-1px); }
+        .action-btn-main:disabled { opacity: 0.4; cursor: not-allowed; }
+        .action-btn-main .spinner {
+            display: none; width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: #090d16; border-radius: 50%; animation: btnSpin 0.6s infinite linear; 
+            position: absolute; left: 50%; top: 50%; margin-left: -9px; margin-top: -9px;
+        }
+        .action-btn-main.loading .spinner { display: block; }
+        .action-btn-main.loading .btn-text { visibility: hidden; }
+        @keyframes btnSpin { to { transform: rotate(360deg); } }
+
+        .workspace-grid { display: grid; grid-template-columns: 260px 1fr; gap: 28px; margin-bottom: 28px; }
+        .stepper-panel { display: flex; flex-direction: column; gap: 14px; }
+        .step-item { display: flex; gap: 14px; padding: 14px; border-radius: 12px; border: 1px solid transparent; transition: all 0.3s ease; }
+        .step-item.active { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
+        .step-item.done { opacity: 0.45; }
+        .step-item.done .step-num { background: #10b981; color: #ffffff; }
+        .step-num { width: 26px; height: 26px; border-radius: 50%; background: #1e293b; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+        .step-item.active .step-num { background: #38bdf8; color: #090d16; box-shadow: 0 0 10px rgba(56,189,248,0.35); }
+        .step-body { display: flex; flex-direction: column; gap: 3px; }
+        .step-t { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+        .step-d { font-size: 11px; color: #64748b; line-height: 1.3; }
+
+        /* Data Grid */
+        .datagrid-panel { display: none; margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 24px; }
+        .datagrid-panel.open { display: block; }
+        .grid-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .grid-header { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
+        .btn-export-xlsx { background: #38bdf8; border: none; color: #090d16; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; transition: background 0.2s; font-family: inherit; }
+        .btn-export-xlsx:hover { background: #0ea5e9; }
+        .table-wrapper { max-height: 340px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; background: rgba(0,0,0,0.15); }
+        .table-wrapper::-webkit-scrollbar { width: 6px; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .b2b-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: left; }
+        .b2b-table th { padding: 12px; background: #0f172a; border-bottom: 2px solid rgba(255,255,255,0.05); color: #94a3b8; font-weight: 700; position: sticky; top: 0; z-index: 2; }
+        .b2b-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0; vertical-align: middle; }
+        .clickable-row { cursor: pointer; transition: all 0.15s ease; }
+        .clickable-row:hover { background: rgba(255,255,255,0.02); }
+        .clickable-row.active { background: rgba(255,255,255,0.04); }
+        .expandable-row { background: rgba(0,0,0,0.1); }
+        .expandable-row td { padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .expand-container { max-height: 0; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); color: #94a3b8; font-size: 13px; line-height: 1.6; padding-right: 30px; }
+        .expandable-row.expanded .expand-container { max-height: 300px; padding-top: 16px; padding-bottom: 16px; }
+        .chevron-indicator { display: inline-block; width: 18px; height: 18px; border-radius: 6px; background: #1e293b; color: #64748b; text-align: center; line-height: 18px; font-size: 8px; font-weight: 900; transition: all 0.2s; margin-right: 8px; }
+        .clickable-row.active .chevron-indicator { transform: rotate(90deg); background: #38bdf8; color: #090d16; }
+        .highlight { background: rgba(245, 158, 11, 0.22); color: #f59e0b; font-weight: 600; padding: 1px 4px; border-radius: 4px; }
+        .btn-table-delete { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: inherit; }
+        .btn-table-delete:hover { background: #ef4444; color: #ffffff; }
+
+        /* Анимация папок */
+        .paper-sheet { position: absolute; bottom: 20px; right: 20px; width: 40px; height: 50px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; transform-origin: bottom center; opacity: 0; pointer-events: none; }
+        .paper-1 { transform: translate(0,0); }
+        .paper-2 { transform: translate(12px, -5px); }
+        .paper-3 { transform: translate(24px, -10px); }
+        .processing .paper-sheet { opacity: 1; animation: pFlipComplex 1.4s infinite linear; }
+        .processing .paper-1 { animation-delay: 0s; }
+        .processing .paper-2 { animation-delay: 0.45s; }
+        .processing .paper-3 { animation-delay: 0.9s; }
+        @keyframes pFlipComplex {
+            0% { transform: translate(5px, 20px) scale(0.7) rotate(15deg); opacity: 0; }
+            25% { transform: translate(-8px, -5px) scale(1.03) rotate(-5deg); opacity: 1; }
+            100% { transform: translate(-35px, -40px) scale(0.6) rotate(-30deg); opacity: 0; }
+        }
+
+        /* Пагинация */
+        #paginationControls { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 0 4px; }
+        #docCounter { font-size: 13px; color: #64748b; font-weight: 500; }
+        #loadMoreBtn { background: #38bdf8; border: none; color: #090d16; padding: 6px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px; }
+
+        @media (max-width: 650px) {
+            .workspace-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-canvas-card" id="enterpriseHub">
+        <!-- Header -->
+        <div class="hub-header">
+            <div>
+                <h1 class="hub-title">ℋ ∞ Liquid Helium Field Simulator</h1>
+                <p class="hub-subtitle">Обсчет сечений взаимодействий в сверхтекучих полях. Поиск файлов интегрирован с асинхронной шиной FastAPI.</p>
+            </div>
+            <div id="matrixLatency" class="live-badge">CPU: 0.00мс</div>
+        </div>
+
+        <!-- Export media buttons -->
+        <div class="export-toolbar">
+            <button id="btnExportJPEG" class="btn-export">🖼️ Сохранить JPEG</button>
+            <button id="btnExportGIF" class="btn-export">🎞️ Записать GIF</button>
+            <span id="netLatency" class="live-badge" style="margin-left: auto;">API: —</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="sandbox-controls">
+            <div class="control-block">
+                <span class="control-label" id="sliderLabel">Энергия Накачки (ω): 2.0</span>
+                <input type="range" id="planckSlider" class="apple-slider" min="1" max="6" step="0.5" value="2">
+            </div>
+            <div class="control-block">
+                <span class="control-label">Интенсивность пузырения (γ)</span>
+                <div class="basis-switcher">
+                    <button class="basis-btn active" id="btnDirac">Вакуум (Low γ)</button>
+                    <button class="basis-btn" id="btnHeisenberg">Пена (High γ)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jazz toggle -->
+        <button id="jazzToggleBtn" class="jazz-btn">
+            <svg class="jazz-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect class="wave-bar bar-1" x="2" y="6" width="4" height="12" rx="1" fill="currentColor"/>
+                <rect class="wave-bar bar-2" x="9" y="3" width="4" height="18" rx="1" fill="currentColor"/>
+                <rect class="wave-bar bar-3" x="16" y="8" width="4" height="8" rx="1" fill="currentColor"/>
+            </svg>
+            <span id="jazzStatusText">Джаз: Выкл</span>
+        </button>
+
+        <!-- Search -->
+        <div class="search-input-group">
+            <input type="text" id="searchInput" placeholder="Введите поисковый запрос и нажмите Enter..." autocomplete="off">
+        </div>
+
+        <!-- Quantum field + paper sheets -->
+        <div class="field-viewport" id="viewportField">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" class="field-svg" id="quantumSvgCanvas">
+                <defs>
+                    <linearGradient id="silverLiquidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
+                        <stop offset="50%" stop-color="#818cf8" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#c084fc" stop-opacity="0.3"/>
+                    </linearGradient>
+                    <filter id="liquidRefraction">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+                    </filter>
+                </defs>
+                <rect width="100%" height="100%" fill="#040711"/>
+                <path id="wavePathPsi" class="liquid-stream stream-deep" d="M20 80 Q100 40 200 80 T380 80"/>
+                <path id="wavePathSurface" class="liquid-stream stream-surface" d="M20 80 Q100 60 200 80 T380 80"/>
+                <path id="wavePathPhi" class="liquid-stream stream-vector" d="M20 80 Q100 90 200 80 T380 80"/>
+            </svg>
+            <!-- Анимированные бумаги -->
+            <div class="paper-sheet paper-1"></div>
+            <div class="paper-sheet paper-2"></div>
+            <div class="paper-sheet paper-3"></div>
+        </div>
+
+        <!-- PPTX button -->
+        <button id="makePowerPointBtn" class="btn-export-xlsx" style="width:100%; margin-bottom:20px;">Скомпилировать многостраничный отчёт презентации (.PPTX)</button>
+
+        <!-- Stepper + Search button -->
+        <div class="workspace-grid">
+            <div class="stepper-panel">
+                <div class="step-item active" id="step1">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <div class="step-t">POST /search</div>
+                        <div class="step-d">Передача параметров на бэкенд FastAPI</div>
+                    </div>
+                </div>
+                <div class="step-item" id="step2">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <div class="step-t">ES Index Scan</div>
+                        <div class="step-d">Поиск совпадений в Elasticsearch</div>
+                    </div>
+                </div>
+                <div class="step-item" id="step3">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <div class="step-t">Data Hydration</div>
+                        <div class="step-d">Сборка SearchResponse структуры</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center;">
+                <button id="hubActionBtn" class="action-btn-main">
+                    <span class="btn-text">Инициировать сквозной синхронный поиск</span>
+                    <div class="spinner"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="dataGridResult" class="datagrid-panel">
+            <div class="grid-toolbar">
+                <span class="grid-header">Документы, найденные в репозитории</span>
+                <button class="btn-export-xlsx" onclick="window.exportToXLSX()">Выгрузить в .XLSX</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="b2b-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Рубрики</th><th>Текст</th><th style="width:80px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsTableBody"></tbody>
+                </table>
+            </div>
+            <div id="paginationControls">
+                <span id="docCounter">Показано 0 из 0</span>
+                <button id="loadMoreBtn" style="display:none;">Загрузить ещё</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const API_BASE = 'http://127.0.0.1:8000';
+        let isUserWantsMusic = false;
+        let isMusicActive = false;
+
+        const hub = document.getElementById('enterpriseHub');
+        const searchBtn = document.getElementById('hubActionBtn');
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('documentsTableBody');
+        const gridResult = document.getElementById('dataGridResult');
+        const latencyBadge = document.getElementById('netLatency');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const jazzBtn = document.getElementById('jazzToggleBtn');
+        const jazzText = document.getElementById('jazzStatusText');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const docCounter = document.getElementById('docCounter');
+        const slider = document.getElementById('planckSlider');
+        const sliderLabel = document.getElementById('sliderLabel');
+        const btnDirac = document.getElementById('btnDirac');
+        const btnHeisenberg = document.getElementById('btnHeisenberg');
+        const wavePsi = document.getElementById('wavePathPsi');
+        const waveSurface = document.getElementById('wavePathSurface');
+        const wavePhi = document.getElementById('wavePathPhi');
+        const pptxBtn = document.getElementById('makePowerPointBtn');
+
+        let currentPage = 0;
+        const pageSize = 30;
+        let currentQuery = '';
+        let totalResults = 0;
+        let allDocuments = [];
+        let isLoadingMore = false;
+
+        let currentFreq = 2.0;
+        let gammaBubbleIntensity = 0.15;
+        let localQuantumDatabase = [];
+
+        // ===== ДЖАЗ-ДВИЖОК =====
+        let audioCtx = null, musicIntervalId = null, currentMusicStep = 0, biquadFilter = null, sfxNoiseNode = null;
+        const chords = [[48,52,55,59],[45,49,52,57],[43,47,50,55],[48,52,55,60]];
+
+        function createTone(freq, type, duration, startTime, volume, attack = 0.02) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, startTime);
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(volume, startTime + attack);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.connect(gainNode); gainNode.connect(biquadFilter);
+            osc.start(startTime); osc.stop(startTime + duration);
+        }
+
+        function startFryingNoise() {
+            if (sfxNoiseNode || !audioCtx) return;
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            sfxNoiseNode = audioCtx.createBufferSource();
+            sfxNoiseNode.buffer = buffer;
+            sfxNoiseNode.loop = true;
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.012, audioCtx.currentTime);
+            sfxNoiseNode.connect(noiseGain);
+            noiseGain.connect(biquadFilter);
+            sfxNoiseNode.start(0);
+        }
+
+        function stopFryingNoise() {
+            if (!sfxNoiseNode) return;
+            try { sfxNoiseNode.stop(); } catch(e) {}
+            sfxNoiseNode = null;
+        }
+
+        function playMusicStep() {
+            const sTime = audioCtx.currentTime + 0.02;
+            const chord = chords[Math.floor(currentMusicStep / 12) % chords.length];
+            const step = currentMusicStep % 12;
+            if (step % 4 === 0) {
+                const bNote = 440 * Math.pow(2, ((chord[0] - 24) - 69) / 12);
+                createTone(bNote, 'triangle', 0.4, sTime, 0.35, 0.04);
+            }
+            if (currentMusicStep === 16) {
+                biquadFilter.frequency.exponentialRampToValueAtTime(280, audioCtx.currentTime + 0.6);
+                document.getElementById('viewportField').classList.add('ears-blocked');
+            }
+            if (currentMusicStep === 24) {
+                biquadFilter.frequency.setValueAtTime(3200, sTime);
+                document.getElementById('viewportField').classList.remove('ears-blocked');
+            }
+            if (currentMusicStep >= 24) {
+                const noteInChord = chord[step % chord.length] + 12;
+                const pFreq = 440 * Math.pow(2, (noteInChord - 69) / 12);
+                createTone(pFreq, 'sine', 0.2, sTime, 0.15, 0.006);
+            }
+            currentMusicStep = (currentMusicStep + 1) % 36;
+        }
+
+        jazzBtn.addEventListener('click', () => {
+            isUserWantsMusic = !isUserWantsMusic;
+            if (isUserWantsMusic) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                biquadFilter = audioCtx.createBiquadFilter();
+                biquadFilter.type = "lowpass";
+                biquadFilter.frequency.setValueAtTime(2200, audioCtx.currentTime);
+                biquadFilter.connect(audioCtx.destination);
+                jazzBtn.classList.add('music-playing');
+                jazzText.textContent = "Джаз: Вкл";
+                if (hub.classList.contains('processing')) {
+                    musicIntervalId = setInterval(playMusicStep, 115);
+                    startFryingNoise();
+                    isMusicActive = true;
+                }
+            } else {
+                jazzBtn.classList.remove('music-playing');
+                jazzText.textContent = "Джаз: Выкл";
+                clearInterval(musicIntervalId);
+                stopFryingNoise();
+                isMusicActive = false;
+            }
+        });
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function highlightKeywords(text, query) {
+            if (!text) return 'Текст отсутствует';
+            if (!query) return escapeHtml(text);
+            const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3).map(w => w.substring(0, w.length - 2));
+            if (words.length === 0) return escapeHtml(text);
+            const pattern = new RegExp('(' + words.join('|') + ')[a-zA-Zа-яА-Я0-9]*', 'gi');
+            return escapeHtml(text).replace(pattern, m => '<span class="highlight">' + m + '</span>');
+        }
+
+        function recalculateQuantumField() {
+            const startTimer = performance.now();
+            const midY = 80;
+            let dPsi = 'M 20 ' + midY, dSurf = 'M 20 ' + midY, dPhi = 'M 20 ' + midY;
+            const steps = 140;
+            const stepSize = 360 / steps;
+            localQuantumDatabase = [];
+
+            for (let i = 0; i <= steps; i++) {
+                const x = 20 + (i * stepSize);
+                const rad1 = (i / steps) * Math.PI * currentFreq;
+                const rad2 = (i / steps) * Math.PI * (currentFreq * 1.4);
+                const yPsi = midY - (Math.sin(rad1) * 25 + Math.sin(rad2) * (8 * gammaBubbleIntensity * 4));
+                const ySurf = midY - (Math.sin(rad1 + 0.5) * 22);
+                const yPhi = midY - (Math.cos(rad1 * 2) * 12);
+
+                if (i === 0) {
+                    dPsi = 'M ' + x + ' ' + yPsi;
+                    dSurf = 'M ' + x + ' ' + ySurf;
+                    dPhi = 'M ' + x + ' ' + yPhi;
+                } else {
+                    dPsi += ' L ' + x + ' ' + yPsi;
+                    dSurf += ' L ' + x + ' ' + ySurf;
+                    dPhi += ' L ' + x + ' ' + yPhi;
+                }
+
+                if (i % 5 === 0) {
+                    localQuantumDatabase.push({
+                        index: localQuantumDatabase.length + 1,
+                        state: '|ψ_(' + i + ')⟩',
+                        amplitude: parseFloat((yPsi - midY).toFixed(4))
+                    });
+                }
+            }
+
+            wavePsi.setAttribute('d', dPsi);
+            waveSurface.setAttribute('d', dSurf);
+            wavePhi.setAttribute('d', dPhi);
+            document.getElementById('matrixLatency').textContent = 'CPU: ' + (performance.now() - startTimer).toFixed(2) + 'мс';
+        }
+
+        function renderDocumentsGrid(docs, query) {
+            tableBody.innerHTML = "";
+            if (!docs || docs.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#64748b;">Документы по запросу не найдены</td></tr>';
+                gridResult.classList.add('open');
+                return;
+            }
+            docs.forEach(doc => {
+                const mainTr = document.createElement('tr');
+                mainTr.className = "clickable-row";
+                let rubricsHtml = "";
+                if (Array.isArray(doc.rubrics)) doc.rubrics.forEach(r => rubricsHtml += '<span class="state-vector-tag" style="background:rgba(56,189,248,0.1);color:#38bdf8;border:1px solid rgba(56,189,248,0.2);padding:2px 6px;border-radius:4px;margin-right:4px;">' + escapeHtml(r) + '</span>');
+                const previewText = (doc.text || '').length > 75 ? doc.text.substring(0, 75) + '...' : (doc.text || '');
+                const hPreview = highlightKeywords(previewText, query);
+                const hFull = highlightKeywords(doc.text, query);
+                mainTr.innerHTML = '<td><span class="mono-num" style="font-family:monospace;font-weight:700;color:#64748b;">' + doc.id + '</span></td><td>' + (rubricsHtml || '—') + '</td><td><span class="chevron-indicator">▶</span> ' + hPreview + '</td><td style="text-align:right;"><button class="btn-table-delete">Удалить</button></td>';
+                const expandTr = document.createElement('tr');
+                expandTr.className = "expandable-row";
+                expandTr.id = 'expand-row-' + doc.id;
+                expandTr.innerHTML = '<td></td><td colspan="3"><div class="expand-container"><div style="margin-top:8px; padding:14px; background:rgba(0,0,0,0.2); border-radius:8px;">' + hFull + '</div></div></td>';
+                mainTr.addEventListener('click', (e) => {
+                    if (e.target.closest('.btn-table-delete')) return;
+                    const isExpanded = expandTr.classList.toggle('expanded');
+                    mainTr.classList.toggle('active');
+                    mainTr.querySelector('.chevron-indicator').textContent = isExpanded ? '▼' : '▶';
+                });
+                mainTr.querySelector('.btn-table-delete').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.deleteDocumentById(doc.id, mainTr, expandTr);
+                });
+                tableBody.appendChild(mainTr);
+                tableBody.appendChild(expandTr);
+            });
+            gridResult.classList.add('open');
+        }
+
+        function updatePaginationCounters() {
+            const shown = allDocuments.length;
+            const total = totalResults || shown;
+            docCounter.textContent = 'Показано ' + shown + ' из ' + total;
+            loadMoreBtn.style.display = shown >= total ? 'none' : 'inline-block';
+        }
+
+        async function loadPage(page) {
+            if (isLoadingMore) return;
+            isLoadingMore = true;
+            try {
+                const response = await fetch(API_BASE + '/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: currentQuery, limit: pageSize, offset: page * pageSize })
+                });
+                if (!response.ok) throw new Error('HTTP Error: ' + response.status);
+                const data = await response.json();
+                const docs = data.results || [];
+                totalResults = data.total || docs.length;
+                allDocuments = allDocuments.concat(docs);
+                renderDocumentsGrid(allDocuments, currentQuery);
+                updatePaginationCounters();
+            } catch (err) {
+                console.error(err);
+            } finally {
+                isLoadingMore = false;
+            }
+        }
+
+        async function startSearchFlow() {
+            const queryText = searchInput.value.trim();
+            if (!queryText) return;
+            currentPage = 0;
+            currentQuery = queryText;
+            allDocuments = [];
+            totalResults = 0;
+
+            hub.classList.add('processing');
+            searchBtn.disabled = true;
+            searchBtn.classList.add('loading');
+
+            if (isUserWantsMusic && !isMusicActive) {
+                musicIntervalId = setInterval(playMusicStep, 115);
+                startFryingNoise();
+                isMusicActive = true;
+            }
+
+            step1.className = "step-item active";
+            step2.className = "step-item";
+            step3.className = "step-item";
+
+            const tStart = performance.now();
+            try {
+                await loadPage(0);
+                step1.className = "step-item done";
+                step2.className = "step-item done";
+                step3.className = "step-item active";
+                const dur = Math.round(performance.now() - tStart);
+                if (latencyBadge) latencyBadge.textContent = 'API: ' + dur + 'мс';
+            } catch (e) {
+                if (latencyBadge) latencyBadge.textContent = 'API: Сбой';
+            } finally {
+                if (isMusicActive) {
+                    clearInterval(musicIntervalId);
+                    stopFryingNoise();
+                    isMusicActive = false;
+                }
+                searchBtn.disabled = false;
+                searchBtn.classList.remove('loading');
+                hub.classList.remove('processing');
+                step3.className = "step-item done";
+            }
+        }
+
+        window.deleteDocumentById = async function(id, row, expRow) {
+            if (!confirm('Удалить документ ID: ' + id + '?')) return;
+            try {
+                const res = await fetch(API_BASE + '/documents/' + id, { method: 'DELETE' });
+                if (res.ok) {
+                    row.remove();
+                    expRow.remove();
+                    allDocuments = allDocuments.filter(d => d.id !== id);
+                    updatePaginationCounters();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        window.exportToXLSX = function() {
+            if (allDocuments.length === 0) return;
+            const data = allDocuments.map(d => ({
+                'ID': d.id,
+                'Рубрики': Array.isArray(d.rubrics) ? d.rubrics.join(', ') : d.rubrics,
+                'Текст': d.text
+            }));
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "Документы");
+            XLSX.writeFile(wb, "search_results.xlsx");
+        };
+
+        async function compilePowerPointReport() {
+            if (localQuantumDatabase.length === 0) return;
+            pptxBtn.disabled = true;
+            pptxBtn.textContent = "Сборка многостраничного PPTX отчета...";
+            try {
+                const amplitudes = localQuantumDatabase.map(r => r.amplitude);
+                const res = await fetch(API_BASE + '/api/v1/generate-powerpoint', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        frequency: currentFreq,
+                        intensity: btnDirac.classList.contains('active') ? "Vacuum" : "Quantum Foam",
+                        amplitudes: amplitudes
+                    })
+                });
+                if (!res.ok) throw new Error();
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'quantum_report_' + currentFreq + '.pptx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (e) {
+                alert("Ошибка генерации PPTX отчета.");
+            } finally {
+                pptxBtn.disabled = false;
+                pptxBtn.textContent = "Скомпилировать многостраничный отчёт презентации (.PPTX)";
+            }
+        }
+
+        async function exportJPEG() {
+            try {
+                const canvas = await html2canvas(hub, { scale: 2, backgroundColor: '#090d16' });
+                const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+                const link = document.createElement('a');
+                link.download = 'quantum-field-' + Date.now() + '.jpg';
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                alert('Не удалось создать JPEG');
+            }
+        }
+
+        async function exportGIF() {
+            const btn = document.getElementById('btnExportGIF');
+            btn.disabled = true;
+            btn.textContent = '⏳ Запись...';
+
+            const origFreq = currentFreq;
+            const frames = 20;
+            const delay = 80;
+            const gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: hub.offsetWidth,
+                height: hub.offsetHeight,
+                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js',
+            });
+
+            const origTransition = hub.style.transition;
+            hub.style.transition = 'none';
+
+            for (let i = 0; i < frames; i++) {
+                const t = i / (frames - 1);
+                currentFreq = 1.0 + t * 4.0;
+                slider.value = currentFreq;
+                sliderLabel.textContent = 'Энергия Накачки (ω): ' + currentFreq.toFixed(1);
+                recalculateQuantumField();
+                const canvas = await html2canvas(hub, { scale: 1, backgroundColor: '#090d16' });
+                gif.addFrame(canvas, { delay, copy: true });
+                await new Promise(r => setTimeout(r, 30));
+            }
+
+            currentFreq = origFreq;
+            slider.value = origFreq;
+            sliderLabel.textContent = 'Энергия Накачки (ω): ' + origFreq.toFixed(1);
+            recalculateQuantumField();
+            hub.style.transition = origTransition;
+
+            gif.on('finished', (blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.download = 'quantum-animation-' + Date.now() + '.gif';
+                a.href = url;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                btn.disabled = false;
+                btn.textContent = '🎞️ Записать GIF';
+            });
+
+            gif.on('error', () => {
+                alert('Ошибка создания GIF');
+                btn.disabled = false;
+                btn.textContent = '🎞️ Записать GIF';
+            });
+
+            gif.render();
+        }
+
+        // ===== ПРИВЯЗКА СОБЫТИЙ =====
+        document.getElementById('btnExportJPEG').addEventListener('click', exportJPEG);
+        document.getElementById('btnExportGIF').addEventListener('click', exportGIF);
+
+        slider.addEventListener('input', (e) => {
+            currentFreq = parseFloat(e.target.value);
+            sliderLabel.textContent = 'Энергия Накачки (ω): ' + currentFreq.toFixed(1);
+            recalculateQuantumField();
+        });
+
+        btnDirac.addEventListener('click', () => {
+            gammaBubbleIntensity = 0.15;
+            btnDirac.classList.add('active');
+            btnHeisenberg.classList.remove('active');
+            recalculateQuantumField();
+        });
+
+        btnHeisenberg.addEventListener('click', () => {
+            gammaBubbleIntensity = 0.85;
+            btnHeisenberg.classList.add('active');
+            btnDirac.classList.remove('active');
+            recalculateQuantumField();
+        });
+
+        searchBtn.addEventListener('click', startSearchFlow);
+        pptxBtn.addEventListener('click', compilePowerPointReport);
+        loadMoreBtn.addEventListener('click', () => { currentPage++; loadPage(currentPage); });
+        searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') startSearchFlow(); });
+
+        // Инициализация
+        recalculateQuantumField();
+    })();
+    </script>
+</body>
+</html>
