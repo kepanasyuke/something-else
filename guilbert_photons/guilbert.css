@@ -16,7 +16,7 @@ body {
         radial-gradient(circle at 86% 82%, rgba(240, 111, 97, 0.1), transparent 32%),
         var(--photon-ink);
     color: #e8f1f2;
-    font-family: "Space Grotesk", "Avenir Next", sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 40px 20px;
 }
 
@@ -26,6 +26,7 @@ body {
     border-radius: 28px; padding: 40px; max-width: 840px; width: 100%;
     backdrop-filter: blur(24px);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -39,6 +40,7 @@ body {
 
 .hub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
 .hub-title { margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+.title-kicker { color: var(--photon-cyan); font-weight: 500; }
 .hub-subtitle { margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.5; max-width: 85%; }
 .live-badge { font-family: monospace; font-size: 11px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); }
 
@@ -122,20 +124,8 @@ body {
 .phase-caption { fill: var(--photon-muted); font: 600 8px "Space Grotesk", sans-serif; letter-spacing: 1.2px; }
 @keyframes phasePulse { 50% { opacity: 0.45; transform: scale(1.35); } }
 
-.liquid-stream { fill: none; stroke-linecap: round; transform-origin: center; }
-.stream-deep { stroke: url(#silverLiquidGrad); stroke-width: 5; filter: url(#liquidRefraction); opacity: 0.9; }
-.stream-surface { stroke: #38bdf8; stroke-width: 1.5; opacity: 0.6; filter: drop-shadow(0 0 2px #38bdf8); }
-.stream-vector { stroke: #a855f7; stroke-width: 0.8; stroke-dasharray: 4 4; opacity: 0.3; }
-
-/* Эффект закладывания ушей */
-.field-viewport.ears-blocked { filter: contrast(0.9) brightness(0.8) blur(1px); background: #0c1020; }
-
-/* Вакуумная пена */
-.vacuum-bubble { fill: none; stroke: url(#silverLiquidGrad); stroke-width: 0.8; opacity: 0.2; animation: bubbleQuantum 3s infinite ease-in-out; }
-@keyframes bubbleQuantum {
-    0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
-    50% { transform: translateY(-6px) scale(1.2); opacity: 0.4; stroke: #38bdf8; }
-}
+.processing .phase-trajectory { stroke-dasharray: 7 11; animation: phaseTrace 1.8s linear infinite; }
+@keyframes phaseTrace { to { stroke-dashoffset: -36; } }
 
 /* Кнопка действия */
 .action-btn-main { 
@@ -150,6 +140,7 @@ body {
     display: none; width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.1);
     border-top-color: #090d16; border-radius: 50%; animation: btnSpin 0.6s infinite linear; margin: 0 auto;
 }
+.search-action-wrap { display: flex; align-items: center; }
 .action-btn-main.loading .spinner { display: block; }
 .action-btn-main.loading .btn-text { display: none; }
 @keyframes btnSpin { to { transform: rotate(360deg); } }
@@ -194,18 +185,14 @@ body {
 .preview-text-node .highlight { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 .mono-num { font-family: monospace; font-weight: 700; color: #64748b; }
 .state-vector-tag { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
+.article-title { display: block; margin-bottom: 5px; color: #eef7f7; font-weight: 600; }
+.article-preview { display: block; color: var(--photon-muted); line-height: 1.45; }
+.article-full-text { margin-top: 8px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+.table-action { text-align: right; white-space: nowrap; }
+.empty-state { text-align: center; padding: 30px; color: var(--photon-muted); }
+.is-hidden { display: none; }
 .btn-table-delete { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: inherit; }
 .btn-table-delete:hover { background: #ef4444; color: #ffffff; }
-
-/* Анимация перелистывания папок */
-.paper-sheet { transform-origin: bottom center; opacity: 0; }
-.processing .paper-1 { animation: pFlipComplex 1.4s infinite linear; }
-.processing .paper-2 { animation: pFlipComplex 1.4s infinite linear 0.45s; }
-@keyframes pFlipComplex {
-    0% { transform: translate(5px, 20px) scale(0.7) rotate(15deg); opacity: 0; }
-    25% { transform: translate(-8px, -5px) scale(1.03) rotate(-5deg); opacity: 1; }
-    100% { transform: translate(-35px, -40px) scale(0.6) rotate(-30deg); opacity: 0; }
-}
 
 /* Пагинация */
 #paginationControls { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 0 4px; }

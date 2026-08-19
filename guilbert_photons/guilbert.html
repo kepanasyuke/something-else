@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guilbert Photons — Photon Observatory</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%233b82f6'/><stop offset='100%25' stop-color='%231d4ed8'/></linearGradient><linearGradient id='a' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2310b981'/><stop offset='100%25' stop-color='%23059669'/></linearGradient><filter id='s' x='-10%25' y='-10%25' width='130%25' height='130%25'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-opacity='0.15'/></filter></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><g filter='url(%23s)'><path d='M25 35 L52 35 L64 47 L64 78 L25 78 Z' fill='%23ffffff' opacity='0.25'/><path d='M18 24 L45 24 L57 36 L57 68 L18 68 Z' fill='%23ffffff'/></g><rect x='24' y='36' width='20' height='3' fill='url(%23g)' rx='1.5'/><rect x='24' y='44' width='14' height='3' fill='url(%23g)' rx='1.5'/><circle cx='72' cy='28' r='9' fill='url(%23a)' stroke='%23ffffff' stroke-width='2'/></svg>">
 
@@ -13,7 +17,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
     <script defer src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
-    <style>
+    <!-- Legacy inline styles disabled; guilbert.css is the single active design layer.
         /* ===== LUXURY TECH DESIGN SYSTEM ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -167,7 +171,7 @@
         @media (max-width: 650px) {
             .workspace-grid { grid-template-columns: 1fr; }
         }
-    </style>
+    -->
     <link rel="stylesheet" href="/guilbert.css">
 </head>
 <body>
@@ -269,33 +273,28 @@
                     </div>
                 </div>
             </div>
-            <div style="display:flex; align-items:center;">
+            <div class="search-action-wrap">
                 <button id="hubActionBtn" class="action-btn-main" type="submit" form="searchForm" aria-busy="false">
-                    <span class="btn-text">Инициировать сквозной синхронный поиск</span>
+                    <span class="btn-text">Инициировать поиск по корпусу</span>
                     <div class="spinner"></div>
                 </button>
             </div>
         </div>
 
-        <!-- Results Grid -->
         <div id="dataGridResult" class="datagrid-panel">
             <div class="grid-toolbar">
-                <span class="grid-header">Документы, найденные в репозитории</span>
-                <button class="btn-export-xlsx" onclick="window.exportToXLSX()">Выгрузить в .XLSX</button>
+                <span class="grid-header">Статьи мини-вики</span>
+                <button class="btn-export-xlsx" type="button" onclick="window.exportToXLSX()">Выгрузить XLSX</button>
             </div>
             <div class="table-wrapper">
                 <table class="b2b-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th><th>Рубрики</th><th>Текст</th><th style="width:80px;"></th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>ID</th><th>Рубрики</th><th>Статья</th><th></th></tr></thead>
                     <tbody id="documentsTableBody"></tbody>
                 </table>
             </div>
             <div id="paginationControls">
                 <span id="docCounter">Показано 0 из 0</span>
-                <button id="loadMoreBtn" style="display:none;">Загрузить ещё</button>
+                <button id="loadMoreBtn" class="is-hidden" type="button">Загрузить ещё</button>
             </div>
         </div>
     </div>
@@ -338,12 +337,10 @@
         let totalResults = 0;
         let allDocuments = [];
         let isLoadingMore = false;
-
         let currentFreq = 2.0;
         let gammaBubbleIntensity = 0.15;
         let localQuantumDatabase = [];
 
-        // ===== ДЖАЗ-ДВИЖОК =====
         let audioCtx = null, musicIntervalId = null, currentMusicStep = 0, biquadFilter = null, sfxNoiseNode = null;
         const chords = [[48,52,55,59],[45,49,52,57],[43,47,50,55],[48,52,55,60]];
 
@@ -376,7 +373,7 @@
 
         function stopFryingNoise() {
             if (!sfxNoiseNode) return;
-            try { sfxNoiseNode.stop(); } catch(e) {}
+            try { sfxNoiseNode.stop(); } catch (error) {}
             sfxNoiseNode = null;
         }
 
@@ -385,23 +382,8 @@
             const sTime = audioCtx.currentTime + 0.02;
             const chord = chords[Math.floor(currentMusicStep / 12) % chords.length];
             const step = currentMusicStep % 12;
-            if (step % 4 === 0) {
-                const bNote = 440 * Math.pow(2, ((chord[0] - 24) - 69) / 12);
-                createTone(bNote, 'triangle', 0.4, sTime, 0.35, 0.04);
-            }
-            if (currentMusicStep === 16) {
-                biquadFilter.frequency.exponentialRampToValueAtTime(280, audioCtx.currentTime + 0.6);
-                document.getElementById('viewportField').classList.add('ears-blocked');
-            }
-            if (currentMusicStep === 24) {
-                biquadFilter.frequency.setValueAtTime(3200, sTime);
-                document.getElementById('viewportField').classList.remove('ears-blocked');
-            }
-            if (currentMusicStep >= 24) {
-                const noteInChord = chord[step % chord.length] + 12;
-                const pFreq = 440 * Math.pow(2, (noteInChord - 69) / 12);
-                createTone(pFreq, 'sine', 0.2, sTime, 0.15, 0.006);
-            }
+            if (step % 4 === 0) createTone(440 * Math.pow(2, ((chord[0] - 24) - 69) / 12), 'triangle', 0.4, sTime, 0.35, 0.04);
+            if (currentMusicStep >= 24) createTone(440 * Math.pow(2, ((chord[step % chord.length] + 12) - 69) / 12), 'sine', 0.2, sTime, 0.15, 0.006);
             currentMusicStep = (currentMusicStep + 1) % 36;
         }
 
@@ -409,7 +391,7 @@
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 biquadFilter = audioCtx.createBiquadFilter();
-                biquadFilter.type = "lowpass";
+                biquadFilter.type = 'lowpass';
                 biquadFilter.frequency.setValueAtTime(2200, audioCtx.currentTime);
                 biquadFilter.connect(audioCtx.destination);
             }
@@ -498,7 +480,7 @@
         function renderDocumentsGrid(docs, query) {
             tableBody.innerHTML = "";
             if (!docs || docs.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#64748b;">Документы по запросу не найдены</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Документы по запросу не найдены</td></tr>';
                 gridResult.classList.add('open');
                 return;
             }
@@ -506,15 +488,15 @@
                 const mainTr = document.createElement('tr');
                 mainTr.className = "clickable-row";
                 let rubricsHtml = "";
-                if (Array.isArray(doc.rubrics)) doc.rubrics.forEach(r => rubricsHtml += '<span class="state-vector-tag" style="background:rgba(56,189,248,0.1);color:#38bdf8;border:1px solid rgba(56,189,248,0.2);padding:2px 6px;border-radius:4px;margin-right:4px;">' + escapeHtml(r) + '</span>');
+                if (Array.isArray(doc.rubrics)) doc.rubrics.forEach(r => rubricsHtml += '<span class="state-vector-tag">' + escapeHtml(r) + '</span>');
                 const previewText = (doc.text || '').length > 75 ? doc.text.substring(0, 75) + '...' : (doc.text || '');
                 const hPreview = highlightKeywords(previewText, query);
                 const hFull = highlightKeywords(doc.text, query);
-                mainTr.innerHTML = '<td><span class="mono-num" style="font-family:monospace;font-weight:700;color:#64748b;">' + doc.id + '</span></td><td>' + (rubricsHtml || '—') + '</td><td><span class="chevron-indicator">▶</span> ' + hPreview + '</td><td style="text-align:right;"><button class="btn-table-delete">Удалить</button></td>';
+                mainTr.innerHTML = '<td><span class="mono-num">' + doc.id + '</span></td><td>' + (rubricsHtml || '—') + '</td><td><span class="chevron-indicator">▶</span><span class="article-title">' + escapeHtml(doc.title || 'Без названия') + '</span><span class="article-preview">' + hPreview + '</span></td><td class="table-action"><button class="btn-table-delete" type="button">Удалить</button></td>';
                 const expandTr = document.createElement('tr');
                 expandTr.className = "expandable-row";
                 expandTr.id = 'expand-row-' + doc.id;
-                expandTr.innerHTML = '<td></td><td colspan="3"><div class="expand-container"><div style="margin-top:8px; padding:14px; background:rgba(0,0,0,0.2); border-radius:8px;">' + hFull + '</div></div></td>';
+                expandTr.innerHTML = '<td></td><td colspan="3"><div class="expand-container"><div class="article-full-text">' + hFull + '</div></div></td>';
                 mainTr.addEventListener('click', (e) => {
                     if (e.target.closest('.btn-table-delete')) return;
                     const isExpanded = expandTr.classList.toggle('expanded');
@@ -535,7 +517,7 @@
             const shown = allDocuments.length;
             const total = totalResults || shown;
             docCounter.textContent = 'Показано ' + shown + ' из ' + total;
-            loadMoreBtn.style.display = shown >= total ? 'none' : 'inline-block';
+            loadMoreBtn.classList.toggle('is-hidden', shown >= total);
         }
 
         async function loadPage(page) {

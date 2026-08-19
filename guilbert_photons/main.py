@@ -1,6 +1,7 @@
 import asyncio
 import io
 import base64
+import json
 import logging
 import os
 from pathlib import Path
@@ -23,6 +24,7 @@ from typing import List, Optional
 class DocumentSchema(BaseModel):
     id: int
     rubrics: List[str] = Field(default_factory=list)
+    title: Optional[str] = None
     text: str
     created_date: Optional[str] = None
 
@@ -48,6 +50,16 @@ class PowerPointRequest(BaseModel):
     frequency: float
     intensity: str
     amplitudes: List[float] = Field(default_factory=list)
+
+KNOWLEDGE_BASE_PATH = Path(__file__).with_name("knowledge_base.json")
+
+
+def load_knowledge_base() -> List[DocumentSchema]:
+    with KNOWLEDGE_BASE_PATH.open(encoding="utf-8") as source:
+        return [DocumentSchema.model_validate(document) for document in json.load(source)]
+
+
+knowledge_base = load_knowledge_base()
 
 # Настройка Enterprise-логирования
 logging.basicConfig(
@@ -213,21 +225,22 @@ async def generate_quantum_plots(request: PlotRequest):
 
 @app.post("/search", response_model=SearchResponse)
 async def search(request: SearchRequest):
-    logger.info("Локальный полнотекстовый поиск. Запрос: '%s'", request.query)
+    logger.info("Локальный поиск мини-вики. Запрос: '%s'", request.query)
     query = request.query.casefold()
-    documents = [
-        DocumentSchema(id=1024, rubrics=["политика", "финансы"], text=f"Документ по запросу '{request.query}'. Вектор состояния стабилен в гильбертовом поле."),
-        DocumentSchema(id=2048, rubrics=["наука", "кванты"], text=f"Архивная выписка 1С. Квантование волновой функции зафиксировано успешно.")
-    ]
     matching_documents = [
-        document for document in documents
-        if not query or query in document.text.casefold() or any(query in rubric.casefold() for rubric in document.rubrics)
+        document for document in knowledge_base
+        if not query or any(
+            query in value.casefold()
+            for value in (document.text, *document.rubrics)
+        )
     ]
     page = matching_documents[request.offset:request.offset + request.limit]
     return SearchResponse(results=page, total=len(matching_documents))
 
 @app.delete("/documents/{doc_id}")
 async def delete_doc(doc_id: int):
+    global knowledge_base
+    knowledge_base = [document for document in knowledge_base if document.id != doc_id]
     return {"status": "deleted"}
 
 @app.get("/health", include_in_schema=False)
