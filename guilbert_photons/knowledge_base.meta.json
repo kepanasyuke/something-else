@@ -1,0 +1,17 @@
+{
+  "provider": "OpenAlex",
+  "provider_url": "https://openalex.org/",
+  "api_url": "https://api.openalex.org/works",
+  "license_note": "Bibliographic metadata and abstracts are collected from OpenAlex. Verify source license before redistributing full text.",
+  "document_count": 1500,
+  "queries": [
+    "astrophysics",
+    "cosmology",
+    "quantum physics",
+    "particle physics",
+    "space science",
+    "gravitational waves",
+    "astronomy"
+  ],
+  "generated_at": "2026-08-19T22:08:05Z"
+}

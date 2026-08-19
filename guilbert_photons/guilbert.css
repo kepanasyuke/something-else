@@ -186,6 +186,7 @@ body {
 .mono-num { font-family: monospace; font-weight: 700; color: #64748b; }
 .state-vector-tag { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
 .article-title { display: block; margin-bottom: 5px; color: #eef7f7; font-weight: 600; }
+.article-meta { display: block; margin-bottom: 5px; color: var(--photon-amber); font: 400 10px "DM Mono", monospace; }
 .article-preview { display: block; color: var(--photon-muted); line-height: 1.45; }
 .article-full-text { margin-top: 8px; padding: 14px; background: rgba(0,0,0,0.2); border-radius: 8px; }
 .table-action { text-align: right; white-space: nowrap; }

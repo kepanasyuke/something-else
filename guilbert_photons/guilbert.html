@@ -222,7 +222,7 @@
         <form id="searchForm" class="search-input-group">
             <label class="visually-hidden" for="searchInput">Поисковый запрос</label>
             <input type="search" id="searchInput" placeholder="Найти документ или рубрику" autocomplete="off" required>
-            <p id="searchStatus" class="search-status" role="status" aria-live="polite"></p>
+            <p id="searchStatus" class="search-status" role="status" aria-live="polite">1500 научных аннотаций: физика, космос, квантовые поля</p>
         </form>
 
         <!-- Quantum field + paper sheets -->
@@ -283,7 +283,7 @@
 
         <div id="dataGridResult" class="datagrid-panel">
             <div class="grid-toolbar">
-                <span class="grid-header">Статьи мини-вики</span>
+                <span class="grid-header">Научные источники / OpenAlex</span>
                 <button class="btn-export-xlsx" type="button" onclick="window.exportToXLSX()">Выгрузить XLSX</button>
             </div>
             <div class="table-wrapper">
@@ -492,7 +492,8 @@
                 const previewText = (doc.text || '').length > 75 ? doc.text.substring(0, 75) + '...' : (doc.text || '');
                 const hPreview = highlightKeywords(previewText, query);
                 const hFull = highlightKeywords(doc.text, query);
-                mainTr.innerHTML = '<td><span class="mono-num">' + doc.id + '</span></td><td>' + (rubricsHtml || '—') + '</td><td><span class="chevron-indicator">▶</span><span class="article-title">' + escapeHtml(doc.title || 'Без названия') + '</span><span class="article-preview">' + hPreview + '</span></td><td class="table-action"><button class="btn-table-delete" type="button">Удалить</button></td>';
+                const sourceMeta = [doc.journal, doc.created_date, doc.is_open_access ? 'Open access' : 'Metadata'].filter(Boolean).map(escapeHtml).join(' · ');
+                mainTr.innerHTML = '<td><span class="mono-num">' + doc.id + '</span></td><td>' + (rubricsHtml || '—') + '</td><td><span class="chevron-indicator">▶</span><span class="article-title">' + escapeHtml(doc.title || 'Без названия') + '</span><span class="article-meta">' + sourceMeta + '</span><span class="article-preview">' + hPreview + '</span></td><td class="table-action"><button class="btn-table-delete" type="button">Удалить</button></td>';
                 const expandTr = document.createElement('tr');
                 expandTr.className = "expandable-row";
                 expandTr.id = 'expand-row-' + doc.id;

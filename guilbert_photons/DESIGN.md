@@ -46,3 +46,9 @@ The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF 
 ## Implementation direction
 
 Keep the current FastAPI boundary, replace the demo document list with a small SQLite-backed corpus, and keep the phase portrait local in the browser. Load export libraries lazily when their buttons are used. This keeps the first screen fast and makes the search path independent from optional media features.
+
+## Scientific corpus
+
+The current local corpus contains 1,500 normalized OpenAlex works. Each record keeps a title, abstract, topic labels, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
+
+Run `make build-corpus` to refresh it. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search ranks the local corpus by simple field matching for now; the next indexing step is SQLite FTS5 when result ranking and larger imports become necessary.

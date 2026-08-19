@@ -27,6 +27,11 @@ class DocumentSchema(BaseModel):
     title: Optional[str] = None
     text: str
     created_date: Optional[str] = None
+    journal: Optional[str] = None
+    authors: List[str] = Field(default_factory=list)
+    doi: Optional[str] = None
+    source_url: Optional[str] = None
+    is_open_access: bool = False
 
 class SearchRequest(BaseModel):
     query: str
@@ -231,7 +236,13 @@ async def search(request: SearchRequest):
         document for document in knowledge_base
         if not query or any(
             query in value.casefold()
-            for value in (document.text, *document.rubrics)
+            for value in (
+                document.text,
+                document.title or "",
+                document.journal or "",
+                *document.rubrics,
+                *document.authors,
+            )
         )
     ]
     page = matching_documents[request.offset:request.offset + request.limit]

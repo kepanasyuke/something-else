@@ -15,13 +15,14 @@ CYAN = \033[0.5;36m
 GREEN = \033[0.5;32m
 NC = \033[0m
 
-.PHONY: help install run tunnel build-container run-container stop-container clean kill 
+.PHONY: help install build-corpus run tunnel build-container run-container stop-container clean kill
 
 # ===== КОМАНДЫ СПРАВКИ И ИНИЦИАЛИЗАЦИИ =====
 
 help:
 	@echo "$(CYAN)Доступные команды локального Makefile:$(NC)"
 	@echo "  make install        - Установить все необходимые Python-библиотеки"
+	@echo "  make build-corpus   - Обновить корпус физики и космоса из OpenAlex"
 	@echo "  make run            - Запустить локальный сервер FastAPI в режиме разработки"
 	@echo "  make tunnel         - Открыть сервер извне через LocalTunnel"
 	@echo "  make clean          - Удалить кэш Python и сгенерированные файлы презентаций"
@@ -34,6 +35,10 @@ install:
 	@echo "$(GREEN)>>>> Установка необходимых B2B-компонентов...$(NC)"
 	$(PIP) install --upgrade pip
 	$(PIP) install fastapi uvicorn matplotlib python-pptx pydantic
+
+build-corpus:
+	@echo "$(GREEN)>>>> Загрузка научного корпуса OpenAlex...$(NC)"
+	$(PYTHON) scripts/build_corpus.py
 
 # ===== КОМАНДЫ ЗАПУСКА И РАЗРАБОТКИ =====
 
