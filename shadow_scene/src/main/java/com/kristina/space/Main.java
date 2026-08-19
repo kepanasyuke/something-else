@@ -26,7 +26,7 @@ public class Main {
         server.start();
 
         System.out.println("Сервер запущен на http://localhost:8080");
-        System.out.println("Для доступа извне используйте ngrok: ngrok http 8080");
+        System.out.println("Для доступа извне используйте LocalTunnel: make tunnel");
 
         // Открываем браузер автоматически
         if (Desktop.isDesktopSupported()) {
