@@ -15,7 +15,7 @@ CYAN = \033[0.5;36m
 GREEN = \033[0.5;32m
 NC = \033[0m
 
-.PHONY: help install run build-container run-container stop-container clean kill 
+.PHONY: help install run tunnel build-container run-container stop-container clean kill 
 
 # ===== КОМАНДЫ СПРАВКИ И ИНИЦИАЛИЗАЦИИ =====
 
@@ -23,6 +23,7 @@ help:
 	@echo "$(CYAN)Доступные команды локального Makefile:$(NC)"
 	@echo "  make install        - Установить все необходимые Python-библиотеки"
 	@echo "  make run            - Запустить локальный сервер FastAPI в режиме разработки"
+	@echo "  make tunnel         - Открыть сервер извне через LocalTunnel"
 	@echo "  make clean          - Удалить кэш Python и сгенерированные файлы презентаций"
 	@echo "$(CYAN)Доступные команды для Docker:$(NC)"
 	@echo "  make build-container - Собрать Docker-образ поискового хаба"
@@ -39,6 +40,9 @@ install:
 run:
 	@echo "$(GREEN)>>>> Запуск FastAPI REST Engine на http://$(HOST):$(PORT)...$(NC)"
 	$(UVICORN) $(APP_MODULE) --host $(HOST) --port $(PORT) --reload
+
+tunnel:
+	npx --yes localtunnel --port $(PORT)
 
 # ===== УПРАВЛЕНИЕ КОНТЕЙНЕРИЗАЦИЕЙ (DOCKER) =====
 

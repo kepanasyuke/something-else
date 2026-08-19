@@ -2,6 +2,7 @@ import asyncio
 import io
 import base64
 import logging
+from pathlib import Path
 import numpy as np
 import matplotlib
 # Инициализируем безэкранный бэкенд для работы matplotlib в потоках FastAPI
@@ -11,8 +12,9 @@ import matplotlib.pyplot as plt
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, StreamingResponse
+from pptx import Presentation
+from pptx.util import Inches
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -37,6 +39,11 @@ class PlotResponse(BaseModel):
     packet_plot: str  # Картинка 1 в формате Base64
     area_plot: str    # Картинка 2 в формате Base64
     scale_plot: str   # Картинка 3 в формате Base64
+
+class PowerPointRequest(BaseModel):
+    frequency: float
+    intensity: str
+    amplitudes: List[float] = Field(default_factory=list)
 
 # Настройка Enterprise-логирования
 logging.basicConfig(
@@ -144,7 +151,36 @@ def compute_and_render_plots(omega: float) -> dict:
 
 @app.get("/", response_class=FileResponse)
 async def root():
-    return FileResponse("static/index.html"
+    return FileResponse(Path(__file__).with_name("guilbert.html"), media_type="text/html")
+
+@app.post("/api/v1/generate-powerpoint")
+async def generate_powerpoint(request: PowerPointRequest):
+    presentation = Presentation()
+    title_slide = presentation.slides.add_slide(presentation.slide_layouts[0])
+    title_slide.shapes.title.text = "Quantum Field Report"
+    title_slide.placeholders[1].text = (
+        f"Частота ω: {request.frequency:.1f}\n"
+        f"Режим: {request.intensity}"
+    )
+
+    data_slide = presentation.slides.add_slide(presentation.slide_layouts[5])
+    data_slide.shapes.title.text = "Амплитуды волнового поля"
+    textbox = data_slide.shapes.add_textbox(
+        Inches(1), Inches(1.5), Inches(8), Inches(4.5)
+    )
+    textbox.text_frame.text = "\n".join(
+        f"{index + 1}. {amplitude:.4f}"
+        for index, amplitude in enumerate(request.amplitudes)
+    ) or "Данные отсутствуют"
+
+    output = io.BytesIO()
+    presentation.save(output)
+    output.seek(0)
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        headers={"Content-Disposition": "attachment; filename=quantum_report.pptx"},
+    )
 
 @app.post("/generate-plots", response_model=PlotResponse)
 async def generate_quantum_plots(request: PlotRequest):
@@ -183,11 +219,6 @@ async def delete_doc(doc_id: int):
 async def health_check():
     return {"status": "ok"}
 
-@app.mount("/static", StaticFiles(directory="static"), name="static")
-
-#@app.get("/", response_class=FileResponse)
-#async def root():
-#    return FileResponse("static/index.html")
 
 
 
