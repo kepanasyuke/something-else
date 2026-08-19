@@ -23,8 +23,7 @@ body {
 .quantum-canvas-card {
     background: linear-gradient(145deg, rgba(16, 29, 39, 0.92), rgba(8, 17, 26, 0.86));
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 28px; padding: 40px; max-width: 840px; width: 100%;
-    backdrop-filter: blur(24px);
+    border-radius: 12px; padding: 32px; max-width: 960px; width: 100%;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
 }
@@ -41,7 +40,7 @@ body {
 .hub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
 .hub-title { margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
 .title-kicker { color: var(--photon-cyan); font-weight: 500; }
-.hub-subtitle { margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.5; max-width: 85%; }
+.hub-subtitle { margin: 0; font-size: 13px; color: var(--photon-muted); line-height: 1.5; max-width: 85%; }
 .live-badge { font-family: monospace; font-size: 11px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2); }
 
 /* Экспорт */
@@ -58,7 +57,7 @@ body {
 /* Слайдеры и переключатели */
 .sandbox-controls { 
     display: grid; grid-template-columns: 1fr 1fr; gap: 24px; 
-    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 18px; border-radius: 16px; margin-bottom: 24px; 
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 18px; border-radius: 10px; margin-bottom: 24px;
 }
 .control-block { display: flex; flex-direction: column; gap: 8px; }
 .control-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; }
@@ -82,14 +81,6 @@ body {
 .basis-btn:hover { background: #334155; color: #ffffff; }
 .basis-btn.active { background: #38bdf8; color: #090d16; border-color: #38bdf8; font-weight: 800; box-shadow: 0 0 12px rgba(56, 189, 248, 0.3); }
 
-/* Ввод поиска */
-.search-input-group { margin-bottom: 24px; }
-.search-input-group input[type="text"] { 
-    width: 100%; padding: 14px 18px; border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px; 
-    font-size: 14px; outline: none; transition: all 0.2s; background: rgba(0,0,0,0.2); color: #ffffff;
-}
-.search-input-group input[type="text"]:focus { border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15); }
-
 /* Джаз-контроллер */
 .jazz-btn {
     display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.02);
@@ -110,7 +101,7 @@ body {
 
 /* Сверхтекучее серебристое поле гелия */
 .field-viewport { 
-    background: #040711; border-radius: 20px; border: 1px solid rgba(255,255,255,0.04); padding: 24px; margin-bottom: 24px; 
+    background: #040711; border-radius: 10px; border: 1px solid rgba(255,255,255,0.04); padding: 24px; margin-bottom: 24px;
     position: relative; overflow: hidden; box-shadow: inset 0 4px 20px rgba(0,0,0,0.8); transition: all 0.3s;
 }
 .field-svg { width: 100%; height: auto; overflow: visible; }
@@ -129,8 +120,8 @@ body {
 
 /* Кнопка действия */
 .action-btn-main { 
-    width: 100%; background: #ffffff; color: #090d16; border: none; padding: 15px; 
-    font-size: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; 
+    width: 100%; background: var(--photon-cyan); color: var(--photon-ink); border: none; padding: 15px;
+    font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer;
     transition: all 0.2s; box-shadow: 0 4px 12px rgba(255,255,255,0.05); 
 }
 .action-btn-main:hover { background: #e2e8f0; transform: translateY(-1px); }
@@ -151,6 +142,8 @@ body {
 .step-item { display: flex; gap: 14px; padding: 14px; border-radius: 12px; border: 1px solid transparent; transition: all 0.3s ease; }
 .step-item.active { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
 .step-item.done { opacity: 0.45; }
+.step-item.error { border-color: rgba(240, 111, 97, 0.5); background: rgba(240, 111, 97, 0.08); }
+.step-item.error .step-num { background: var(--photon-coral); color: #fff; }
 .step-item.done .step-num { background: #10b981; color: #ffffff; }
 .step-num { width: 26px; height: 26px; border-radius: 50%; background: #1e293b; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
 .step-item.active .step-num { background: #38bdf8; color: #090d16; box-shadow: 0 0 10px rgba(56,189,248,0.35); }
@@ -173,7 +166,7 @@ body {
 .b2b-table th { padding: 12px; background: #0f172a; border-bottom: 2px solid rgba(255,255,255,0.05); color: #94a3b8; font-weight: 700; position: sticky; top: 0; z-index: 2; }
 .b2b-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #e2e8f0; vertical-align: middle; }
 .clickable-row { cursor: pointer; transition: all 0.15s ease; }
-.clickable-row:hover { background: rgba(255,255,255,0.02); }
+.clickable-row:hover, .clickable-row:focus-visible { background: rgba(98,217,208,0.07); }
 .clickable-row.active { background: rgba(255,255,255,0.04); }
 .expandable-row { background: rgba(0,0,0,0.1); }
 .expandable-row td { padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }

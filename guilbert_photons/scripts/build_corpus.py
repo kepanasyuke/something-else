@@ -55,12 +55,12 @@ def fetch_page(query: str, page: int) -> dict:
 
 
 def restore_abstract(index: dict | None) -> str:
-    if not index:
-        return ""
     words = []
-    for word, positions in index.items():
-        words.extend((position, word) for position in positions)
-    return " ".join(word for _, word in sorted(words))
+    if index:
+        for word, positions in index.items():
+            words.extend((position, word) for position in positions)
+    abstract = " ".join(word for _, word in sorted(words))
+    return abstract
 
 
 def classify(text: str) -> list[str]:
@@ -83,29 +83,40 @@ def classify(text: str) -> list[str]:
 def normalize(work: dict, index: int) -> dict | None:
     title = (work.get("title") or "").strip()
     abstract = restore_abstract(work.get("abstract_inverted_index"))
-    if len(title) < 8 or len(abstract) < 120:
-        return None
-    location = work.get("primary_location") or {}
-    source = location.get("source") or {}
-    authors = [
-        (author.get("author") or {}).get("display_name")
-        for author in work.get("authorships", [])[:5]
-    ]
-    authors = [author for author in authors if author]
-    text = f"{title}. {abstract}"
-    return {
-        "id": 2000000 + index,
-        "title": title,
-        "rubrics": classify(text),
-        "text": text,
-        "created_date": work.get("publication_date"),
-        "journal": source.get("display_name"),
-        "authors": authors,
-        "doi": work.get("doi"),
-        "source_url": location.get("landing_page_url"),
-        "is_open_access": bool(location.get("is_oa")),
-        "openalex_id": work.get("id"),
-    }
+    document = None
+    if len(title) >= 8 and len(abstract) >= 120:
+        location = work.get("primary_location") or {}
+        source = location.get("source") or {}
+        authors = [
+            (author.get("author") or {}).get("display_name")
+            for author in work.get("authorships", [])[:5]
+        ]
+        authors = [author for author in authors if author]
+        text = f"{title}. {abstract}"
+        document = {
+            "id": 2000000 + index,
+            "title": title,
+            "rubrics": classify(text),
+            "text": text,
+            "created_date": work.get("publication_date"),
+            "journal": source.get("display_name"),
+            "authors": authors,
+            "doi": work.get("doi"),
+            "source_url": location.get("landing_page_url"),
+            "is_open_access": bool(location.get("is_oa")),
+            "openalex_id": work.get("id"),
+        }
+    return document
+
+
+def add_page_documents(page: dict, documents: list, seen: set) -> None:
+    for work in page.get("results", []):
+        unique_key = work.get("id") or work.get("doi") or work.get("title")
+        if unique_key not in seen and len(documents) < TARGET_SIZE:
+            document = normalize(work, len(documents))
+            if document:
+                seen.add(unique_key)
+                documents.append(document)
 
 
 def main() -> None:
@@ -116,16 +127,7 @@ def main() -> None:
     while len(documents) < TARGET_SIZE and query_index < len(QUERIES):
         query = QUERIES[query_index]
         payload = fetch_page(query, page)
-        for work in payload.get("results", []):
-            unique_key = work.get("id") or work.get("doi") or work.get("title")
-            if unique_key in seen:
-                continue
-            document = normalize(work, len(documents))
-            if document:
-                seen.add(unique_key)
-                documents.append(document)
-                if len(documents) >= TARGET_SIZE:
-                    break
+        add_page_documents(payload, documents, seen)
         if page * PAGE_SIZE >= payload.get("meta", {}).get("count", 0):
             page = 1
             query_index += 1

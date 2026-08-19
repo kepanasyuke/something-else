@@ -15,7 +15,7 @@ CYAN = \033[0.5;36m
 GREEN = \033[0.5;32m
 NC = \033[0m
 
-.PHONY: help install build-corpus run tunnel build-container run-container stop-container clean kill
+.PHONY: help install build-corpus run tunnel build-container run-container stop-container clean kill kill-port
 
 # ===== КОМАНДЫ СПРАВКИ И ИНИЦИАЛИЗАЦИИ =====
 
@@ -70,8 +70,8 @@ stop-container:
 clean:
 	@echo "$(GREEN)>>>> Очистка временных файлов и кэша компиляции...$(NC)"
 	rm -rf __pycache__ .pytest_cache
-	rm -rf app/__pycache__
-	rm -f *.pptx *.xlsx *.png *.csv
+	rm -rf scripts/__pycache__
+	rm -f *.pptx *.xlsx *.png
 	@echo "$(GREEN)>>>> Очистка завершена успешно.$(NC)"
 
 # Мгновенно находит PID процесса main.py и уничтожает его сигналом -9

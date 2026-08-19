@@ -201,8 +201,8 @@
             <div class="control-block">
                 <span class="control-label" id="basisLabel">Режим наблюдения (γ)</span>
                 <div class="basis-switcher">
-                    <button class="basis-btn active" id="btnDirac">Вакуум (Low γ)</button>
-                    <button class="basis-btn" id="btnHeisenberg">Пена (High γ)</button>
+                    <button class="basis-btn active" id="btnDirac" type="button" aria-pressed="true">Вакуум (низкая γ)</button>
+                    <button class="basis-btn" id="btnHeisenberg" type="button" aria-pressed="false">Пена (высокая γ)</button>
                 </div>
             </div>
         </div>
@@ -227,7 +227,7 @@
 
         <!-- Quantum field + paper sheets -->
         <div class="field-viewport" id="viewportField">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" class="field-svg" id="quantumSvgCanvas">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" class="field-svg" id="quantumSvgCanvas" aria-hidden="true" focusable="false">
                 <defs>
                     <pattern id="phaseGrid" width="20" height="20" patternUnits="userSpaceOnUse">
                         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#62d9d0" stroke-opacity="0.08" stroke-width="0.6"/>
@@ -254,21 +254,21 @@
                 <div class="step-item active" id="step1">
                     <div class="step-num">1</div>
                     <div class="step-body">
-                        <div class="step-t">POST /search</div>
+                        <div class="step-t">Шаг 1 · запрос</div>
                         <div class="step-d">Передача параметров на бэкенд FastAPI</div>
                     </div>
                 </div>
                 <div class="step-item" id="step2">
                     <div class="step-num">2</div>
                     <div class="step-body">
-                        <div class="step-t">Photon Index Scan</div>
+                        <div class="step-t">Шаг 2 · индекс</div>
                         <div class="step-d">Поиск совпадений в локальном индексе</div>
                     </div>
                 </div>
                 <div class="step-item" id="step3">
                     <div class="step-num">3</div>
                     <div class="step-body">
-                        <div class="step-t">Data Hydration</div>
+                        <div class="step-t">Шаг 3 · результат</div>
                         <div class="step-d">Сборка SearchResponse структуры</div>
                     </div>
                 </div>
@@ -288,7 +288,7 @@
             </div>
             <div class="table-wrapper">
                 <table class="b2b-table">
-                    <thead><tr><th>ID</th><th>Рубрики</th><th>Статья</th><th></th></tr></thead>
+                    <thead><tr><th scope="col">ID</th><th scope="col">Рубрики</th><th scope="col">Статья</th><th scope="col"></th></tr></thead>
                     <tbody id="documentsTableBody"></tbody>
                 </table>
             </div>
@@ -410,7 +410,6 @@
             clearInterval(musicIntervalId);
             musicIntervalId = null;
             stopFryingNoise();
-            document.getElementById('viewportField').classList.remove('ears-blocked');
             isMusicActive = false;
             jazzBtn.classList.remove('music-playing');
             jazzBtn.setAttribute('aria-pressed', 'false');
@@ -435,13 +434,19 @@
         }
 
         function highlightKeywords(text, query) {
-            if (!text) return 'Текст отсутствует';
-            if (!query) return escapeHtml(text);
-            const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3).map(w => w.substring(0, w.length - 2));
-            if (words.length === 0) return escapeHtml(text);
-            const escapedWords = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-            const pattern = new RegExp('(' + escapedWords.join('|') + ')[a-zA-Zа-яА-Я0-9]*', 'gi');
-            return escapeHtml(text).replace(pattern, m => '<span class="highlight">' + m + '</span>');
+            let highlighted = 'Текст отсутствует';
+            if (text) {
+                highlighted = escapeHtml(text);
+                if (query) {
+                    const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3).map(w => w.substring(0, w.length - 2));
+                    if (words.length > 0) {
+                        const escapedWords = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                        const pattern = new RegExp('(' + escapedWords.join('|') + ')[a-zA-Zа-яА-Я0-9]*', 'gi');
+                        highlighted = highlighted.replace(pattern, m => '<span class="highlight">' + m + '</span>');
+                    }
+                }
+            }
+            return highlighted;
         }
 
         function recalculateQuantumField() {
@@ -481,10 +486,8 @@
             tableBody.innerHTML = "";
             if (!docs || docs.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Документы по запросу не найдены</td></tr>';
-                gridResult.classList.add('open');
-                return;
-            }
-            docs.forEach(doc => {
+            } else {
+                docs.forEach(doc => {
                 const mainTr = document.createElement('tr');
                 mainTr.className = "clickable-row";
                 let rubricsHtml = "";
@@ -492,25 +495,40 @@
                 const previewText = (doc.text || '').length > 75 ? doc.text.substring(0, 75) + '...' : (doc.text || '');
                 const hPreview = highlightKeywords(previewText, query);
                 const hFull = highlightKeywords(doc.text, query);
-                const sourceMeta = [doc.journal, doc.created_date, doc.is_open_access ? 'Open access' : 'Metadata'].filter(Boolean).map(escapeHtml).join(' · ');
+                const sourceMeta = [doc.journal, doc.created_date, doc.is_open_access ? 'открытый доступ' : 'библиография'].filter(Boolean).map(escapeHtml).join(' · ');
                 mainTr.innerHTML = '<td><span class="mono-num">' + doc.id + '</span></td><td>' + (rubricsHtml || '—') + '</td><td><span class="chevron-indicator">▶</span><span class="article-title">' + escapeHtml(doc.title || 'Без названия') + '</span><span class="article-meta">' + sourceMeta + '</span><span class="article-preview">' + hPreview + '</span></td><td class="table-action"><button class="btn-table-delete" type="button">Удалить</button></td>';
                 const expandTr = document.createElement('tr');
                 expandTr.className = "expandable-row";
                 expandTr.id = 'expand-row-' + doc.id;
                 expandTr.innerHTML = '<td></td><td colspan="3"><div class="expand-container"><div class="article-full-text">' + hFull + '</div></div></td>';
-                mainTr.addEventListener('click', (e) => {
-                    if (e.target.closest('.btn-table-delete')) return;
+                mainTr.tabIndex = 0;
+                mainTr.setAttribute('role', 'button');
+                mainTr.setAttribute('aria-expanded', 'false');
+                mainTr.setAttribute('aria-controls', expandTr.id);
+                const toggleExpanded = () => {
                     const isExpanded = expandTr.classList.toggle('expanded');
                     mainTr.classList.toggle('active');
+                    mainTr.setAttribute('aria-expanded', String(isExpanded));
                     mainTr.querySelector('.chevron-indicator').textContent = isExpanded ? '▼' : '▶';
+                };
+                mainTr.addEventListener('click', (e) => {
+                    if (e.target.closest('.btn-table-delete')) return;
+                    toggleExpanded();
+                });
+                mainTr.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpanded();
+                    }
                 });
                 mainTr.querySelector('.btn-table-delete').addEventListener('click', (e) => {
                     e.stopPropagation();
                     window.deleteDocumentById(doc.id, mainTr, expandTr);
                 });
-                tableBody.appendChild(mainTr);
-                tableBody.appendChild(expandTr);
-            });
+                    tableBody.appendChild(mainTr);
+                    tableBody.appendChild(expandTr);
+                });
+            }
             gridResult.classList.add('open');
         }
 
@@ -522,9 +540,9 @@
         }
 
         async function loadPage(page) {
-            if (isLoadingMore) return;
-            isLoadingMore = true;
-            try {
+            if (!isLoadingMore) {
+                isLoadingMore = true;
+                try {
                 const response = await fetch(API_BASE + '/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -537,19 +555,20 @@
                 allDocuments = allDocuments.concat(docs);
                 renderDocumentsGrid(allDocuments, currentQuery);
                 updatePaginationCounters();
-            } catch (err) {
-                console.error(err);
-                if (searchStatus) searchStatus.textContent = 'Не удалось получить результаты. Проверьте соединение и повторите запрос.';
-                throw err;
-            } finally {
-                isLoadingMore = false;
+                } catch (err) {
+                    console.error(err);
+                    if (searchStatus) searchStatus.textContent = 'Не удалось получить результаты. Проверьте соединение и повторите запрос.';
+                    throw err;
+                } finally {
+                    isLoadingMore = false;
+                }
             }
         }
 
         async function startSearchFlow() {
             const queryText = searchInput.value.trim();
-            if (!queryText) return;
-            currentPage = 0;
+            if (queryText) {
+                currentPage = 0;
             currentQuery = queryText;
             allDocuments = [];
             totalResults = 0;
@@ -564,8 +583,8 @@
             step2.className = "step-item";
             step3.className = "step-item";
 
-            const tStart = performance.now();
-            try {
+                const tStart = performance.now();
+                try {
                 await loadPage(0);
                 step1.className = "step-item done";
                 step2.className = "step-item done";
@@ -573,15 +592,21 @@
                 const dur = Math.round(performance.now() - tStart);
                 if (latencyBadge) latencyBadge.textContent = 'API: ' + dur + 'мс';
                 if (searchStatus) searchStatus.textContent = 'Найдено документов: ' + totalResults;
-            } catch (e) {
-                if (latencyBadge) latencyBadge.textContent = 'API: Сбой';
-                if (searchStatus) searchStatus.textContent = 'Поиск завершился с ошибкой. Повторите запрос.';
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.classList.remove('loading');
-                searchBtn.setAttribute('aria-busy', 'false');
-                hub.classList.remove('processing');
-                step3.className = "step-item done";
+                } catch (e) {
+                    if (latencyBadge) latencyBadge.textContent = 'API: Сбой';
+                    if (searchStatus) searchStatus.textContent = 'Поиск завершился с ошибкой. Повторите запрос.';
+                    step1.className = "step-item error";
+                    step2.className = "step-item error";
+                    step3.className = "step-item error";
+                } finally {
+                    searchBtn.disabled = false;
+                    searchBtn.classList.remove('loading');
+                    searchBtn.setAttribute('aria-busy', 'false');
+                    hub.classList.remove('processing');
+                    if (!searchStatus.textContent.includes('ошибкой')) {
+                        step3.className = "step-item done";
+                    }
+                }
             }
         }
 
@@ -683,7 +708,7 @@
                 const t = i / (frames - 1);
                 currentFreq = 1.0 + t * 4.0;
                 slider.value = currentFreq;
-                sliderLabel.textContent = 'Энергия Накачки (ω): ' + currentFreq.toFixed(1);
+                sliderLabel.textContent = 'Энергия поля (ω): ' + currentFreq.toFixed(1);
                 recalculateQuantumField();
                 const canvas = await html2canvas(hub, { scale: 1, backgroundColor: '#090d16' });
                 gif.addFrame(canvas, { delay, copy: true });
@@ -692,7 +717,7 @@
 
             currentFreq = origFreq;
             slider.value = origFreq;
-            sliderLabel.textContent = 'Энергия Накачки (ω): ' + origFreq.toFixed(1);
+            sliderLabel.textContent = 'Энергия поля (ω): ' + origFreq.toFixed(1);
             recalculateQuantumField();
             hub.style.transition = origTransition;
 
@@ -724,7 +749,7 @@
 
         slider.addEventListener('input', (e) => {
             currentFreq = parseFloat(e.target.value);
-            sliderLabel.textContent = 'Энергия Накачки (ω): ' + currentFreq.toFixed(1);
+            sliderLabel.textContent = 'Энергия поля (ω): ' + currentFreq.toFixed(1);
             recalculateQuantumField();
         });
 
@@ -732,6 +757,8 @@
             gammaBubbleIntensity = 0.15;
             btnDirac.classList.add('active');
             btnHeisenberg.classList.remove('active');
+            btnDirac.setAttribute('aria-pressed', 'true');
+            btnHeisenberg.setAttribute('aria-pressed', 'false');
             recalculateQuantumField();
         });
 
@@ -739,6 +766,8 @@
             gammaBubbleIntensity = 0.85;
             btnHeisenberg.classList.add('active');
             btnDirac.classList.remove('active');
+            btnHeisenberg.setAttribute('aria-pressed', 'true');
+            btnDirac.setAttribute('aria-pressed', 'false');
             recalculateQuantumField();
         });
 
