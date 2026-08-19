@@ -1,18 +1,40 @@
-/* ===== LUXURY TECH DESIGN SYSTEM ===== */
+/* ===== GUILBERT PHOTONS DESIGN SYSTEM ===== */
+:root {
+    --photon-ink: #08111a;
+    --photon-surface: #101d27;
+    --photon-cyan: #62d9d0;
+    --photon-amber: #f4b860;
+    --photon-coral: #f06f61;
+    --photon-muted: #8ea4ae;
+}
+
 * { box-sizing: border-box; }
 body { 
     margin: 0; 
-    background: linear-gradient(135deg, #090d16 0%, #111827 100%); 
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at 12% 14%, rgba(98, 217, 208, 0.12), transparent 28%),
+        radial-gradient(circle at 86% 82%, rgba(240, 111, 97, 0.1), transparent 32%),
+        var(--photon-ink);
+    color: #e8f1f2;
+    font-family: "Space Grotesk", "Avenir Next", sans-serif;
     min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 40px 20px;
 }
 
 .quantum-canvas-card {
-    background: rgba(15, 23, 42, 0.65);
+    background: linear-gradient(145deg, rgba(16, 29, 39, 0.92), rgba(8, 17, 26, 0.86));
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 28px; padding: 40px; max-width: 840px; width: 100%;
     backdrop-filter: blur(24px);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 .hub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
@@ -90,6 +112,15 @@ body {
     position: relative; overflow: hidden; box-shadow: inset 0 4px 20px rgba(0,0,0,0.8); transition: all 0.3s;
 }
 .field-svg { width: 100%; height: auto; overflow: visible; }
+
+.phase-axis { stroke: #8ea4ae; stroke-width: 0.7; stroke-opacity: 0.45; stroke-dasharray: 2 4; }
+.phase-trajectory { fill: none; stroke: var(--photon-cyan); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(98, 217, 208, 0.5)); transition: d 0.2s ease; }
+.phase-point { stroke-width: 1; }
+.phase-point-start { fill: var(--photon-amber); stroke: #08111a; }
+.phase-point-current { fill: var(--photon-coral); stroke: #f9d8a5; filter: drop-shadow(0 0 4px rgba(240, 111, 97, 0.8)); transform-box: fill-box; transform-origin: center; animation: phasePulse 1.8s ease-in-out infinite; }
+.phase-label { fill: #d5e1e3; font: 600 11px "Space Grotesk", sans-serif; }
+.phase-caption { fill: var(--photon-muted); font: 600 8px "Space Grotesk", sans-serif; letter-spacing: 1.2px; }
+@keyframes phasePulse { 50% { opacity: 0.45; transform: scale(1.35); } }
 
 .liquid-stream { fill: none; stroke-linecap: round; transform-origin: center; }
 .stream-deep { stroke: url(#silverLiquidGrad); stroke-width: 5; filter: url(#liquidRefraction); opacity: 0.9; }
@@ -183,5 +214,57 @@ body {
 
 @media (max-width: 650px) {
     .workspace-grid { grid-template-columns: 1fr; }
+}
+
+/* Unified controls and state feedback */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.live-badge { margin-left: auto; color: var(--photon-cyan); background: rgba(98, 217, 208, 0.08); border-color: rgba(98, 217, 208, 0.24); }
+.control-label, .grid-header { color: var(--photon-muted); }
+.control-hint { display: block; margin: -7px 0 18px; color: var(--photon-muted); font-size: 11px; }
+.search-input-group { margin-bottom: 18px; }
+.search-input-group input[type="search"] { width: 100%; padding: 15px 18px; border: 1px solid rgba(98, 217, 208, 0.2); border-radius: 10px; background: rgba(4, 7, 17, 0.72); color: #f1f7f7; font: 500 15px "Space Grotesk", sans-serif; }
+.search-input-group input[type="search"]::placeholder { color: #6f858d; }
+.search-status { min-height: 18px; margin: 8px 2px 0; color: var(--photon-muted); font-size: 12px; }
+.report-button { width: 100%; margin-bottom: 20px; }
+.action-btn-main, .btn-export, .btn-export-xlsx, .basis-btn, .jazz-btn, .btn-table-delete, #loadMoreBtn { font-family: "Space Grotesk", sans-serif; }
+.btn-export, .btn-export-xlsx { border-radius: 8px; min-height: 38px; }
+.btn-export { background: rgba(232, 241, 242, 0.94); color: var(--photon-ink); border-color: transparent; }
+.btn-export:hover, .btn-export:focus-visible { background: var(--photon-amber); border-color: var(--photon-amber); color: var(--photon-ink); }
+.btn-export-xlsx { background: var(--photon-cyan); color: var(--photon-ink); }
+.btn-export-xlsx:hover, .btn-export-xlsx:focus-visible { background: #a5ebe4; }
+.basis-btn { min-height: 36px; }
+.basis-btn.active { background: var(--photon-amber); border-color: var(--photon-amber); box-shadow: 0 0 16px rgba(244, 184, 96, 0.2); }
+.jazz-btn { margin-bottom: 0; border-radius: 8px; min-height: 36px; }
+.jazz-btn.music-playing { background: rgba(98, 217, 208, 0.12); border-color: var(--photon-cyan); color: var(--photon-cyan); }
+.action-btn-main { background: var(--photon-cyan); color: var(--photon-ink); }
+.action-btn-main:hover, .action-btn-main:focus-visible { background: #a5ebe4; box-shadow: 0 8px 22px rgba(98, 217, 208, 0.18); }
+.action-btn-main:disabled { transform: none; }
+.apple-slider::-webkit-slider-thumb { background: var(--photon-amber); box-shadow: 0 0 10px rgba(244, 184, 96, 0.6); }
+.apple-slider::-moz-range-thumb { width: 14px; height: 16px; border: 0; border-radius: 4px; background: var(--photon-amber); box-shadow: 0 0 10px rgba(244, 184, 96, 0.6); cursor: pointer; }
+button:focus-visible, input:focus-visible, .clickable-row:focus-visible { outline: 2px solid var(--photon-amber); outline-offset: 3px; }
+.export-toolbar { flex-wrap: wrap; }
+
+@media (max-width: 650px) {
+    body { padding: 16px 10px; align-items: flex-start; }
+    .quantum-canvas-card { padding: 22px 16px; border-radius: 18px; }
+    .hub-header { gap: 14px; flex-direction: column; }
+    .hub-subtitle { max-width: 100%; }
+    .sandbox-controls { grid-template-columns: 1fr; gap: 16px; }
+    .export-toolbar .btn-export { flex: 1 1 140px; }
+    .live-badge { margin-left: 0; }
+    .grid-toolbar { gap: 10px; align-items: flex-start; flex-direction: column; }
+    .table-wrapper { overflow-x: auto; }
+    .b2b-table { min-width: 620px; }
 }
 

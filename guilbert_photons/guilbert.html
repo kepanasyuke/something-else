@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поисковый сервис документов</title>
+    <title>Guilbert Photons — Photon Observatory</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%233b82f6'/><stop offset='100%25' stop-color='%231d4ed8'/></linearGradient><linearGradient id='a' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2310b981'/><stop offset='100%25' stop-color='%23059669'/></linearGradient><filter id='s' x='-10%25' y='-10%25' width='130%25' height='130%25'><feDropShadow dx='0' dy='4' stdDeviation='4' flood-opacity='0.15'/></filter></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><g filter='url(%23s)'><path d='M25 35 L52 35 L64 47 L64 78 L25 78 Z' fill='%23ffffff' opacity='0.25'/><path d='M18 24 L45 24 L57 36 L57 68 L18 68 Z' fill='%23ffffff'/></g><rect x='24' y='36' width='20' height='3' fill='url(%23g)' rx='1.5'/><rect x='24' y='44' width='14' height='3' fill='url(%23g)' rx='1.5'/><circle cx='72' cy='28' r='9' fill='url(%23a)' stroke='%23ffffff' stroke-width='2'/></svg>">
 
     <!-- Библиотеки -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+    <script defer src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <style>
         /* ===== LUXURY TECH DESIGN SYSTEM ===== */
@@ -168,14 +168,15 @@
             .workspace-grid { grid-template-columns: 1fr; }
         }
     </style>
+    <link rel="stylesheet" href="/guilbert.css">
 </head>
 <body>
     <div class="quantum-canvas-card" id="enterpriseHub">
         <!-- Header -->
         <div class="hub-header">
             <div>
-                <h1 class="hub-title">ℋ ∞ Liquid Helium Field Simulator</h1>
-                <p class="hub-subtitle">Обсчет сечений взаимодействий в сверхтекучих полях. Поиск файлов интегрирован с асинхронной шиной FastAPI.</p>
+                <h1 class="hub-title">Guilbert Photons <span class="title-kicker">/ Photon Observatory</span></h1>
+                <p class="hub-subtitle">Наблюдайте, как поисковый запрос проходит через фазовое поле и превращается в проверяемые документы.</p>
             </div>
             <div id="matrixLatency" class="live-badge">CPU: 0.00мс</div>
         </div>
@@ -184,17 +185,17 @@
         <div class="export-toolbar">
             <button id="btnExportJPEG" class="btn-export">🖼️ Сохранить JPEG</button>
             <button id="btnExportGIF" class="btn-export">🎞️ Записать GIF</button>
-            <span id="netLatency" class="live-badge" style="margin-left: auto;">API: —</span>
+            <span id="netLatency" class="live-badge">API: —</span>
         </div>
 
         <!-- Controls -->
         <div class="sandbox-controls">
             <div class="control-block">
-                <span class="control-label" id="sliderLabel">Энергия Накачки (ω): 2.0</span>
+                <label class="control-label" id="sliderLabel" for="planckSlider">Энергия поля (ω): 2.0</label>
                 <input type="range" id="planckSlider" class="apple-slider" min="1" max="6" step="0.5" value="2">
             </div>
             <div class="control-block">
-                <span class="control-label">Интенсивность пузырения (γ)</span>
+                <span class="control-label" id="basisLabel">Режим наблюдения (γ)</span>
                 <div class="basis-switcher">
                     <button class="basis-btn active" id="btnDirac">Вакуум (Low γ)</button>
                     <button class="basis-btn" id="btnHeisenberg">Пена (High γ)</button>
@@ -203,46 +204,45 @@
         </div>
 
         <!-- Jazz toggle -->
-        <button id="jazzToggleBtn" class="jazz-btn">
+        <button id="jazzToggleBtn" class="jazz-btn" type="button" aria-pressed="false" aria-describedby="audioHint">
             <svg class="jazz-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect class="wave-bar bar-1" x="2" y="6" width="4" height="12" rx="1" fill="currentColor"/>
                 <rect class="wave-bar bar-2" x="9" y="3" width="4" height="18" rx="1" fill="currentColor"/>
                 <rect class="wave-bar bar-3" x="16" y="8" width="4" height="8" rx="1" fill="currentColor"/>
             </svg>
-            <span id="jazzStatusText">Джаз: Выкл</span>
+            <span id="jazzStatusText">Атмосфера: Выкл</span>
         </button>
+        <span id="audioHint" class="control-hint">Фоновый звук работает независимо от поиска</span>
 
         <!-- Search -->
-        <div class="search-input-group">
-            <input type="text" id="searchInput" placeholder="Введите поисковый запрос и нажмите Enter..." autocomplete="off">
-        </div>
+        <form id="searchForm" class="search-input-group">
+            <label class="visually-hidden" for="searchInput">Поисковый запрос</label>
+            <input type="search" id="searchInput" placeholder="Найти документ или рубрику" autocomplete="off" required>
+            <p id="searchStatus" class="search-status" role="status" aria-live="polite"></p>
+        </form>
 
         <!-- Quantum field + paper sheets -->
         <div class="field-viewport" id="viewportField">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" class="field-svg" id="quantumSvgCanvas">
                 <defs>
-                    <linearGradient id="silverLiquidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
-                        <stop offset="50%" stop-color="#818cf8" stop-opacity="0.8"/>
-                        <stop offset="100%" stop-color="#c084fc" stop-opacity="0.3"/>
-                    </linearGradient>
-                    <filter id="liquidRefraction">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
-                    </filter>
+                    <pattern id="phaseGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#62d9d0" stroke-opacity="0.08" stroke-width="0.6"/>
+                    </pattern>
                 </defs>
                 <rect width="100%" height="100%" fill="#040711"/>
-                <path id="wavePathPsi" class="liquid-stream stream-deep" d="M20 80 Q100 40 200 80 T380 80"/>
-                <path id="wavePathSurface" class="liquid-stream stream-surface" d="M20 80 Q100 60 200 80 T380 80"/>
-                <path id="wavePathPhi" class="liquid-stream stream-vector" d="M20 80 Q100 90 200 80 T380 80"/>
+                <rect x="12" y="12" width="376" height="136" fill="url(#phaseGrid)"/>
+                <path class="phase-axis" d="M20 80 H380 M200 18 V142"/>
+                <path id="phaseTrajectory" class="phase-trajectory" d="M200 80"/>
+                <circle id="phasePointStart" class="phase-point phase-point-start" cx="200" cy="80" r="3"/>
+                <circle id="phasePointCurrent" class="phase-point phase-point-current" cx="200" cy="80" r="4"/>
+                <text class="phase-label" x="367" y="74">q</text>
+                <text class="phase-label" x="207" y="25">p</text>
+                <text class="phase-caption" x="20" y="25">PHASE SPACE / ω <tspan id="phaseFrequency">2.0</tspan></text>
             </svg>
-            <!-- Анимированные бумаги -->
-            <div class="paper-sheet paper-1"></div>
-            <div class="paper-sheet paper-2"></div>
-            <div class="paper-sheet paper-3"></div>
         </div>
 
         <!-- PPTX button -->
-        <button id="makePowerPointBtn" class="btn-export-xlsx" style="width:100%; margin-bottom:20px;">Скомпилировать многостраничный отчёт презентации (.PPTX)</button>
+        <button id="makePowerPointBtn" class="btn-export-xlsx report-button">Скомпилировать отчёт (.PPTX)</button>
 
         <!-- Stepper + Search button -->
         <div class="workspace-grid">
@@ -257,8 +257,8 @@
                 <div class="step-item" id="step2">
                     <div class="step-num">2</div>
                     <div class="step-body">
-                        <div class="step-t">ES Index Scan</div>
-                        <div class="step-d">Поиск совпадений в Elasticsearch</div>
+                        <div class="step-t">Photon Index Scan</div>
+                        <div class="step-d">Поиск совпадений в локальном индексе</div>
                     </div>
                 </div>
                 <div class="step-item" id="step3">
@@ -270,7 +270,7 @@
                 </div>
             </div>
             <div style="display:flex; align-items:center;">
-                <button id="hubActionBtn" class="action-btn-main">
+                <button id="hubActionBtn" class="action-btn-main" type="submit" form="searchForm" aria-busy="false">
                     <span class="btn-text">Инициировать сквозной синхронный поиск</span>
                     <div class="spinner"></div>
                 </button>
@@ -305,12 +305,13 @@
         'use strict';
 
         const API_BASE = window.location.origin;
-        let isUserWantsMusic = false;
         let isMusicActive = false;
 
         const hub = document.getElementById('enterpriseHub');
         const searchBtn = document.getElementById('hubActionBtn');
+        const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
+        const searchStatus = document.getElementById('searchStatus');
         const tableBody = document.getElementById('documentsTableBody');
         const gridResult = document.getElementById('dataGridResult');
         const latencyBadge = document.getElementById('netLatency');
@@ -325,9 +326,10 @@
         const sliderLabel = document.getElementById('sliderLabel');
         const btnDirac = document.getElementById('btnDirac');
         const btnHeisenberg = document.getElementById('btnHeisenberg');
-        const wavePsi = document.getElementById('wavePathPsi');
-        const waveSurface = document.getElementById('wavePathSurface');
-        const wavePhi = document.getElementById('wavePathPhi');
+        const phaseTrajectory = document.getElementById('phaseTrajectory');
+        const phasePointStart = document.getElementById('phasePointStart');
+        const phasePointCurrent = document.getElementById('phasePointCurrent');
+        const phaseFrequency = document.getElementById('phaseFrequency');
         const pptxBtn = document.getElementById('makePowerPointBtn');
 
         let currentPage = 0;
@@ -379,6 +381,7 @@
         }
 
         function playMusicStep() {
+            if (!audioCtx || !biquadFilter) return;
             const sTime = audioCtx.currentTime + 0.02;
             const chord = chords[Math.floor(currentMusicStep / 12) % chords.length];
             const step = currentMusicStep % 12;
@@ -402,28 +405,39 @@
             currentMusicStep = (currentMusicStep + 1) % 36;
         }
 
-        jazzBtn.addEventListener('click', () => {
-            isUserWantsMusic = !isUserWantsMusic;
-            if (isUserWantsMusic) {
+        function startAudio() {
+            if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 biquadFilter = audioCtx.createBiquadFilter();
                 biquadFilter.type = "lowpass";
                 biquadFilter.frequency.setValueAtTime(2200, audioCtx.currentTime);
                 biquadFilter.connect(audioCtx.destination);
-                jazzBtn.classList.add('music-playing');
-                jazzText.textContent = "Джаз: Вкл";
-                if (hub.classList.contains('processing')) {
-                    musicIntervalId = setInterval(playMusicStep, 115);
-                    startFryingNoise();
-                    isMusicActive = true;
-                }
-            } else {
-                jazzBtn.classList.remove('music-playing');
-                jazzText.textContent = "Джаз: Выкл";
-                clearInterval(musicIntervalId);
-                stopFryingNoise();
-                isMusicActive = false;
             }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (isMusicActive) return;
+            currentMusicStep = 0;
+            musicIntervalId = setInterval(playMusicStep, 115);
+            startFryingNoise();
+            isMusicActive = true;
+            jazzBtn.classList.add('music-playing');
+            jazzBtn.setAttribute('aria-pressed', 'true');
+            jazzText.textContent = "Атмосфера: Вкл";
+        }
+
+        function stopAudio() {
+            clearInterval(musicIntervalId);
+            musicIntervalId = null;
+            stopFryingNoise();
+            document.getElementById('viewportField').classList.remove('ears-blocked');
+            isMusicActive = false;
+            jazzBtn.classList.remove('music-playing');
+            jazzBtn.setAttribute('aria-pressed', 'false');
+            jazzText.textContent = "Атмосфера: Выкл";
+        }
+
+        jazzBtn.addEventListener('click', () => {
+            if (isMusicActive) stopAudio();
+            else startAudio();
         });
 
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
@@ -443,48 +457,41 @@
             if (!query) return escapeHtml(text);
             const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3).map(w => w.substring(0, w.length - 2));
             if (words.length === 0) return escapeHtml(text);
-            const pattern = new RegExp('(' + words.join('|') + ')[a-zA-Zа-яА-Я0-9]*', 'gi');
+            const escapedWords = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const pattern = new RegExp('(' + escapedWords.join('|') + ')[a-zA-Zа-яА-Я0-9]*', 'gi');
             return escapeHtml(text).replace(pattern, m => '<span class="highlight">' + m + '</span>');
         }
 
         function recalculateQuantumField() {
             const startTimer = performance.now();
-            const midY = 80;
-            let dPsi = 'M 20 ' + midY, dSurf = 'M 20 ' + midY, dPhi = 'M 20 ' + midY;
+            const centerX = 200;
+            const centerY = 80;
             const steps = 140;
-            const stepSize = 360 / steps;
+            const phasePoints = [];
             localQuantumDatabase = [];
 
             for (let i = 0; i <= steps; i++) {
-                const x = 20 + (i * stepSize);
-                const rad1 = (i / steps) * Math.PI * currentFreq;
-                const rad2 = (i / steps) * Math.PI * (currentFreq * 1.4);
-                const yPsi = midY - (Math.sin(rad1) * 25 + Math.sin(rad2) * (8 * gammaBubbleIntensity * 4));
-                const ySurf = midY - (Math.sin(rad1 + 0.5) * 22);
-                const yPhi = midY - (Math.cos(rad1 * 2) * 12);
-
-                if (i === 0) {
-                    dPsi = 'M ' + x + ' ' + yPsi;
-                    dSurf = 'M ' + x + ' ' + ySurf;
-                    dPhi = 'M ' + x + ' ' + yPhi;
-                } else {
-                    dPsi += ' L ' + x + ' ' + yPsi;
-                    dSurf += ' L ' + x + ' ' + ySurf;
-                    dPhi += ' L ' + x + ' ' + yPhi;
-                }
+                const phase = (i / steps) * Math.PI * 2;
+                const q = Math.sin(phase * currentFreq) * 24 + Math.sin(phase * currentFreq * 1.4) * (8 * gammaBubbleIntensity);
+                const p = Math.cos(phase * currentFreq) * 18 + Math.cos(phase * currentFreq * 1.4) * (6 * gammaBubbleIntensity);
+                phasePoints.push([centerX + q * 2.4, centerY - p * 2.1]);
 
                 if (i % 5 === 0) {
                     localQuantumDatabase.push({
                         index: localQuantumDatabase.length + 1,
                         state: '|ψ_(' + i + ')⟩',
-                        amplitude: parseFloat((yPsi - midY).toFixed(4))
+                        amplitude: parseFloat(q.toFixed(4))
                     });
                 }
             }
 
-            wavePsi.setAttribute('d', dPsi);
-            waveSurface.setAttribute('d', dSurf);
-            wavePhi.setAttribute('d', dPhi);
+            const trajectory = phasePoints.map((point, index) => (index === 0 ? 'M ' : 'L ') + point[0].toFixed(2) + ' ' + point[1].toFixed(2)).join(' ');
+            phaseTrajectory.setAttribute('d', trajectory);
+            phasePointStart.setAttribute('cx', phasePoints[0][0]);
+            phasePointStart.setAttribute('cy', phasePoints[0][1]);
+            phasePointCurrent.setAttribute('cx', phasePoints[phasePoints.length - 1][0]);
+            phasePointCurrent.setAttribute('cy', phasePoints[phasePoints.length - 1][1]);
+            phaseFrequency.textContent = currentFreq.toFixed(1);
             document.getElementById('matrixLatency').textContent = 'CPU: ' + (performance.now() - startTimer).toFixed(2) + 'мс';
         }
 
@@ -549,6 +556,8 @@
                 updatePaginationCounters();
             } catch (err) {
                 console.error(err);
+                if (searchStatus) searchStatus.textContent = 'Не удалось получить результаты. Проверьте соединение и повторите запрос.';
+                throw err;
             } finally {
                 isLoadingMore = false;
             }
@@ -565,12 +574,8 @@
             hub.classList.add('processing');
             searchBtn.disabled = true;
             searchBtn.classList.add('loading');
-
-            if (isUserWantsMusic && !isMusicActive) {
-                musicIntervalId = setInterval(playMusicStep, 115);
-                startFryingNoise();
-                isMusicActive = true;
-            }
+            searchBtn.setAttribute('aria-busy', 'true');
+            if (searchStatus) searchStatus.textContent = 'Сканируем фотонный индекс...';
 
             step1.className = "step-item active";
             step2.className = "step-item";
@@ -584,16 +589,14 @@
                 step3.className = "step-item active";
                 const dur = Math.round(performance.now() - tStart);
                 if (latencyBadge) latencyBadge.textContent = 'API: ' + dur + 'мс';
+                if (searchStatus) searchStatus.textContent = 'Найдено документов: ' + totalResults;
             } catch (e) {
                 if (latencyBadge) latencyBadge.textContent = 'API: Сбой';
+                if (searchStatus) searchStatus.textContent = 'Поиск завершился с ошибкой. Повторите запрос.';
             } finally {
-                if (isMusicActive) {
-                    clearInterval(musicIntervalId);
-                    stopFryingNoise();
-                    isMusicActive = false;
-                }
                 searchBtn.disabled = false;
                 searchBtn.classList.remove('loading');
+                searchBtn.setAttribute('aria-busy', 'false');
                 hub.classList.remove('processing');
                 step3.className = "step-item done";
             }
@@ -756,10 +759,19 @@
             recalculateQuantumField();
         });
 
-        searchBtn.addEventListener('click', startSearchFlow);
+        searchForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            startSearchFlow();
+        });
         pptxBtn.addEventListener('click', compilePowerPointReport);
-        loadMoreBtn.addEventListener('click', () => { currentPage++; loadPage(currentPage); });
-        searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') startSearchFlow(); });
+        loadMoreBtn.addEventListener('click', async () => {
+            currentPage++;
+            try {
+                await loadPage(currentPage);
+            } catch (error) {
+                currentPage--;
+            }
+        });
 
         // Инициализация
         recalculateQuantumField();

@@ -2,6 +2,7 @@ import asyncio
 import io
 import base64
 import logging
+import os
 from pathlib import Path
 import numpy as np
 import matplotlib
@@ -27,9 +28,12 @@ class DocumentSchema(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str
+    limit: int = Field(default=30, ge=1, le=100)
+    offset: int = Field(default=0, ge=0)
 
 class SearchResponse(BaseModel):
     results: List[DocumentSchema]
+    total: int
 
 # Новая Pydantic-модель для реактивного управления графиками
 class PlotRequest(BaseModel):
@@ -63,7 +67,10 @@ app = FastAPI(title="Search & Quantum Field Service", version="3.0", lifespan=li
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:8000,http://127.0.0.1:8000",
+    ).split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -115,7 +122,7 @@ def compute_and_render_plots(omega: float) -> dict:
     for i in range(num_nodes):
         for j in range(i+1, num_nodes):
             if np.hypot(nodes_x[i]-nodes_x[j], nodes_y[i]-nodes_y[j]) < 1.8:
-                ax.plot([nodes_x[i], nodes_x[j]], [nodes_y[i], nodes_y[j]], color='#10b981', stroke_width=0.5, alpha=0.3)
+                ax.plot([nodes_x[i], nodes_x[j]], [nodes_y[i], nodes_y[j]], color='#10b981', linewidth=0.5, alpha=0.3)
                 
     ax.scatter(nodes_x, nodes_y, color='#14b8a6', s=45, zorder=5, edgecolors='#ffffff', linewidths=0.5)
     ax.set_title(r"$A = 8\pi\gamma \ell_P^2 \sum \sqrt{j_i(j_i+1)}$", fontsize=11, color='#cbd5e1')
@@ -152,6 +159,10 @@ def compute_and_render_plots(omega: float) -> dict:
 @app.get("/", response_class=FileResponse)
 async def root():
     return FileResponse(Path(__file__).with_name("guilbert.html"), media_type="text/html")
+
+@app.get("/guilbert.css", response_class=FileResponse)
+async def stylesheet():
+    return FileResponse(Path(__file__).with_name("guilbert.css"), media_type="text/css")
 
 @app.post("/api/v1/generate-powerpoint")
 async def generate_powerpoint(request: PowerPointRequest):
@@ -202,14 +213,18 @@ async def generate_quantum_plots(request: PlotRequest):
 
 @app.post("/search", response_model=SearchResponse)
 async def search(request: SearchRequest):
-    logger.info("Полнотекстовый поиск Elasticsearch. Запрос: '%s'", request.query)
-    await asyncio.sleep(4.5) # Сетевое ожидание под звуковой сценарий
-    
-    mock_results = [
+    logger.info("Локальный полнотекстовый поиск. Запрос: '%s'", request.query)
+    query = request.query.casefold()
+    documents = [
         DocumentSchema(id=1024, rubrics=["политика", "финансы"], text=f"Документ по запросу '{request.query}'. Вектор состояния стабилен в гильбертовом поле."),
         DocumentSchema(id=2048, rubrics=["наука", "кванты"], text=f"Архивная выписка 1С. Квантование волновой функции зафиксировано успешно.")
     ]
-    return SearchResponse(results=mock_results)
+    matching_documents = [
+        document for document in documents
+        if not query or query in document.text.casefold() or any(query in rubric.casefold() for rubric in document.rubrics)
+    ]
+    page = matching_documents[request.offset:request.offset + request.limit]
+    return SearchResponse(results=page, total=len(matching_documents))
 
 @app.delete("/documents/{doc_id}")
 async def delete_doc(doc_id: int):
