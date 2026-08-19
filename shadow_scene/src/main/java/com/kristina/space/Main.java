@@ -2,45 +2,87 @@
 //import javafx.application.Application;import java
 
 package com.kristina.space;
-import javafx.application.Application;import javafx.fxml.FXMLLoader;import javafx.scene.Parent;import javafx.scene.Scene;import javafx.scene.PerspectiveCamera;import javafx.scene.SceneAntialiasing;import javafx.scene.AmbientLight;import javafx.scene.PointLight;import javafx.scene.paint.Color;import javafx.scene.layout.StackPane;import javafx.scene.shape.Sphere;import javafx.stage.Stage;
-public class Main extends Application {
-    @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/scene.fxml"));
-        Parent root = loader.load();
-        
-        StackPane rootPane = (StackPane) loader.getNamespace().get("rootPane");
-        Sphere sphere = (Sphere) loader.getNamespace().get("spaceSphere");
-        
-        PerspectiveCamera camera = new PerspectiveCamera(true);
-        camera.setNearClip(0.1);
-        camera.setFarClip(1000.0);
-        camera.setTranslateZ(-800);
-        
-        AmbientLight ambient = new AmbientLight(Color.web("#050515"));
-        
-        PointLight light = new PointLight(Color.WHITE);
-        double angle = Math.toRadians(30);
-        light.setTranslateX(Math.sin(angle) * 500);
-        light.setTranslateY(Math.cos(angle) * -500);
-        light.setTranslateZ(-300);
-        
-        rootPane.getChildren().addAll(camera, ambient, light);
-        
-        Scene scene = new Scene(root, 800, 600, true, SceneAntialiasing.BALANCED);
-        scene.setCamera(camera);
-        
-        stage.setTitle("Схема света и тени 30 градусов");
-        stage.setScene(scene);
-        stage.show();
+
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.Headers;
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.awt.Desktop;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        // Создаём HTTP-сервер на порту 8080
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+
+        // Обработчик для корневого пути и всех подпутей
+        server.createContext("/", new StaticFileHandler());
+
+        server.setExecutor(null); // используем стандартный Executor
+        server.start();
+
+        System.out.println("Сервер запущен на http://localhost:8080");
+        System.out.println("Для доступа извне используйте ngrok: ngrok http 8080");
+
+        // Открываем браузер автоматически
+        if (Desktop.isDesktopSupported()) {
+            Desktop.getDesktop().browse(URI.create("http://localhost:8080"));
+        }
+
+        // Ждём нажатия Enter для завершения
+        System.out.println("Нажмите Enter для остановки сервера...");
+        try {
+            System.in.read();
+        } catch (IOException ignored) {
+        }
+
+        server.stop(0);
+        System.out.println("Сервер остановлен.");
     }
 
-    @Override
-    public void stop() {
-        System.out.println("Симуляция остановлена. Ресурсы полностью уничтожены.");
-    }
+    // Простой обработчик статических файлов из ресурсов /web
+    static class StaticFileHandler implements HttpHandler {
+        @Override
+        public void handle(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
+            String path = exchange.getRequestURI().getPath();
+            if (path.equals("/")) {
+                path = "/index.html";
+            }
 
-    public static void main(String[] args) {
-        launch(args);
+            // Ищем файл в ресурсах (папка web)
+            InputStream is = getClass().getResourceAsStream("/web" + path);
+            if (is == null) {
+                // Если файл не найден, отдаём 404
+                String response = "404 Not Found";
+                exchange.sendResponseHeaders(404, response.length());
+                OutputStream os = exchange.getResponseBody();
+                os.write(response.getBytes(StandardCharsets.UTF_8));
+                os.close();
+                return;
+            }
+
+            // Определяем MIME-тип
+            String mime = "text/plain";
+            if (path.endsWith(".html")) mime = "text/html";
+            else if (path.endsWith(".css")) mime = "text/css";
+            else if (path.endsWith(".js")) mime = "application/javascript";
+            else if (path.endsWith(".png")) mime = "image/png";
+            else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) mime = "image/jpeg";
+
+            Headers headers = exchange.getResponseHeaders();
+            headers.set("Content-Type", mime);
+
+            // Читаем файл и отправляем
+            byte[] data = is.readAllBytes();
+            exchange.sendResponseHeaders(200, data.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(data);
+            os.close();
+            is.close();
+        }
     }
 }
