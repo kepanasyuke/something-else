@@ -4,7 +4,7 @@
   "api_url": "https://api.openalex.org/works",
   "license_note": "Bibliographic metadata and abstracts are collected from OpenAlex. Verify source license before redistributing full text.",
   "document_count": 5000,
-  "supported_search_languages": ["ru", "fr", "de"],
+  "supported_search_languages": ["all", "ru", "fr", "de"],
   "curated_annotation_count": 21,
   "queries": [
     "astrophysics",

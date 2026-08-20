@@ -6,7 +6,9 @@ Guilbert Photons ist ein lokales Observatorium für wissenschaftliche Dokumente.
 
 - Suche in 5.021 lokalen Datensätzen.
 - Suche auf Russisch, Französisch und Deutsch.
+- „Alle Sprachen“ ist standardmäßig aktiv; einzelne Sprachen sind optionale Filter.
 - Phasen-Trace-Animation mit Unterstützung für reduzierte Bewegung.
+- Cursor-gesteuertes Wärmefeld mit eigener Animationssteuerung.
 - Export als JPEG, GIF, XLSX und PPTX.
 - OpenAlex-Metadaten, Quelllinks und Kennzeichnung des offenen Zugangs.
 

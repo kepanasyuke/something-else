@@ -6,7 +6,9 @@ Guilbert Photons is a local scientific document observatory. It combines a FastA
 
 - Local search across 5,021 local records.
 - Russian, French, and German query aliases and curated annotations.
+- All languages is the default search mode; RU, FR, and DE are optional refinements.
 - Phase trace animation with reduced-motion support.
+- Cursor-driven thermal field with a local motion toggle.
 - JPEG, GIF, XLSX, and PPTX export actions.
 - OpenAlex metadata with source links and Open Access flags.
 

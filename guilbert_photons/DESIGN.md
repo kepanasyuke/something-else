@@ -18,6 +18,24 @@ Guilbert Photons is a document observatory: a query enters the optical field, th
 - **Thermal field:** the phase viewport uses a satellite-style thermal wash instead of a grid. The pointer is a local heat source: movement places the warm spot, stillness increases its intensity, and leaving the field lets it cool down.
 - **Field telemetry:** the viewport always names its current state (`waiting`, `observing`, `cooling`, or `paused`) so animation has an understandable cause and effect.
 
+## Developer color tokens
+
+The palette is implemented as CSS custom properties in `guilbert.css`. Use semantic tokens in components instead of introducing one-off colors.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--photon-ink` | `#071014` | page background and primary dark text |
+| `--photon-surface` | `#10252a` | observatory surface |
+| `--photon-canvas` | `#061013` | phase field canvas |
+| `--photon-heat-cold` | `#79e1d2` | cold signal, focus, trajectory |
+| `--photon-heat-warm` | `#f6c267` | source, parameter, warming |
+| `--photon-heat-hot` | `#f27f6d` | hot zone, warning, destructive action |
+| `--photon-paper` | `#e9f1e8` | high-emphasis text and primary controls |
+| `--photon-muted` | `#91a9a9` | secondary text and telemetry |
+| `--photon-line` | `rgba(154, 224, 210, 0.16)` | borders and quiet separators |
+
+Color is never the only state signal: active controls also use text, shape, focus rings, or `aria-pressed`. Thermal colors are reserved for the field and must not be reused for long blocks of body text.
+
 ## Screen structure
 
 1. Header: product name, one-line purpose, API and CPU status.
@@ -53,7 +71,7 @@ The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF 
 
 ## Implementation direction
 
-Keep the current FastAPI boundary, replace the demo document list with a small SQLite-backed corpus, and keep the phase portrait local in the browser. Load export libraries lazily when their buttons are used. This keeps the first screen fast and makes the search path independent from optional media features.
+Keep the current FastAPI boundary and local normalized JSON corpus; the current dataset contains 5,000 OpenAlex works plus curated multilingual annotations. Keep the phase portrait and thermal interaction local in the browser. Load export libraries lazily when their buttons are used. SQLite FTS5 remains a future indexing option when explainable ranking is needed.
 
 ## Scientific corpus
 
@@ -67,4 +85,4 @@ The interface follows a three-layer hierarchy: command (query and language), obs
 
 ## Supported search languages
 
-The search interface supports Russian (`ru`), French (`fr`), and German (`de`). The corpus remains bibliographic and primarily English; a local terminology map translates common astronomy, astrophysics, cosmology, quantum, particle, and space terms into searchable corpus terms without duplicating source records.
+The search interface supports an `all` mode plus Russian (`ru`), French (`fr`), and German (`de`). The corpus remains bibliographic and primarily English; a local terminology map translates common astronomy, astrophysics, cosmology, quantum, particle, and space terms into searchable corpus terms without duplicating source records.
