@@ -260,14 +260,16 @@
 
         <!-- Quantum field + paper sheets -->
         <div class="field-viewport" id="viewportField">
+            <div class="thermal-scan" aria-hidden="true"></div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" class="field-svg" id="quantumSvgCanvas" aria-hidden="true" focusable="false">
                 <defs>
-                    <pattern id="phaseGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#62d9d0" stroke-opacity="0.08" stroke-width="0.6"/>
-                    </pattern>
+                    <linearGradient id="thermalBase" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#0b292d"/>
+                        <stop offset="0.48" stop-color="#102329"/>
+                        <stop offset="1" stop-color="#271d24"/>
+                    </linearGradient>
                 </defs>
-                <rect width="100%" height="100%" fill="#040711"/>
-                <rect x="12" y="12" width="376" height="136" fill="url(#phaseGrid)"/>
+                <rect width="100%" height="100%" fill="url(#thermalBase)"/>
                 <path class="phase-axis" d="M20 80 H380 M200 18 V142"/>
                 <path id="phaseTrajectory" class="phase-trajectory" d="M200 80"/>
                 <circle id="phasePointStart" class="phase-point phase-point-start" cx="200" cy="80" r="3"/>
@@ -373,6 +375,7 @@
         const phasePointCurrent = document.getElementById('phasePointCurrent');
         const phaseFrequency = document.getElementById('phaseFrequency');
         const pptxBtn = document.getElementById('makePowerPointBtn');
+        const viewportField = document.getElementById('viewportField');
 
         let currentPage = 0;
         const pageSize = 30;
@@ -385,6 +388,43 @@
         let localQuantumDatabase = [];
         let motionEnabled = localStorage.getItem('guilbert-motion') !== 'off'
             && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let heatStrength = 0;
+        let heatLastMovedAt = 0;
+        let heatFrame = 0;
+        let heatActive = false;
+
+        function updateThermalField(event) {
+            if (!motionEnabled) return;
+            heatActive = true;
+            const bounds = viewportField.getBoundingClientRect();
+            const x = Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100));
+            const y = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100));
+            viewportField.style.setProperty('--heat-x', x + '%');
+            viewportField.style.setProperty('--heat-y', y + '%');
+            heatLastMovedAt = performance.now();
+            heatStrength = Math.max(heatStrength, 0.28);
+            if (!heatFrame) heatFrame = requestAnimationFrame(warmThermalField);
+        }
+
+        function warmThermalField(timestamp) {
+            heatFrame = 0;
+            if (!motionEnabled) return;
+            if (heatActive) {
+                const stillness = Math.min(1, (timestamp - heatLastMovedAt) / 1800);
+                heatStrength = Math.min(1, heatStrength + stillness * 0.035);
+            } else {
+                heatStrength *= 0.92;
+            }
+            viewportField.style.setProperty('--heat-alpha', (0.08 + heatStrength * 0.34).toFixed(3));
+            viewportField.style.setProperty('--heat-scale', (0.86 + heatStrength * 0.28).toFixed(2));
+            if (heatStrength > 0.01) heatFrame = requestAnimationFrame(warmThermalField);
+        }
+
+        viewportField.addEventListener('pointermove', updateThermalField, { passive: true });
+        viewportField.addEventListener('pointerenter', updateThermalField, { passive: true });
+        viewportField.addEventListener('pointerleave', () => {
+            heatActive = false;
+        });
 
         let audioCtx = null, musicIntervalId = null, currentMusicStep = 0, biquadFilter = null, sfxNoiseNode = null;
         const chords = [[48,52,55,59],[45,49,52,57],[43,47,50,55],[48,52,55,60]];
@@ -470,6 +510,12 @@
             document.documentElement.classList.toggle('motion-off', !motionEnabled);
             motionBtn.setAttribute('aria-pressed', String(motionEnabled));
             motionText.textContent = motionEnabled ? 'Анимация интерфейса: Вкл' : 'Анимация интерфейса: Выкл';
+            if (!motionEnabled) {
+                heatStrength = 0;
+                viewportField.style.setProperty('--heat-alpha', '0');
+            } else {
+                viewportField.style.setProperty('--heat-alpha', '0.08');
+            }
         }
 
         motionBtn.addEventListener('click', () => {

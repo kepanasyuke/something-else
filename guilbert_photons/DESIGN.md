@@ -15,6 +15,7 @@ Guilbert Photons is a document observatory: a query enters the optical field, th
 - **Motion:** short, informative transitions. The trajectory draws when a search starts; points pulse only when state changes; results reveal in a short stagger. No blur, spinning papers, or motion that hides content.
 - **Motion control:** animation is an interface setting, not a code-only feature. The user can switch it off and the choice is stored locally; `prefers-reduced-motion` is respected automatically.
 - **Control rhythm:** every secondary control uses the same stack: action, one-line explanation, equal bottom spacing. Atmosphere and animation are presented as a matched pair.
+- **Thermal field:** the phase viewport uses a satellite-style thermal wash instead of a grid. The pointer is a local heat source: movement places the warm spot, stillness increases its intensity, and leaving the field lets it cool down.
 
 ## Screen structure
 
@@ -47,6 +48,7 @@ The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF 
 - Network failures remain visible in the interface and do not mark workflow steps as successful.
 - Every interactive control has a keyboard focus state and an accessible name.
 - Reduced-motion users receive the final field state without looping animation.
+- The thermal field is scoped to the viewport and remains decorative; it never changes search data or interaction semantics.
 
 ## Implementation direction
 
