@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 function CanvasBoard({ filteredImages }) {
     return (
         <section className="canvas-board">
-            <div className="board-header"><span>ACTIVE_NODES: {filteredImages.length}</span><span>DRAG_MODE: FREE_FLOW</span></div>
-            <div className="card-field">
+            <div className="board-header"><span>ACTIVE_MODES: {filteredImages.length}</span><span>DRAG_MODE: FREE_FLOW</span></div>
+            <div className="card-field custom-scrollbar">
                 {filteredImages.map((image, index) => (
                     <motion.article
                         className="image-card"

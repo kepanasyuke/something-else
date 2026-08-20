@@ -3,7 +3,7 @@
         "id": "IMG-1001",
         "title": "Concrete Monolith Station",
         "category": "architecture",
-        "url": "https://picsum.photos/seed/stratu-concrete/640/480",
+        "url": "https://images.unsplash.com/photo-1486718448742-163732cd1544?w=640&h=480&fit=crop&crop=center",
         "metrics": { "geo": 95, "tex": 85, "clr": 10, "rhm": 20 },
         "hex_palette": ["#111111", "#7A7A7A", "#EEEEEE"]
     },
@@ -11,7 +11,7 @@
         "id": "IMG-1002",
         "title": "Acid Liquid Typography",
         "category": "graphics",
-        "url": "https://picsum.photos/seed/stratu-acid/640/480",
+        "url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=640&h=480&fit=crop&crop=center",
         "metrics": { "geo": 15, "tex": 20, "clr": 95, "rhm": 85 },
         "hex_palette": ["#00FF66", "#FF00FF", "#000000"]
     },
@@ -19,7 +19,7 @@
         "id": "IMG-1003",
         "title": "Swiss Typo Grid 77",
         "category": "graphics",
-        "url": "https://picsum.photos/seed/stratu-grid/640/480",
+        "url": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=640&h=480&fit=crop&crop=center",
         "metrics": { "geo": 100, "tex": 30, "clr": 15, "rhm": 10 },
         "hex_palette": ["#FF3333", "#FFFFFF", "#000000"]
     },
@@ -27,7 +27,7 @@
         "id": "IMG-1004",
         "title": "Raw Concrete Texture",
         "category": "texture",
-        "url": "https://picsum.photos/seed/stratu-raw/640/480",
+        "url": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=640&h=480&fit=crop&crop=center",
         "metrics": { "geo": 40, "tex": 95, "clr": 5, "rhm": 35 },
         "hex_palette": ["#222222", "#555555", "#888888"]
     },
@@ -35,7 +35,7 @@
         "id": "IMG-1005",
         "title": "Cyber Interface HUD",
         "category": "ui_tech",
-        "url": "https://picsum.photos/seed/stratu-hud/640/480",
+        "url": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=640&h=480&fit=crop&crop=center",
         "metrics": { "geo": 90, "tex": 40, "clr": 75, "rhm": 60 },
         "hex_palette": ["#001100", "#00FF00", "#222222"]
     }
