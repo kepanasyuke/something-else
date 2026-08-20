@@ -37,6 +37,21 @@ The palette is implemented as CSS custom properties in `guilbert.css`. Use seman
 
 Color is never the only state signal: active controls also use text, shape, focus rings, or `aria-pressed`. Thermal colors are reserved for the field and must not be reused for long blocks of body text.
 
+## Control state matrix
+
+| State | Visual treatment | UX meaning |
+| --- | --- | --- |
+| Rest | quiet surface, thin border, muted text | available but not competing with the query |
+| Hover | brighter border and surface | target is discoverable before commitment |
+| Focus | amber ring with offset | keyboard position is always visible |
+| Pressed | one-pixel downward shift and semantic accent | action was physically received |
+| Active | inset signal line and `aria-pressed` | mode remains selected after the click |
+| Loading | spinner, hidden label, disabled duplicate clicks | work is in progress |
+| Disabled | reduced opacity and `not-allowed` cursor | action is unavailable, never mysterious |
+| Error | coral edge and explicit text | recovery is needed; color is not the only clue |
+
+The primary action is the only full-width high-energy control. Export, mode, audio, motion, pagination, and destructive actions use quieter surfaces so the search command stays visually dominant. This follows the useful density of the local `search-service` interface while keeping the observatory's thermal language and focus treatment distinct.
+
 ## Screen structure
 
 1. Header: product name, one-line purpose, API and CPU status.
@@ -86,7 +101,16 @@ Run `make build-corpus` to refresh it. Use `make build-corpus CORPUS_TARGET=3000
 
 ## Design strategy review
 
-The interface follows a three-layer hierarchy: command (query and language), observatory (phase state and controls), and evidence (document rows). This keeps the expressive field subordinate to the research task. Compared with a generic dashboard, the system uses motion as feedback for state transitions rather than decoration: one pulse means active computation, nodes mean discovered matches, and the table remains readable when motion is disabled. The next safe improvement is ranked retrieval with explainable match reasons before adding more visual effects.
+The interface follows a three-layer hierarchy: command (query and language), observatory (phase state and controls), and evidence (document rows). This keeps the expressive field subordinate to the research task. Compared with a generic dashboard, the system uses motion as feedback for state transitions rather than decoration: one pulse means active computation, nodes mean discovered matches, and the table remains readable when motion is disabled. Compared with the neighboring `shadow_scene` screen, Guilbert uses denser operational controls and a stronger state vocabulary instead of relying on a single visual scene. The next safe improvement is ranked retrieval with explainable match reasons before adding more visual effects.
+
+## Design QA checklist
+
+- The search command is the first high-contrast action in the workflow.
+- Every button has a visible label or an accessible name, a hover state, a focus state, a pressed/active state where relevant, and a disabled state where relevant.
+- New control styling uses semantic color tokens consistently; legacy SVG artwork may keep local raw colors until it is migrated to the same token set.
+- Motion explains a state change and has a static equivalent.
+- A user can complete search, language selection, row expansion, pagination, and export with keyboard focus.
+- Mobile controls wrap without changing their order or meaning.
 
 ## Supported search languages
 
