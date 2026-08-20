@@ -13,6 +13,7 @@ Guilbert Photons is a document observatory: a query enters the optical field, th
 - **Typography:** expressive geometric sans for interface text; monospace only for IDs, latency, and API values.
 - **Shape:** compact 8-12px controls, thin borders, dense panels, no nested glass cards.
 - **Motion:** short, informative transitions. The trajectory draws when a search starts; points pulse only when state changes; results reveal in a short stagger. No blur, spinning papers, or motion that hides content.
+- **Motion control:** animation is an interface setting, not a code-only feature. The user can switch it off and the choice is stored locally; `prefers-reduced-motion` is respected automatically.
 
 ## Screen structure
 
@@ -38,6 +39,8 @@ The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF 
 ## Interaction rules
 
 - Search is independent from audio and never waits for a music event.
+- Changing the language reruns the current query immediately and keeps the table state coherent.
+- Search normalizes case and diacritics, understands local aliases, and falls back across the supported language dictionaries.
 - Empty input gets an inline message.
 - Network failures remain visible in the interface and do not mark workflow steps as successful.
 - Every interactive control has a keyboard focus state and an accessible name.
@@ -51,7 +54,11 @@ Keep the current FastAPI boundary, replace the demo document list with a small S
 
 The current local corpus contains 5,000 normalized OpenAlex works plus 21 curated navigation annotations in Russian, French, and German, for 5,021 local records. Each record keeps a title, abstract, topic labels, language, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
 
-Run `make build-corpus` to refresh it. Use `make build-corpus CORPUS_TARGET=3000`, `5000`, or `8000` to choose the corpus size. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search ranks the local corpus by simple field matching for now; the next indexing step is SQLite FTS5 when result ranking and larger imports become necessary.
+Run `make build-corpus` to refresh it. Use `make build-corpus CORPUS_TARGET=3000`, `5000`, or `8000` to choose the corpus size. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search currently uses normalized field matching; SQLite FTS5 is the next indexing step for ranking and larger imports.
+
+## Design strategy review
+
+The interface follows a three-layer hierarchy: command (query and language), observatory (phase state and controls), and evidence (document rows). This keeps the expressive field subordinate to the research task. Compared with a generic dashboard, the system uses motion as feedback for state transitions rather than decoration: one pulse means active computation, nodes mean discovered matches, and the table remains readable when motion is disabled. The next safe improvement is ranked retrieval with explainable match reasons before adding more visual effects.
 
 ## Supported search languages
 

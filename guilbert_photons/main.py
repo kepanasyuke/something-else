@@ -4,6 +4,7 @@ import base64
 import json
 import logging
 import os
+import unicodedata
 from pathlib import Path
 import numpy as np
 import matplotlib
@@ -62,6 +63,9 @@ SEARCH_ALIASES = {
         "гравитационные волны": "gravitational waves", "черная дыра": "black hole",
         "черные дыры": "black holes", "астрономия": "astronomy",
         "астрофизика": "astrophysics", "космология": "cosmology",
+        "темная материя": "dark matter", "нейтрино": "neutrino",
+        "экзопланета": "exoplanet", "экзопланеты": "exoplanets",
+        "плазма": "plasma", "космическая погода": "space weather",
     },
     "fr": {
         "étoile": "star", "étoiles": "stars", "galaxie": "galaxy",
@@ -70,6 +74,9 @@ SEARCH_ALIASES = {
         "ondes gravitationnelles": "gravitational waves", "trou noir": "black hole",
         "trous noirs": "black holes", "astronomie": "astronomy",
         "astrophysique": "astrophysics", "cosmologie": "cosmology",
+        "matière noire": "dark matter", "neutrinos": "neutrino",
+        "exoplanète": "exoplanet", "exoplanètes": "exoplanets",
+        "plasma": "plasma", "météo spatiale": "space weather",
     },
     "de": {
         "stern": "star", "sterne": "stars", "galaxie": "galaxy",
@@ -78,6 +85,9 @@ SEARCH_ALIASES = {
         "gravitationswellen": "gravitational waves", "schwarzes loch": "black hole",
         "schwarze löcher": "black holes", "astronomie": "astronomy",
         "astrophysik": "astrophysics", "kosmologie": "cosmology",
+        "dunkle materie": "dark matter", "neutrinos": "neutrino",
+        "exoplanet": "exoplanet", "exoplaneten": "exoplanets",
+        "plasma": "plasma", "weltraumwetter": "space weather",
     },
 }
 
@@ -113,14 +123,37 @@ def searchable_values(document: DocumentSchema) -> List[str]:
         document.text,
         document.title or "",
         document.journal or "",
+        document.language or "",
         *document.rubrics,
         *document.authors,
     ]
 
 
+def fold_search_text(value: str) -> str:
+    decomposed = unicodedata.normalize("NFKD", value.casefold())
+    return "".join(character for character in decomposed if not unicodedata.combining(character))
+
+
 def search_terms_for(query: str, language: str) -> List[str]:
-    normalized_query = query.casefold()
-    translated_query = SEARCH_ALIASES[language].get(normalized_query, normalized_query)
+    normalized_query = fold_search_text(query)
+    translated_query = next(
+        (
+            fold_search_text(term)
+            for alias, term in SEARCH_ALIASES[language].items()
+            if fold_search_text(alias) == normalized_query
+        ),
+        "",
+    )
+    if not translated_query:
+        translated_query = next(
+            (
+                fold_search_text(term)
+                for aliases in SEARCH_ALIASES.values()
+                for alias, term in aliases.items()
+                if fold_search_text(alias) == normalized_query
+            ),
+            normalized_query,
+        )
     terms = [translated_query]
     if translated_query != normalized_query:
         terms.append(normalized_query)
@@ -129,7 +162,7 @@ def search_terms_for(query: str, language: str) -> List[str]:
 
 def document_matches(document: DocumentSchema, terms: List[str]) -> bool:
     return any(
-        term in value.casefold()
+        term in fold_search_text(value)
         for term in terms
         for value in searchable_values(document)
     )

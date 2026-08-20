@@ -217,6 +217,10 @@
             <span id="jazzStatusText">Атмосфера: Выкл</span>
         </button>
         <span id="audioHint" class="control-hint">Фоновый звук работает независимо от поиска</span>
+        <button id="motionToggleBtn" class="motion-toggle" type="button" aria-pressed="true">
+            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4l2-7 4 14 2-7h4"/></svg>
+            <span id="motionStatusText">Движение: Вкл</span>
+        </button>
 
         <!-- Search -->
         <form id="searchForm" class="search-input-group">
@@ -349,6 +353,8 @@
         const step3 = document.getElementById('step3');
         const jazzBtn = document.getElementById('jazzToggleBtn');
         const jazzText = document.getElementById('jazzStatusText');
+        const motionBtn = document.getElementById('motionToggleBtn');
+        const motionText = document.getElementById('motionStatusText');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         const docCounter = document.getElementById('docCounter');
         const slider = document.getElementById('planckSlider');
@@ -371,6 +377,8 @@
         let currentFreq = 2.0;
         let gammaBubbleIntensity = 0.15;
         let localQuantumDatabase = [];
+        let motionEnabled = localStorage.getItem('guilbert-motion') !== 'off'
+            && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         let audioCtx = null, musicIntervalId = null, currentMusicStep = 0, biquadFilter = null, sfxNoiseNode = null;
         const chords = [[48,52,55,59],[45,49,52,57],[43,47,50,55],[48,52,55,60]];
@@ -450,6 +458,18 @@
         jazzBtn.addEventListener('click', () => {
             if (isMusicActive) stopAudio();
             else startAudio();
+        });
+
+        function applyMotionPreference() {
+            document.documentElement.classList.toggle('motion-off', !motionEnabled);
+            motionBtn.setAttribute('aria-pressed', String(motionEnabled));
+            motionText.textContent = motionEnabled ? 'Движение: Вкл' : 'Движение: Выкл';
+        }
+
+        motionBtn.addEventListener('click', () => {
+            motionEnabled = !motionEnabled;
+            localStorage.setItem('guilbert-motion', motionEnabled ? 'on' : 'off');
+            applyMotionPreference();
         });
 
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
@@ -836,6 +856,7 @@
         });
 
         // Инициализация
+        applyMotionPreference();
         recalculateQuantumField();
     })();
     </script>
