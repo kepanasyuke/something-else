@@ -208,20 +208,24 @@
         </div>
 
         <!-- Jazz toggle -->
-        <button id="jazzToggleBtn" class="jazz-btn" type="button" aria-pressed="false" aria-describedby="audioHint">
-            <svg class="jazz-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect class="wave-bar bar-1" x="2" y="6" width="4" height="12" rx="1" fill="currentColor"/>
-                <rect class="wave-bar bar-2" x="9" y="3" width="4" height="18" rx="1" fill="currentColor"/>
-                <rect class="wave-bar bar-3" x="16" y="8" width="4" height="8" rx="1" fill="currentColor"/>
-            </svg>
-            <span id="jazzStatusText">Атмосфера: Выкл</span>
-        </button>
-        <span id="audioHint" class="control-hint">Фоновый звук работает независимо от поиска</span>
-        <button id="motionToggleBtn" class="motion-toggle" type="button" aria-pressed="true" aria-describedby="motionHint">
-            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4l2-7 4 14 2-7h4"/></svg>
-            <span id="motionStatusText">Анимация интерфейса: Вкл</span>
-        </button>
-        <span id="motionHint" class="control-hint motion-hint">Только визуальные эффекты; поиск и таблица работают всегда</span>
+        <div class="control-stack">
+            <button id="jazzToggleBtn" class="jazz-btn" type="button" aria-pressed="false" aria-describedby="audioHint">
+                <svg class="jazz-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect class="wave-bar bar-1" x="2" y="6" width="4" height="12" rx="1" fill="currentColor"/>
+                    <rect class="wave-bar bar-2" x="9" y="3" width="4" height="18" rx="1" fill="currentColor"/>
+                    <rect class="wave-bar bar-3" x="16" y="8" width="4" height="8" rx="1" fill="currentColor"/>
+                </svg>
+                <span id="jazzStatusText">Атмосфера: Выкл</span>
+            </button>
+            <span id="audioHint" class="control-hint">Фоновый звук работает независимо от поиска</span>
+        </div>
+        <div class="control-stack">
+            <button id="motionToggleBtn" class="motion-toggle" type="button" aria-pressed="true" aria-describedby="motionHint">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4l2-7 4 14 2-7h4"/></svg>
+                <span id="motionStatusText">Анимация интерфейса: Вкл</span>
+            </button>
+            <span id="motionHint" class="control-hint motion-hint">Только визуальные эффекты; поиск и таблица работают всегда</span>
+        </div>
 
         <!-- Search -->
         <form id="searchForm" class="search-input-group">

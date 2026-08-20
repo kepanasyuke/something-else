@@ -224,8 +224,9 @@ body {
 
 .live-badge { margin-left: auto; color: var(--photon-cyan); background: rgba(98, 217, 208, 0.08); border-color: rgba(98, 217, 208, 0.24); }
 .control-label, .grid-header { color: var(--photon-muted); }
+.control-stack { display: grid; justify-items: start; gap: 5px; margin-bottom: 18px; }
 .control-hint { display: block; margin: -7px 0 18px; color: var(--photon-muted); font-size: 11px; }
-.jazz-btn + .control-hint { margin: 3px 0 18px 6px; padding-left: 10px; border-left: 1px solid rgba(121,225,210,.28); }
+.control-stack .control-hint { margin: 0; min-height: 30px; padding: 4px 0 0 10px; border-left: 1px solid rgba(121,225,210,.28); line-height: 1.35; }
 .search-input-group { margin-bottom: 18px; }
 .search-input-group input[type="search"] { width: 100%; padding: 15px 18px; border: 1px solid rgba(98, 217, 208, 0.2); border-radius: 10px; background: rgba(4, 7, 17, 0.72); color: #f1f7f7; font: 500 15px "Space Grotesk", sans-serif; }
 .search-input-group input[type="search"]::placeholder { color: #6f858d; }
@@ -240,6 +241,7 @@ body {
 .basis-btn { min-height: 36px; }
 .basis-btn.active { background: var(--photon-amber); border-color: var(--photon-amber); box-shadow: 0 0 16px rgba(244, 184, 96, 0.2); }
 .jazz-btn { margin-bottom: 0; border-radius: 8px; min-height: 36px; }
+.jazz-btn, .motion-toggle { min-width: 245px; margin: 0; justify-content: flex-start; }
 .jazz-btn.music-playing { background: rgba(98, 217, 208, 0.12); border-color: var(--photon-cyan); color: var(--photon-cyan); }
 .action-btn-main { background: var(--photon-cyan); color: var(--photon-ink); }
 .action-btn-main:hover, .action-btn-main:focus-visible { background: #a5ebe4; box-shadow: 0 8px 22px rgba(98, 217, 208, 0.18); }
@@ -258,6 +260,7 @@ button:focus-visible, input:focus-visible, .clickable-row:focus-visible { outlin
     .export-toolbar .btn-export { flex: 1 1 140px; }
     .search-row { grid-template-columns: 1fr; }
     .language-select-label select { width: 100%; }
+    .jazz-btn, .motion-toggle { width: 100%; min-width: 0; }
     .live-badge { margin-left: 0; }
     .grid-toolbar { gap: 10px; align-items: flex-start; flex-direction: column; }
     .table-wrapper { overflow-x: auto; }

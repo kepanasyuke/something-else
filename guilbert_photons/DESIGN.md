@@ -14,6 +14,7 @@ Guilbert Photons is a document observatory: a query enters the optical field, th
 - **Shape:** compact 8-12px controls, thin borders, dense panels, no nested glass cards.
 - **Motion:** short, informative transitions. The trajectory draws when a search starts; points pulse only when state changes; results reveal in a short stagger. No blur, spinning papers, or motion that hides content.
 - **Motion control:** animation is an interface setting, not a code-only feature. The user can switch it off and the choice is stored locally; `prefers-reduced-motion` is respected automatically.
+- **Control rhythm:** every secondary control uses the same stack: action, one-line explanation, equal bottom spacing. Atmosphere and animation are presented as a matched pair.
 
 ## Screen structure
 
