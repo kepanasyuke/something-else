@@ -52,6 +52,21 @@ Color is never the only state signal: active controls also use text, shape, focu
 
 The primary action is the only full-width high-energy control. Export, mode, audio, motion, pagination, and destructive actions use quieter surfaces so the search command stays visually dominant. This follows the useful density of the local `search-service` interface while keeping the observatory's thermal language and focus treatment distinct.
 
+## Visible control inventory
+
+| Surface | Role | Color family | Interaction rule |
+| --- | --- | --- | --- |
+| `Инициировать поиск по корпусу` | primary commit | cold cyan | one full-width action; loading replaces the label with a spinner |
+| language select | query scope | dark surface + cold cyan focus | `All languages` is the default; changing it reruns the current query |
+| `Вакуум` / `Пена` | mode switch | amber active state | one option is always visibly selected with `aria-pressed` |
+| JPEG / GIF / PPTX / XLSX | export | paper or cyan | never compete with search; hover adds lift, not scale |
+| atmosphere / animation | persistent toggles | quiet surface, cyan on | button and explanation form one aligned stack |
+| focus chips | shortcuts | amber outline | shortcuts fill the query, then submit the same search path |
+| `Загрузить ещё` | pagination | cold cyan | appears only when more results exist |
+| `Удалить` | destructive | coral | explicit label, no icon-only destructive action |
+
+The comparison rule is simple: `search-service` contributes density and directness; `shadow_scene` contributes atmosphere and scene continuity. Guilbert combines both but keeps the query, not the animation, as the highest-priority action. New controls must declare their role before choosing a color.
+
 ## Screen structure
 
 1. Header: product name, one-line purpose, API and CPU status.

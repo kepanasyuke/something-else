@@ -437,6 +437,10 @@ body {
     --control-pressed: rgba(246, 194, 103, .18);
     --control-focus: rgba(246, 194, 103, .42);
     --control-disabled: .42;
+    --control-primary: var(--photon-heat-cold);
+    --control-secondary: var(--photon-surface-soft);
+    --control-mode: var(--photon-heat-warm);
+    --control-danger: var(--photon-heat-hot);
 }
 
 button, select, input { font: inherit; }
@@ -467,13 +471,13 @@ button:focus:not(:focus-visible), select:focus:not(:focus-visible), input:focus:
 .btn-export:hover { background: var(--photon-heat-warm); border-color: var(--photon-heat-warm); box-shadow: 0 6px 18px rgba(246,194,103,.16); }
 .btn-export:active { background: var(--photon-heat-hot); color: var(--photon-paper); }
 
-.btn-export-xlsx { background: var(--photon-heat-cold); border-color: var(--photon-heat-cold); color: var(--photon-ink); }
+.btn-export-xlsx { background: var(--control-primary); border-color: var(--control-primary); color: var(--photon-ink); }
 .btn-export-xlsx:hover { background: var(--photon-paper); border-color: var(--photon-paper); box-shadow: 0 6px 18px rgba(121,225,210,.16); }
 .btn-export-xlsx:active { background: var(--photon-heat-warm); border-color: var(--photon-heat-warm); }
 
 .basis-btn { min-height: var(--control-height); background: var(--control-surface); border-color: var(--control-border); color: var(--photon-muted); }
 .basis-btn:hover { background: var(--control-surface-hover); color: var(--photon-paper); border-color: var(--photon-heat-cold); }
-.basis-btn.active, .basis-btn[aria-pressed="true"] { background: var(--control-pressed); border-color: var(--photon-heat-warm); color: var(--photon-paper); box-shadow: inset 0 -2px 0 var(--photon-heat-warm); }
+.basis-btn.active, .basis-btn[aria-pressed="true"] { background: var(--control-pressed); border-color: var(--control-mode); color: var(--photon-paper); box-shadow: inset 0 -2px 0 var(--control-mode); }
 
 .jazz-btn, .motion-toggle { background: var(--control-surface); border-color: var(--control-border); color: var(--photon-muted); }
 .jazz-btn:hover, .motion-toggle:hover { background: var(--control-surface-hover); color: var(--photon-paper); border-color: var(--photon-heat-cold); }
@@ -484,12 +488,12 @@ button:focus:not(:focus-visible), select:focus:not(:focus-visible), input:focus:
 .action-btn-main:hover { background: var(--photon-paper); box-shadow: 0 10px 28px rgba(121,225,210,.2); }
 .action-btn-main:active:not(:disabled) { background: var(--photon-heat-warm); }
 .action-btn-main.loading { cursor: wait; }
-.action-btn-main.loading, .action-btn-main:disabled { background: var(--photon-heat-cold); color: var(--photon-ink); }
+.action-btn-main.loading, .action-btn-main:disabled { background: var(--control-primary); color: var(--photon-ink); }
 
 .query-chip { min-height: 36px; border-color: rgba(246,194,103,.24); }
 .query-chip:active { background: var(--photon-heat-hot); color: var(--photon-paper); }
 
-#loadMoreBtn { padding: 6px 16px; background: var(--photon-heat-cold); border-color: var(--photon-heat-cold); color: var(--photon-ink); }
+#loadMoreBtn { padding: 6px 16px; background: var(--control-primary); border-color: var(--control-primary); color: var(--photon-ink); }
 #loadMoreBtn:hover { background: var(--photon-paper); border-color: var(--photon-paper); }
 .btn-table-delete { min-height: 32px; padding: 4px 10px; background: rgba(242,127,109,.08); border-color: rgba(242,127,109,.32); color: var(--photon-heat-hot); }
 .btn-table-delete:hover { background: var(--photon-heat-hot); border-color: var(--photon-heat-hot); color: var(--photon-paper); }
