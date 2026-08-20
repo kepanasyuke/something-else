@@ -118,6 +118,19 @@ Run `make build-corpus` to refresh it. Use `make build-corpus CORPUS_TARGET=3000
 
 The interface follows a three-layer hierarchy: command (query and language), observatory (phase state and controls), and evidence (document rows). This keeps the expressive field subordinate to the research task. Compared with a generic dashboard, the system uses motion as feedback for state transitions rather than decoration: one pulse means active computation, nodes mean discovered matches, and the table remains readable when motion is disabled. Compared with the neighboring `shadow_scene` screen, Guilbert uses denser operational controls and a stronger state vocabulary instead of relying on a single visual scene. The next safe improvement is ranked retrieval with explainable match reasons before adding more visual effects.
 
+## Disciplined art direction
+
+The visual strategy is intentionally constrained:
+
+1. **One dominant gesture:** the search command owns the strongest contrast and the largest action surface.
+2. **Three editorial bands:** `COMMAND / QUERY`, `OBSERVATORY / FIELD`, and `EVIDENCE / DOCUMENT REGISTER`. Every visible element belongs to one band.
+3. **One accent per role:** cyan activates, amber marks choice and source, coral warns. No new accent color is introduced for decoration.
+4. **Motion earns its place:** a transition must explain search, heat, detection, or settlement. Ambient motion stays slow and quiet.
+5. **Hard edges, soft light:** controls use compact geometry and thin borders; glow belongs to the thermal field, logo, and active signal only.
+6. **Information before atmosphere:** telemetry, labels, and result count remain readable when the field is visually intense or animation is disabled.
+
+This is deliberately stricter than the neighboring scene-oriented `shadow_scene` and more expressive than the operational `search-service`: Guilbert is a research instrument with an authored visual language, not a dashboard decorated with effects.
+
 ## Design QA checklist
 
 - The search command is the first high-contrast action in the workflow.

@@ -27,6 +27,7 @@ body {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
 }
+.quantum-canvas-card::before { content: "OBSERVATORY / 05.021 RECORDS / LOCAL FIELD"; position: absolute; top: 15px; right: 42px; color: rgba(145,169,169,.5); font: 9px "DM Mono", monospace; letter-spacing: .14em; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -328,6 +329,7 @@ body {
 .live-badge { padding: 7px 10px; border-radius: 4px; letter-spacing: .06em; }
 
 .export-toolbar { align-items: center; gap: 10px; margin-bottom: 26px; }
+.export-toolbar::before { content: "CAPTURE"; color: var(--photon-muted); font: 10px "DM Mono", monospace; letter-spacing: .14em; margin-right: 4px; }
 .btn-export, .btn-export-xlsx, .basis-btn, .jazz-btn, #loadMoreBtn { border-radius: 5px; }
 .btn-export { background: var(--photon-paper); min-height: 42px; padding: 8px 13px; }
 .btn-export:hover, .btn-export:focus-visible { background: var(--photon-amber); }
@@ -340,11 +342,13 @@ body {
     border-radius: 8px;
     background: rgba(121, 225, 210, 0.035);
 }
+.sandbox-controls::before { content: "FIELD PARAMETERS"; grid-column: 1 / -1; color: var(--photon-amber); font: 10px "DM Mono", monospace; letter-spacing: .14em; }
 .control-label { letter-spacing: .14em; }
 .basis-btn { min-height: 40px; padding: 8px 12px; }
 .basis-btn.active { color: var(--photon-ink); background: var(--photon-amber); border-color: var(--photon-amber); }
 
 .search-input-group { margin: 30px 0 18px; }
+.search-input-group::before { content: "COMMAND / QUERY"; display: block; margin-bottom: 9px; color: var(--photon-amber); font: 10px "DM Mono", monospace; letter-spacing: .14em; }
 .search-row { grid-template-columns: minmax(0, 1fr) 184px; gap: 12px; }
 .search-input-group input[type="search"], .language-select-label select {
     min-height: 54px;
@@ -370,6 +374,7 @@ body {
 .stats-signal i { width: 8px; height: 8px; border-radius: 50%; background: var(--photon-cyan); box-shadow: 0 0 0 5px rgba(121,225,210,.1); animation: signal-pulse 2s ease-in-out infinite; }
 
 .field-viewport { min-height: 260px; margin-bottom: 26px; padding: 30px; border-radius: 8px; border-color: var(--photon-line); background: var(--photon-canvas); }
+.field-viewport { border-left: 3px solid rgba(121,225,210,.38); }
 .field-viewport::after { content: "LIVE PHASE TRACE"; position: absolute; right: 18px; bottom: 15px; color: rgba(121,225,210,.38); font: 10px "DM Mono", monospace; letter-spacing: .14em; }
 .field-readout { position: absolute; left: 18px; right: 18px; top: 16px; z-index: 2; display: flex; justify-content: space-between; gap: 12px; color: rgba(233,241,232,.58); font: 9px "DM Mono", monospace; letter-spacing: .12em; pointer-events: none; }
 .field-readout span:first-child { color: var(--photon-amber); }
@@ -388,6 +393,7 @@ body {
 .action-btn-main:hover, .action-btn-main:focus-visible { background: var(--photon-paper); }
 
 .datagrid-panel { margin-top: 12px; padding-top: 30px; border-top-color: var(--photon-line); animation: results-arrive 450ms ease both; }
+.datagrid-panel::before { content: "EVIDENCE / DOCUMENT REGISTER"; display: block; margin-bottom: 12px; color: var(--photon-amber); font: 10px "DM Mono", monospace; letter-spacing: .14em; }
 .grid-header { color: var(--photon-paper); font-size: 12px; letter-spacing: .12em; }
 .table-wrapper { border-color: var(--photon-line); border-radius: 6px; }
 .b2b-table th { background: #0c2024; color: var(--photon-amber); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
@@ -420,6 +426,9 @@ body {
 @media (max-width: 700px) {
     body { padding: 18px 10px; }
     .quantum-canvas-card { padding: 24px 16px; }
+    .quantum-canvas-card::before { top: 10px; right: 16px; font-size: 8px; }
+    .hub-title { padding-top: 18px; }
+    .export-toolbar::before { flex-basis: 100%; }
     .observatory-stats { grid-template-columns: 1fr 1fr; }
     .stats-signal { grid-column: 1 / -1; }
     .field-viewport { min-height: 190px; padding: 16px; }
