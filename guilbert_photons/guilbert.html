@@ -261,6 +261,7 @@
                 <path class="phase-axis" d="M20 80 H380 M200 18 V142"/>
                 <path id="phaseTrajectory" class="phase-trajectory" d="M200 80"/>
                 <circle id="phasePointStart" class="phase-point phase-point-start" cx="200" cy="80" r="3"/>
+                <circle id="phasePulse" class="phase-pulse" cx="200" cy="80" r="2.5"/>
                 <circle id="phasePointCurrent" class="phase-point phase-point-current" cx="200" cy="80" r="4"/>
                 <text class="phase-label" x="367" y="74">q</text>
                 <text class="phase-label" x="207" y="25">p</text>
@@ -353,6 +354,7 @@
         const btnHeisenberg = document.getElementById('btnHeisenberg');
         const phaseTrajectory = document.getElementById('phaseTrajectory');
         const phasePointStart = document.getElementById('phasePointStart');
+        const phasePulse = document.getElementById('phasePulse');
         const phasePointCurrent = document.getElementById('phasePointCurrent');
         const phaseFrequency = document.getElementById('phaseFrequency');
         const pptxBtn = document.getElementById('makePowerPointBtn');
@@ -504,6 +506,9 @@
             phasePointStart.setAttribute('cy', phasePoints[0][1]);
             phasePointCurrent.setAttribute('cx', phasePoints[phasePoints.length - 1][0]);
             phasePointCurrent.setAttribute('cy', phasePoints[phasePoints.length - 1][1]);
+            const pulsePoint = phasePoints[Math.floor(phasePoints.length * 0.62)];
+            phasePulse.setAttribute('cx', pulsePoint[0]);
+            phasePulse.setAttribute('cy', pulsePoint[1]);
             phaseFrequency.textContent = currentFreq.toFixed(1);
             document.getElementById('matrixLatency').textContent = 'CPU: ' + (performance.now() - startTimer).toFixed(2) + 'мс';
         }

@@ -49,7 +49,7 @@ Keep the current FastAPI boundary, replace the demo document list with a small S
 
 ## Scientific corpus
 
-The current local corpus contains 1,500 normalized OpenAlex works. Each record keeps a title, abstract, topic labels, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
+The current local corpus contains 1,500 normalized OpenAlex works plus 21 curated navigation annotations in Russian, French, and German. Each record keeps a title, abstract, topic labels, language, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
 
 Run `make build-corpus` to refresh it. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search ranks the local corpus by simple field matching for now; the next indexing step is SQLite FTS5 when result ranking and larger imports become necessary.
 

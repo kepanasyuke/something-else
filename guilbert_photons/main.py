@@ -108,6 +108,45 @@ def load_knowledge_base() -> List[DocumentSchema]:
     return [DocumentSchema.model_validate(document) for document in documents]
 
 
+def searchable_values(document: DocumentSchema) -> List[str]:
+    return [
+        document.text,
+        document.title or "",
+        document.journal or "",
+        *document.rubrics,
+        *document.authors,
+    ]
+
+
+def search_terms_for(query: str, language: str) -> List[str]:
+    normalized_query = query.casefold()
+    translated_query = SEARCH_ALIASES[language].get(normalized_query, normalized_query)
+    terms = [translated_query]
+    if translated_query != normalized_query:
+        terms.append(normalized_query)
+    return terms
+
+
+def document_matches(document: DocumentSchema, terms: List[str]) -> bool:
+    return any(
+        term in value.casefold()
+        for term in terms
+        for value in searchable_values(document)
+    )
+
+
+def find_documents(query: str, language: str) -> List[DocumentSchema]:
+    matching_terms = search_terms_for(query, language)
+    documents = knowledge_base.copy() if not query else [
+        document for document in knowledge_base if document_matches(document, matching_terms)
+    ]
+    return documents
+
+
+def paginate_documents(documents: List[DocumentSchema], offset: int, limit: int) -> List[DocumentSchema]:
+    return documents[offset:offset + limit]
+
+
 knowledge_base = load_knowledge_base()
 
 # Настройка Enterprise-логирования
@@ -279,22 +318,8 @@ async def generate_quantum_plots(request: PlotRequest):
 @app.post("/search", response_model=SearchResponse)
 async def search(request: SearchRequest):
     logger.info("Локальный поиск мини-вики. Запрос: '%s'", request.query)
-    query = request.query.casefold()
-    aliases = SEARCH_ALIASES[request.language]
-    search_terms = [aliases.get(query, query)]
-    if query in aliases:
-        search_terms.append(query)
-    matching_documents = [
-        document for document in knowledge_base
-        if not query or any(term in value.casefold() for term in search_terms for value in (
-            document.text,
-            document.title or "",
-            document.journal or "",
-            *document.rubrics,
-            *document.authors,
-        ))
-    ]
-    page = matching_documents[request.offset:request.offset + request.limit]
+    matching_documents = find_documents(request.query, request.language)
+    page = paginate_documents(matching_documents, request.offset, request.limit)
     return SearchResponse(results=page, total=len(matching_documents), language=request.language)
 
 @app.delete("/documents/{doc_id}")

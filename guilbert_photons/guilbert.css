@@ -115,11 +115,13 @@ body {
 .phase-point { stroke-width: 1; }
 .phase-point-start { fill: var(--photon-amber); stroke: #08111a; }
 .phase-point-current { fill: var(--photon-coral); stroke: #f9d8a5; filter: drop-shadow(0 0 4px rgba(240, 111, 97, 0.8)); transform-box: fill-box; transform-origin: center; animation: phasePulse 1.8s ease-in-out infinite; }
+.phase-pulse { fill: var(--photon-paper); stroke: var(--photon-cyan); stroke-width: 1; opacity: 0; filter: drop-shadow(0 0 5px var(--photon-cyan)); }
 .phase-label { fill: #d5e1e3; font: 600 11px "Space Grotesk", sans-serif; }
 .phase-caption { fill: var(--photon-muted); font: 600 8px "Space Grotesk", sans-serif; letter-spacing: 1.2px; }
 @keyframes phasePulse { 50% { opacity: 0.45; transform: scale(1.35); } }
 
 .processing .phase-trajectory { stroke-dasharray: 7 11; animation: phaseTrace 1.8s linear infinite; }
+.processing .phase-pulse { opacity: 1; animation: photon-travel 1.8s cubic-bezier(.4,0,.2,1) infinite; }
 @keyframes phaseTrace { to { stroke-dashoffset: -36; } }
 
 /* Кнопка действия */
@@ -361,6 +363,9 @@ body {
 .b2b-table td { padding: 15px 12px; }
 .clickable-row { transition: background .2s, transform .2s; }
 .clickable-row:hover, .clickable-row:focus-visible { background: rgba(121,225,210,.075); }
+.clickable-row { animation: result-arrive .4s both; }
+.clickable-row:nth-of-type(4n + 1) { animation-delay: .04s; }
+.clickable-row:nth-of-type(4n + 3) { animation-delay: .1s; }
 .language-tag { display: inline-block; margin-bottom: 7px; padding: 3px 5px; border: 1px solid rgba(246,194,103,.35); border-radius: 3px; color: var(--photon-amber); font: 600 9px "DM Mono", monospace; letter-spacing: .08em; }
 .rubrics-list { display: flex; flex-wrap: wrap; gap: 4px; }
 .state-vector-tag { border-radius: 3px; }
@@ -371,6 +376,8 @@ body {
 @keyframes observatory-arrive { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes results-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes signal-pulse { 50% { opacity: .45; transform: scale(.72); } }
+@keyframes photon-travel { 0% { opacity: 0; transform: scale(.6); } 18% { opacity: 1; } 72% { opacity: 1; transform: scale(1.45); } 100% { opacity: 0; transform: scale(.7); } }
+@keyframes result-arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 700px) {
     body { padding: 18px 10px; }

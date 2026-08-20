@@ -1,88 +1,32 @@
-# ===== КОНФИГУРАЦИЯ И ПЕРЕМЕННЫЕ =====
-PYTHON = python3
-PIP = pip3
-UVICORN = uvicorn
-APP_MODULE = main:app
-HOST = 0.0.0.0
-PORT = 8000
+PYTHON ?= python3
+PIP ?= pip3
+UVICORN ?= uvicorn
+HOST ?= 0.0.0.0
+PORT ?= 8000
 
-# Переменные Docker
-IMAGE_NAME = search-service-hub
-CONTAINER_NAME = quantum-search-container
-
-# Цвета для красивого вывода в терминал
-CYAN = \033[0.5;36m
-GREEN = \033[0.5;32m
-NC = \033[0m
-
-.PHONY: help install build-corpus run tunnel build-container run-container stop-container clean kill kill-port
-
-# ===== КОМАНДЫ СПРАВКИ И ИНИЦИАЛИЗАЦИИ =====
+.PHONY: help install build-corpus run clean check
 
 help:
-	@echo "$(CYAN)Доступные команды локального Makefile:$(NC)"
-	@echo "  make install        - Установить все необходимые Python-библиотеки"
-	@echo "  make build-corpus   - Обновить корпус физики и космоса из OpenAlex"
-	@echo "  make run            - Запустить локальный сервер FastAPI в режиме разработки"
-	@echo "  make tunnel         - Открыть сервер извне через LocalTunnel"
-	@echo "  make clean          - Удалить кэш Python и сгенерированные файлы презентаций"
-	@echo "$(CYAN)Доступные команды для Docker:$(NC)"
-	@echo "  make build-container - Собрать Docker-образ поискового хаба"
-	@echo "  make run-container   - Запустить Docker-контейнер на порту $(PORT)"
-	@echo "  make stop-container  - Остановить и удалить активный Docker-контейнер"
+	@printf '%s\n' \
+		'make install       Install Python dependencies' \
+		'make build-corpus  Refresh the OpenAlex corpus' \
+		'make run           Start the FastAPI observatory' \
+		'make check         Run syntax and API smoke checks' \
+		'make clean         Remove generated local files'
 
 install:
-	@echo "$(GREEN)>>>> Установка необходимых B2B-компонентов...$(NC)"
-	$(PIP) install --upgrade pip
-	$(PIP) install fastapi uvicorn matplotlib python-pptx pydantic
+	$(PIP) install -r requirements.txt
 
 build-corpus:
-	@echo "$(GREEN)>>>> Загрузка научного корпуса OpenAlex...$(NC)"
 	$(PYTHON) scripts/build_corpus.py
 
-# ===== КОМАНДЫ ЗАПУСКА И РАЗРАБОТКИ =====
-
 run:
-	@echo "$(GREEN)>>>> Запуск FastAPI REST Engine на http://$(HOST):$(PORT)...$(NC)"
-	$(UVICORN) $(APP_MODULE) --host $(HOST) --port $(PORT) --reload
+	$(UVICORN) main:app --host $(HOST) --port $(PORT) --reload
 
-tunnel:
-	npx --yes localtunnel --port $(PORT)
-
-# ===== УПРАВЛЕНИЕ КОНТЕЙНЕРИЗАЦИЕЙ (DOCKER) =====
-
-build-container:
-	@echo "$(GREEN)>>>> Сборка Docker-образа [$(IMAGE_NAME)]...$(NC)"
-	docker build -t $(IMAGE_NAME) .
-
-run-container:
-	@echo "$(GREEN)>>>> Запуск контейнера [$(CONTAINER_NAME)] на порту $(PORT)...$(NC)"
-	docker run -d -p $(PORT):$(PORT) --name $(CONTAINER_NAME) $(IMAGE_NAME)
-	@echo "$(GREEN)>>>> Контейнер запущен успешно. Проверка здоровья: http://localhost:$(PORT)/health$(NC)"
-
-stop-container:
-	@echo "$(GREEN)>>>> Остановка и зачистка Docker-контейнера...$(NC)"
-	-docker stop $(CONTAINER_NAME)
-	-docker rm $(CONTAINER_NAME)
-
-# ===== СИСТЕМНАЯ ЗАЧИСТКА =====
+check:
+	$(PYTHON) -m py_compile main.py
+	$(PYTHON) -c "from fastapi.testclient import TestClient; from main import app; c = TestClient(app); assert c.get('/health').json() == {'status': 'ok'}; print('health: ok')"
 
 clean:
-	@echo "$(GREEN)>>>> Очистка временных файлов и кэша компиляции...$(NC)"
-	rm -rf __pycache__ .pytest_cache
-	rm -rf scripts/__pycache__
+	rm -rf __pycache__ .pytest_cache scripts/__pycache__
 	rm -f *.pptx *.xlsx *.png
-	@echo "$(GREEN)>>>> Очистка завершена успешно.$(NC)"
-
-# Мгновенно находит PID процесса main.py и уничтожает его сигналом -9
-kill:
-	@echo "\033[0.5;31m⚠️  Запуск принудительного завершения процессов (KILL)...\033[0m"
-	-pkill -9 -f "main.py" || true
-	-pkill -9 -f "uvicorn" || true
-	@echo "\033[0.5;32m✅ Все фоновые процессы Python успешно уничтожены.\033[0m"
-
-# Экстренное освобождение порта, если Uvicorn завис в состоянии TIME_WAIT
-kill-port:
-	@echo "\033[0.5;31m🧹 Сканирование и принудительная очистка порта $(PORT)...\033[0m"
-	-lsof -t -i:$(PORT) | xargs kill -9 2>/dev/null || true
-	@echo "\033[0.5;32m✅ Порт $(PORT) полностью свободен и готов к запуску.\033[0m"
