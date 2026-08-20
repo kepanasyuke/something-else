@@ -4,7 +4,7 @@ Guilbert Photons est un observatoire local de documents scientifiques. Il réuni
 
 ## Fonctionnalités
 
-- Recherche dans 1 521 notices bibliographiques.
+- Recherche dans 5 021 notices locales.
 - Recherche en russe, français et allemand.
 - Animation de la trace de phase avec prise en charge de la réduction des mouvements.
 - Export JPEG, GIF, XLSX et PPTX.

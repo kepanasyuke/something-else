@@ -33,7 +33,7 @@ A 8-10 second loop called **Photon Trace**:
 5. The document count fades in beside the field.
 6. The loop returns to idle without a flash or blur.
 
-The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF is a lightweight preview. A future WebM/MP4 export should record the visualization surface rather than the entire interface.
+The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF is a lightweight preview. The trace has four readable phases: source ignition, moving pulse, staggered detection nodes, and result settlement. A future WebM/MP4 export should record the visualization surface rather than the entire interface.
 
 ## Interaction rules
 
@@ -49,9 +49,9 @@ Keep the current FastAPI boundary, replace the demo document list with a small S
 
 ## Scientific corpus
 
-The current local corpus contains 1,500 normalized OpenAlex works plus 21 curated navigation annotations in Russian, French, and German. Each record keeps a title, abstract, topic labels, language, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
+The current local corpus contains 5,000 normalized OpenAlex works plus 21 curated navigation annotations in Russian, French, and German, for 5,021 local records. Each record keeps a title, abstract, topic labels, language, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
 
-Run `make build-corpus` to refresh it. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search ranks the local corpus by simple field matching for now; the next indexing step is SQLite FTS5 when result ranking and larger imports become necessary.
+Run `make build-corpus` to refresh it. Use `make build-corpus CORPUS_TARGET=3000`, `5000`, or `8000` to choose the corpus size. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search ranks the local corpus by simple field matching for now; the next indexing step is SQLite FTS5 when result ranking and larger imports become necessary.
 
 ## Supported search languages
 

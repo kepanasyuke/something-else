@@ -6,6 +6,7 @@ published full text.
 """
 
 import json
+import os
 import time
 from pathlib import Path
 from urllib.parse import urlencode
@@ -13,7 +14,7 @@ from urllib.request import Request, urlopen
 
 OUTPUT_PATH = Path(__file__).parents[1] / "knowledge_base.json"
 META_PATH = Path(__file__).parents[1] / "knowledge_base.meta.json"
-TARGET_SIZE = 1500
+TARGET_SIZE = int(os.getenv("CORPUS_TARGET", "5000"))
 PAGE_SIZE = 200
 QUERIES = [
     "astrophysics",
@@ -95,6 +96,7 @@ def normalize(work: dict, index: int) -> dict | None:
         text = f"{title}. {abstract}"
         document = {
             "id": 2000000 + index,
+            "language": work.get("language") or "en",
             "title": title,
             "rubrics": classify(text),
             "text": text,
@@ -147,6 +149,8 @@ def main() -> None:
                 "api_url": "https://api.openalex.org/works",
                 "license_note": "Bibliographic metadata and abstracts are collected from OpenAlex. Verify source license before redistributing full text.",
                 "document_count": len(documents),
+                "supported_search_languages": ["ru", "fr", "de"],
+                "curated_annotation_count": 21,
                 "queries": QUERIES,
                 "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             },

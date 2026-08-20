@@ -3,8 +3,9 @@
   "provider_url": "https://openalex.org/",
   "api_url": "https://api.openalex.org/works",
   "license_note": "Bibliographic metadata and abstracts are collected from OpenAlex. Verify source license before redistributing full text.",
-  "document_count": 1521,
+  "document_count": 5000,
   "supported_search_languages": ["ru", "fr", "de"],
+  "curated_annotation_count": 21,
   "queries": [
     "astrophysics",
     "cosmology",
@@ -14,5 +15,5 @@
     "gravitational waves",
     "astronomy"
   ],
-  "generated_at": "2026-08-19T22:08:05Z"
+  "generated_at": "2026-08-20T00:34:10Z"
 }

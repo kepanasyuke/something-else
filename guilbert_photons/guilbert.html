@@ -231,7 +231,7 @@
                     </select>
                 </label>
             </div>
-            <p id="searchStatus" class="search-status" role="status" aria-live="polite">1509 научных аннотаций · Поиск: русский, français, deutsch</p>
+            <p id="searchStatus" class="search-status" role="status" aria-live="polite">5021 научная запись · Поиск: русский, français, deutsch</p>
             <div class="quick-query-row" aria-label="Быстрые тематические запросы">
                 <span class="quick-query-label">Фокус</span>
                 <button class="query-chip" type="button" data-query="гравитационные волны">Гравитационные волны</button>
@@ -242,7 +242,7 @@
         </form>
 
         <div class="observatory-stats" aria-label="Сводка корпуса">
-            <div><strong id="corpusCount">1509</strong><span>записей в поле</span></div>
+                <div><strong id="corpusCount">5021</strong><span>записей в поле</span></div>
             <div><strong>03</strong><span>языка поиска</span></div>
             <div><strong>07</strong><span>научных направлений</span></div>
             <div class="stats-signal"><i></i><span>Индекс синхронизирован</span></div>
@@ -262,6 +262,9 @@
                 <path id="phaseTrajectory" class="phase-trajectory" d="M200 80"/>
                 <circle id="phasePointStart" class="phase-point phase-point-start" cx="200" cy="80" r="3"/>
                 <circle id="phasePulse" class="phase-pulse" cx="200" cy="80" r="2.5"/>
+                <circle class="trace-node trace-node-one" cx="130" cy="58" r="2"/>
+                <circle class="trace-node trace-node-two" cx="270" cy="102" r="2"/>
+                <circle class="trace-node trace-node-three" cx="320" cy="64" r="2"/>
                 <circle id="phasePointCurrent" class="phase-point phase-point-current" cx="200" cy="80" r="4"/>
                 <text class="phase-label" x="367" y="74">q</text>
                 <text class="phase-label" x="207" y="25">p</text>
@@ -806,6 +809,14 @@
         searchForm.addEventListener('submit', (event) => {
             event.preventDefault();
             startSearchFlow();
+        });
+        searchLanguage.addEventListener('change', () => {
+            if (currentQuery) {
+                searchInput.value = currentQuery;
+                startSearchFlow();
+            } else {
+                searchInput.focus();
+            }
         });
         queryChips.forEach((chip) => chip.addEventListener('click', () => {
             searchInput.value = chip.dataset.query;
