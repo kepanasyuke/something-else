@@ -11,11 +11,13 @@ import time
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 OUTPUT_PATH = Path(__file__).parents[1] / "knowledge_base.json"
 META_PATH = Path(__file__).parents[1] / "knowledge_base.meta.json"
 TARGET_SIZE = int(os.getenv("CORPUS_TARGET", "5000"))
 PAGE_SIZE = 200
+REQUEST_DELAY = float(os.getenv("CORPUS_REQUEST_DELAY", "0.8"))
 QUERIES = [
     "astrophysics",
     "cosmology",
@@ -38,12 +40,12 @@ SELECT = ",".join(
 )
 
 
-def fetch_page(query: str, page: int) -> dict:
+def fetch_page(query: str, cursor: str) -> dict:
     params = urlencode(
         {
             "filter": f"default.search:{query}",
             "per-page": PAGE_SIZE,
-            "page": page,
+            "cursor": cursor,
             "select": SELECT,
         }
     )
@@ -51,8 +53,18 @@ def fetch_page(query: str, page: int) -> dict:
         f"https://api.openalex.org/works?{params}",
         headers={"User-Agent": "GuilbertPhotons/1.0 (local research browser)"},
     )
-    with urlopen(request, timeout=45) as response:
-        return json.load(response)
+    for attempt in range(5):
+        try:
+            with urlopen(request, timeout=45) as response:
+                return json.load(response)
+        except HTTPError as error:
+            if error.code != 429 or attempt == 4:
+                raise
+            retry_after = error.headers.get("Retry-After")
+            wait_seconds = float(retry_after) if retry_after else 2 ** (attempt + 1)
+            print(f"OpenAlex rate limit; retrying in {wait_seconds:.0f}s")
+            time.sleep(wait_seconds)
+    raise RuntimeError("OpenAlex request retries exhausted")
 
 
 def restore_abstract(index: dict | None) -> str:
@@ -124,18 +136,18 @@ def add_page_documents(page: dict, documents: list, seen: set) -> None:
 def main() -> None:
     documents = []
     seen = set()
-    page = 1
+    cursor = "*"
     query_index = 0
     while len(documents) < TARGET_SIZE and query_index < len(QUERIES):
-        query = QUERIES[query_index]
-        payload = fetch_page(query, page)
+        payload = fetch_page(QUERIES[query_index], cursor)
         add_page_documents(payload, documents, seen)
-        if page * PAGE_SIZE >= payload.get("meta", {}).get("count", 0):
-            page = 1
+        next_cursor = payload.get("meta", {}).get("next_cursor")
+        if not next_cursor:
             query_index += 1
+            cursor = "*"
         else:
-            page += 1
-        time.sleep(0.15)
+            cursor = next_cursor
+        time.sleep(REQUEST_DELAY)
 
     if len(documents) < TARGET_SIZE:
         raise RuntimeError(f"Only collected {len(documents)} usable documents")

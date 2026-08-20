@@ -533,3 +533,36 @@ button:focus:not(:focus-visible), select:focus:not(:focus-visible), input:focus:
     .action-btn-main:hover { transform: none; box-shadow: none; }
 }
 
+/* Flat visual pass: depth comes from borders, spacing, and thermal color. */
+.quantum-canvas-card,
+.btn-export,
+.btn-export-xlsx,
+.basis-btn,
+.jazz-btn,
+.motion-toggle,
+.action-btn-main,
+.table-wrapper,
+.thermal-logo,
+.phase-point-current,
+.phase-trajectory,
+.apple-slider::-webkit-slider-thumb,
+.apple-slider::-moz-range-thumb {
+    box-shadow: none;
+}
+.btn-export:hover,
+.btn-export-xlsx:hover,
+.action-btn-main:hover,
+.search-input-group input[type="search"]:focus,
+.language-select-label select:focus {
+    box-shadow: none;
+}
+.basis-btn.active,
+.jazz-btn.music-playing,
+.motion-toggle[aria-pressed="true"] {
+    box-shadow: inset 0 -2px 0 currentColor;
+}
+.step-item.active { box-shadow: inset 3px 0 0 var(--photon-heat-cold); }
+.step-item.done { box-shadow: inset 3px 0 0 var(--photon-heat-warm); }
+.step-item.error { box-shadow: inset 3px 0 0 var(--photon-heat-hot); }
+.button-icon, .jazz-icon-svg { filter: none; }
+
