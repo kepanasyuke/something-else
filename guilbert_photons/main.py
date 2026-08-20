@@ -179,11 +179,21 @@ def search_terms_for(query: str, language: str) -> List[str]:
 
 
 def document_matches(document: DocumentSchema, terms: List[str]) -> bool:
+    folded_document, stemmed_document = SEARCH_INDEX.get(document.id, ("", ""))
     return any(
-        term in fold_search_text(value) or term in stem_phrase(value)
+        term in folded_document or term in stemmed_document
         for term in terms
-        for value in searchable_values(document)
     )
+
+
+def build_search_index(documents: List[DocumentSchema]) -> dict[int, tuple[str, str]]:
+    return {
+        document.id: (
+            " ".join(fold_search_text(value) for value in searchable_values(document)),
+            " ".join(stem_phrase(value) for value in searchable_values(document)),
+        )
+        for document in documents
+    }
 
 
 def find_documents(query: str, language: str) -> List[DocumentSchema]:
@@ -199,6 +209,7 @@ def paginate_documents(documents: List[DocumentSchema], offset: int, limit: int)
 
 
 knowledge_base = load_knowledge_base()
+SEARCH_INDEX = build_search_index(knowledge_base)
 
 # Настройка Enterprise-логирования
 logging.basicConfig(
@@ -377,6 +388,7 @@ async def search(request: SearchRequest):
 async def delete_doc(doc_id: int):
     global knowledge_base
     knowledge_base = [document for document in knowledge_base if document.id != doc_id]
+    SEARCH_INDEX.pop(doc_id, None)
     return {"status": "deleted"}
 
 @app.get("/health", include_in_schema=False)
