@@ -341,6 +341,7 @@ body {
 .search-input-group input[type="search"]:focus { box-shadow: 0 0 0 4px rgba(121,225,210,.09), 0 12px 30px rgba(0,0,0,.16); }
 .language-select-label select { min-height: 54px; }
 .search-status { margin-top: 10px; }
+.search-status::before { content: "STATUS / "; color: var(--photon-amber); font: 10px "DM Mono", monospace; letter-spacing: .08em; }
 .quick-query-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
 .quick-query-label { margin-right: 4px; color: var(--photon-amber); font: 500 10px "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
 .query-chip { border: 1px solid rgba(246,194,103,.24); border-radius: 100px; padding: 6px 10px; color: var(--photon-muted); background: rgba(246,194,103,.04); font: 500 11px "Space Grotesk", sans-serif; cursor: pointer; transition: transform .2s, background .2s, color .2s; }
@@ -355,6 +356,9 @@ body {
 
 .field-viewport { min-height: 260px; margin-bottom: 26px; padding: 30px; border-radius: 8px; border-color: var(--photon-line); background: #061013; }
 .field-viewport::after { content: "LIVE PHASE TRACE"; position: absolute; right: 18px; bottom: 15px; color: rgba(121,225,210,.38); font: 10px "DM Mono", monospace; letter-spacing: .14em; }
+.field-readout { position: absolute; left: 18px; right: 18px; top: 16px; z-index: 2; display: flex; justify-content: space-between; gap: 12px; color: rgba(233,241,232,.58); font: 9px "DM Mono", monospace; letter-spacing: .12em; pointer-events: none; }
+.field-readout span:first-child { color: var(--photon-amber); }
+.field-readout span:last-child { color: var(--photon-cyan); }
 .phase-trajectory { stroke-width: 1.8; }
 .processing .phase-point-current { animation: phasePulse .7s ease-in-out infinite; }
 
@@ -402,6 +406,7 @@ body {
     .observatory-stats { grid-template-columns: 1fr 1fr; }
     .stats-signal { grid-column: 1 / -1; }
     .field-viewport { min-height: 190px; padding: 16px; }
+    .field-readout { left: 12px; right: 12px; font-size: 8px; letter-spacing: .06em; }
     .workspace-grid { gap: 18px; }
 }
 

@@ -261,6 +261,10 @@
         <!-- Quantum field + paper sheets -->
         <div class="field-viewport" id="viewportField">
             <div class="thermal-scan" aria-hidden="true"></div>
+            <div class="field-readout" aria-live="polite">
+                <span id="thermalState">ТЕРМАЛЬНЫЙ СЛОЙ · ОЖИДАНИЕ</span>
+                <span id="heatCoordinates">КУРСОР · —</span>
+            </div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" class="field-svg" id="quantumSvgCanvas" aria-hidden="true" focusable="false">
                 <defs>
                     <linearGradient id="thermalBase" x1="0" y1="0" x2="1" y2="1">
@@ -376,6 +380,8 @@
         const phaseFrequency = document.getElementById('phaseFrequency');
         const pptxBtn = document.getElementById('makePowerPointBtn');
         const viewportField = document.getElementById('viewportField');
+        const thermalState = document.getElementById('thermalState');
+        const heatCoordinates = document.getElementById('heatCoordinates');
 
         let currentPage = 0;
         const pageSize = 30;
@@ -401,6 +407,8 @@
             const y = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100));
             viewportField.style.setProperty('--heat-x', x + '%');
             viewportField.style.setProperty('--heat-y', y + '%');
+            heatCoordinates.textContent = 'КУРСОР · ' + Math.round(x) + '% / ' + Math.round(y) + '%';
+            thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · НАБЛЮДЕНИЕ';
             heatLastMovedAt = performance.now();
             heatStrength = Math.max(heatStrength, 0.28);
             if (!heatFrame) heatFrame = requestAnimationFrame(warmThermalField);
@@ -424,6 +432,7 @@
         viewportField.addEventListener('pointerenter', updateThermalField, { passive: true });
         viewportField.addEventListener('pointerleave', () => {
             heatActive = false;
+            thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · ОСТЫВАНИЕ';
         });
 
         let audioCtx = null, musicIntervalId = null, currentMusicStep = 0, biquadFilter = null, sfxNoiseNode = null;
@@ -513,8 +522,10 @@
             if (!motionEnabled) {
                 heatStrength = 0;
                 viewportField.style.setProperty('--heat-alpha', '0');
+                thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · ПАУЗА';
             } else {
                 viewportField.style.setProperty('--heat-alpha', '0.08');
+                thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · ОЖИДАНИЕ';
             }
         }
 

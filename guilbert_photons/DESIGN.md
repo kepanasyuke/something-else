@@ -16,6 +16,7 @@ Guilbert Photons is a document observatory: a query enters the optical field, th
 - **Motion control:** animation is an interface setting, not a code-only feature. The user can switch it off and the choice is stored locally; `prefers-reduced-motion` is respected automatically.
 - **Control rhythm:** every secondary control uses the same stack: action, one-line explanation, equal bottom spacing. Atmosphere and animation are presented as a matched pair.
 - **Thermal field:** the phase viewport uses a satellite-style thermal wash instead of a grid. The pointer is a local heat source: movement places the warm spot, stillness increases its intensity, and leaving the field lets it cool down.
+- **Field telemetry:** the viewport always names its current state (`waiting`, `observing`, `cooling`, or `paused`) so animation has an understandable cause and effect.
 
 ## Screen structure
 
