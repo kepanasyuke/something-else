@@ -440,7 +440,7 @@ body {
 }
 
 button, select, input { font: inherit; }
-button { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 button:active:not(:disabled) { transform: translateY(1px); }
 button:disabled { opacity: var(--control-disabled); cursor: not-allowed; filter: saturate(.55); }
 button:focus-visible, select:focus-visible, input:focus-visible {
@@ -486,7 +486,7 @@ button:focus:not(:focus-visible), select:focus:not(:focus-visible), input:focus:
 .action-btn-main.loading { cursor: wait; }
 .action-btn-main.loading, .action-btn-main:disabled { background: var(--photon-heat-cold); color: var(--photon-ink); }
 
-.query-chip { min-height: 30px; border-color: rgba(246,194,103,.24); }
+.query-chip { min-height: 36px; border-color: rgba(246,194,103,.24); }
 .query-chip:active { background: var(--photon-heat-hot); color: var(--photon-paper); }
 
 #loadMoreBtn { padding: 6px 16px; background: var(--photon-heat-cold); border-color: var(--photon-heat-cold); color: var(--photon-ink); }
@@ -512,5 +512,11 @@ button:focus:not(:focus-visible), select:focus:not(:focus-visible), input:focus:
 
 @media (prefers-reduced-motion: reduce) {
     button, select, input, .clickable-row { transition: none !important; }
+}
+
+@media (hover: none) {
+    .btn-export:hover, .btn-export-xlsx:hover, .jazz-btn:hover, .motion-toggle:hover,
+    .basis-btn:hover, #loadMoreBtn:hover, .btn-table-delete:hover, .query-chip:hover,
+    .action-btn-main:hover { transform: none; box-shadow: none; }
 }
 
