@@ -1,36 +1,49 @@
 # Guilbert Photons
 
-Guilbert Photons is a local scientific document observatory. It combines a FastAPI search service, a phase-field visualization, multilingual navigation, and export actions for researchers exploring astronomy, astrophysics, cosmology, quantum physics, and space science.
+## Русский
 
-## Features
+Guilbert Photons — локальная научная обсерватория документов. Она объединяет поиск FastAPI, фазовую визуализацию, мультиязычные запросы и экспорт результатов для работы с астрономией, астрофизикой, космологией, квантовой физикой и космической наукой.
 
-- Local search across 5,021 local records.
-- Russian, French, and German query aliases and curated annotations.
-- All languages is the default search mode; RU, FR, and DE are optional refinements.
-- Phase trace animation with reduced-motion support.
-- Cursor-driven thermal field with a local motion toggle.
-- JPEG, GIF, XLSX, and PPTX export actions.
-- OpenAlex metadata with source links and Open Access flags.
-
-## Run locally
+### Запуск
 
 ```bash
 make install
 make run
 ```
 
-Open `http://localhost:8000`. Use `make check` for a syntax and health smoke check. Use `make build-corpus` to refresh the OpenAlex portion of the corpus.
+Откройте <http://localhost:8000>. Команда `make run` перед запуском освобождает порт `PORT` (по умолчанию `8000`). Для ручного управления используйте `make stop PORT=8000` или `make kill-port PORT=8000`.
 
-## Data and language policy
+### Проверки и данные
 
-OpenAlex records are bibliographic discovery data. The project stores titles, abstracts, authors, identifiers, and source links; it does not redistribute copied full-text articles. Curated multilingual entries are short navigation annotations that point to public research sources. Supported search languages are Russian (`ru`), Français (`fr`), and Deutsch (`de`).
+`make check` проверяет синтаксис, наличие не более одного `return` в каждой Python-функции, отсутствие `exit()` и health/API smoke-check. `make build-corpus` обновляет корпус OpenAlex; размер задаётся через `CORPUS_TARGET`.
 
-## Structure
+### Структура
 
-- `main.py` — FastAPI application and search contract.
-- `guilbert.html` / `guilbert.css` — observatory interface and animation.
-- `knowledge_base.json` — normalized OpenAlex corpus.
-- `multilingual_documents.json` — curated Russian, French, and German annotations.
-- `scripts/build_corpus.py` — OpenAlex corpus builder.
+- `app/` — FastAPI-приложение и backend-контракт.
+- `static/` — HTML-интерфейс и CSS.
+- `data/` — нормализованный корпус и метаданные.
+- `scripts/` — сборка корпуса и статические проверки.
+- `DESIGN.md` — пояснительная записка по визуальной системе.
 
-Further design notes live in `DESIGN.md`.
+Проект хранит библиографические данные, аннотации и ссылки, но не распространяет полные тексты статей.
+
+## Français
+
+Guilbert Photons est un observatoire local de documents scientifiques. Il réunit une recherche FastAPI, une visualisation de phase, des requêtes multilingues et l’export de résultats pour l’astronomie, l’astrophysique, la cosmologie, la physique quantique et les sciences spatiales.
+
+### Lancement
+
+```bash
+make install
+make run
+```
+
+Ouvrez <http://localhost:8000>. `make run` libère le port `PORT` avant le lancement (8000 par défaut). Utilisez `make stop PORT=8000` ou `make kill-port PORT=8000` pour le gérer manuellement.
+
+### Vérifications et données
+
+`make check` vérifie la syntaxe, limite chaque fonction Python à un seul `return`, interdit `exit()` et exécute un smoke-check de l’API. `make build-corpus` actualise le corpus OpenAlex; sa taille est contrôlée par `CORPUS_TARGET`.
+
+Le projet conserve des métadonnées bibliographiques, des résumés et des liens, mais ne redistribue pas les textes intégraux.
+
+Les documents de conception détaillés sont disponibles dans `DESIGN.md`.

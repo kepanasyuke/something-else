@@ -1,0 +1,1 @@
+"""Backend package for the Guilbert Photons observatory."""

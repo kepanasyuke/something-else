@@ -410,34 +410,36 @@
         }
 
         function updateThermalField(event) {
-            if (!motionEnabled) return;
-            heatActive = true;
-            const bounds = viewportField.getBoundingClientRect();
-            const x = Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100));
-            const y = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100));
-            viewportField.style.setProperty('--heat-x', x + '%');
-            viewportField.style.setProperty('--heat-y', y + '%');
-            logoHeat.style.setProperty('--logo-heat', heatStrength.toFixed(2));
-            heatCoordinates.textContent = 'КУРСОР · ' + Math.round(x) + '% / ' + Math.round(y) + '%';
-            thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · НАБЛЮДЕНИЕ';
-            heatLastMovedAt = performance.now();
-            heatStrength = Math.max(heatStrength, 0.28);
-            if (!heatFrame) heatFrame = requestAnimationFrame(warmThermalField);
+            if (motionEnabled) {
+                heatActive = true;
+                const bounds = viewportField.getBoundingClientRect();
+                const x = Math.max(0, Math.min(100, ((event.clientX - bounds.left) / bounds.width) * 100));
+                const y = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100));
+                viewportField.style.setProperty('--heat-x', x + '%');
+                viewportField.style.setProperty('--heat-y', y + '%');
+                logoHeat.style.setProperty('--logo-heat', heatStrength.toFixed(2));
+                heatCoordinates.textContent = 'КУРСОР · ' + Math.round(x) + '% / ' + Math.round(y) + '%';
+                thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · НАБЛЮДЕНИЕ';
+                heatLastMovedAt = performance.now();
+                heatStrength = Math.max(heatStrength, 0.28);
+                if (!heatFrame) heatFrame = requestAnimationFrame(warmThermalField);
+            }
         }
 
         function warmThermalField(timestamp) {
             heatFrame = 0;
-            if (!motionEnabled) return;
-            if (heatActive) {
-                const stillness = Math.min(1, (timestamp - heatLastMovedAt) / 1800);
-                heatStrength = Math.min(1, heatStrength + stillness * 0.035);
-            } else {
-                heatStrength *= 0.92;
+            if (motionEnabled) {
+                if (heatActive) {
+                    const stillness = Math.min(1, (timestamp - heatLastMovedAt) / 1800);
+                    heatStrength = Math.min(1, heatStrength + stillness * 0.035);
+                } else {
+                    heatStrength *= 0.92;
+                }
+                viewportField.style.setProperty('--heat-alpha', (0.08 + heatStrength * 0.34).toFixed(3));
+                viewportField.style.setProperty('--heat-scale', (0.86 + heatStrength * 0.28).toFixed(2));
+                logoHeat.style.setProperty('--logo-heat', heatStrength.toFixed(2));
+                if (heatStrength > 0.01) heatFrame = requestAnimationFrame(warmThermalField);
             }
-            viewportField.style.setProperty('--heat-alpha', (0.08 + heatStrength * 0.34).toFixed(3));
-            viewportField.style.setProperty('--heat-scale', (0.86 + heatStrength * 0.28).toFixed(2));
-            logoHeat.style.setProperty('--logo-heat', heatStrength.toFixed(2));
-            if (heatStrength > 0.01) heatFrame = requestAnimationFrame(warmThermalField);
         }
 
         viewportField.addEventListener('pointermove', updateThermalField, { passive: true });
@@ -451,46 +453,50 @@
         const chords = [[48,52,55,59],[45,49,52,57],[43,47,50,55],[48,52,55,60]];
 
         function createTone(freq, type, duration, startTime, volume, attack = 0.02) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
-            osc.type = type; osc.frequency.setValueAtTime(freq, startTime);
-            gainNode.gain.setValueAtTime(0, startTime);
-            gainNode.gain.linearRampToValueAtTime(volume, startTime + attack);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-            osc.connect(gainNode); gainNode.connect(biquadFilter);
-            osc.start(startTime); osc.stop(startTime + duration);
+            if (audioCtx) {
+                const osc = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, startTime);
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(volume, startTime + attack);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(gainNode); gainNode.connect(biquadFilter);
+                osc.start(startTime); osc.stop(startTime + duration);
+            }
         }
 
         function startFryingNoise() {
-            if (sfxNoiseNode || !audioCtx) return;
-            const bufferSize = audioCtx.sampleRate * 2;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            sfxNoiseNode = audioCtx.createBufferSource();
-            sfxNoiseNode.buffer = buffer;
-            sfxNoiseNode.loop = true;
-            const noiseGain = audioCtx.createGain();
-            noiseGain.gain.setValueAtTime(0.012, audioCtx.currentTime);
-            sfxNoiseNode.connect(noiseGain);
-            noiseGain.connect(biquadFilter);
-            sfxNoiseNode.start(0);
+            if (!sfxNoiseNode && audioCtx) {
+                const bufferSize = audioCtx.sampleRate * 2;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                sfxNoiseNode = audioCtx.createBufferSource();
+                sfxNoiseNode.buffer = buffer;
+                sfxNoiseNode.loop = true;
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.setValueAtTime(0.012, audioCtx.currentTime);
+                sfxNoiseNode.connect(noiseGain);
+                noiseGain.connect(biquadFilter);
+                sfxNoiseNode.start(0);
+            }
         }
 
         function stopFryingNoise() {
-            if (!sfxNoiseNode) return;
-            try { sfxNoiseNode.stop(); } catch (error) {}
-            sfxNoiseNode = null;
+            if (sfxNoiseNode) {
+                try { sfxNoiseNode.stop(); } catch (error) {}
+                sfxNoiseNode = null;
+            }
         }
 
         function playMusicStep() {
-            if (!audioCtx || !biquadFilter) return;
-            const sTime = audioCtx.currentTime + 0.02;
-            const chord = chords[Math.floor(currentMusicStep / 12) % chords.length];
-            const step = currentMusicStep % 12;
-            if (step % 4 === 0) createTone(440 * Math.pow(2, ((chord[0] - 24) - 69) / 12), 'triangle', 0.4, sTime, 0.35, 0.04);
-            if (currentMusicStep >= 24) createTone(440 * Math.pow(2, ((chord[step % chord.length] + 12) - 69) / 12), 'sine', 0.2, sTime, 0.15, 0.006);
-            currentMusicStep = (currentMusicStep + 1) % 36;
+            if (audioCtx && biquadFilter) {
+                const sTime = audioCtx.currentTime + 0.02;
+                const chord = chords[Math.floor(currentMusicStep / 12) % chords.length];
+                const step = currentMusicStep % 12;
+                if (step % 4 === 0) createTone(440 * Math.pow(2, ((chord[0] - 24) - 69) / 12), 'triangle', 0.4, sTime, 0.35, 0.04);
+                if (currentMusicStep >= 24) createTone(440 * Math.pow(2, ((chord[step % chord.length] + 12) - 69) / 12), 'sine', 0.2, sTime, 0.15, 0.006);
+                currentMusicStep = (currentMusicStep + 1) % 36;
+            }
         }
 
         function startAudio() {
@@ -502,14 +508,15 @@
                 biquadFilter.connect(audioCtx.destination);
             }
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            if (isMusicActive) return;
-            currentMusicStep = 0;
-            musicIntervalId = setInterval(playMusicStep, 115);
-            startFryingNoise();
-            isMusicActive = true;
-            jazzBtn.classList.add('music-playing');
-            jazzBtn.setAttribute('aria-pressed', 'true');
-            jazzText.textContent = "Атмосфера: Вкл";
+            if (!isMusicActive) {
+                currentMusicStep = 0;
+                musicIntervalId = setInterval(playMusicStep, 115);
+                startFryingNoise();
+                isMusicActive = true;
+                jazzBtn.classList.add('music-playing');
+                jazzBtn.setAttribute('aria-pressed', 'true');
+                jazzText.textContent = "Атмосфера: Вкл";
+            }
         }
 
         function stopAudio() {
@@ -643,8 +650,7 @@
                     mainTr.querySelector('.chevron-indicator').textContent = isExpanded ? '▼' : '▶';
                 };
                 mainTr.addEventListener('click', (e) => {
-                    if (e.target.closest('.btn-table-delete')) return;
-                    toggleExpanded();
+                    if (!e.target.closest('.btn-table-delete')) toggleExpanded();
                 });
                 mainTr.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -745,40 +751,42 @@
         }
 
         window.deleteDocumentById = async function(id, row, expRow) {
-            if (!confirm('Удалить документ ID: ' + id + '?')) return;
-            try {
-                const res = await fetch(API_BASE + '/documents/' + id, { method: 'DELETE' });
-                if (res.ok) {
-                    row.remove();
-                    expRow.remove();
-                    allDocuments = allDocuments.filter(d => d.id !== id);
-                    updatePaginationCounters();
+            if (confirm('Удалить документ ID: ' + id + '?')) {
+                try {
+                    const res = await fetch(API_BASE + '/documents/' + id, { method: 'DELETE' });
+                    if (res.ok) {
+                        row.remove();
+                        expRow.remove();
+                        allDocuments = allDocuments.filter(d => d.id !== id);
+                        updatePaginationCounters();
+                    }
+                } catch (e) {
+                    console.error(e);
                 }
-            } catch (e) {
-                console.error(e);
             }
         };
 
         window.exportToXLSX = function() {
-            if (allDocuments.length === 0) return;
-            const data = allDocuments.map(d => ({
-                'ID': d.id,
-                'Рубрики': Array.isArray(d.rubrics) ? d.rubrics.join(', ') : d.rubrics,
-                'Текст': d.text
-            }));
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(data);
-            XLSX.utils.book_append_sheet(wb, ws, "Документы");
-            XLSX.writeFile(wb, "search_results.xlsx");
+            if (allDocuments.length > 0) {
+                const data = allDocuments.map(d => ({
+                    'ID': d.id,
+                    'Рубрики': Array.isArray(d.rubrics) ? d.rubrics.join(', ') : d.rubrics,
+                    'Текст': d.text
+                }));
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, "Документы");
+                XLSX.writeFile(wb, "search_results.xlsx");
+            }
         };
 
         async function compilePowerPointReport() {
-            if (localQuantumDatabase.length === 0) return;
-            pptxBtn.disabled = true;
-            pptxBtn.textContent = "Сборка многостраничного PPTX отчета...";
-            try {
-                const amplitudes = localQuantumDatabase.map(r => r.amplitude);
-                const res = await fetch(API_BASE + '/api/v1/generate-powerpoint', {
+            if (localQuantumDatabase.length > 0) {
+                pptxBtn.disabled = true;
+                pptxBtn.textContent = "Сборка многостраничного PPTX отчета...";
+                try {
+                    const amplitudes = localQuantumDatabase.map(r => r.amplitude);
+                    const res = await fetch(API_BASE + '/api/v1/generate-powerpoint', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -796,11 +804,12 @@
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-            } catch (e) {
-                alert("Ошибка генерации PPTX отчета.");
-            } finally {
-                pptxBtn.disabled = false;
-                pptxBtn.textContent = "Скомпилировать многостраничный отчёт презентации (.PPTX)";
+                } catch (e) {
+                    alert("Ошибка генерации PPTX отчета.");
+                } finally {
+                    pptxBtn.disabled = false;
+                    pptxBtn.textContent = "Скомпилировать многостраничный отчёт презентации (.PPTX)";
+                }
             }
         }
 

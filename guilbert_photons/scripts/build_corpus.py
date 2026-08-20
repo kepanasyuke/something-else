@@ -13,8 +13,9 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
-OUTPUT_PATH = Path(__file__).parents[1] / "knowledge_base.json"
-META_PATH = Path(__file__).parents[1] / "knowledge_base.meta.json"
+DATA_PATH = Path(__file__).parents[1] / "data"
+OUTPUT_PATH = DATA_PATH / "knowledge_base.json"
+META_PATH = DATA_PATH / "knowledge_base.meta.json"
 TARGET_SIZE = int(os.getenv("CORPUS_TARGET", "5000"))
 PAGE_SIZE = 200
 REQUEST_DELAY = float(os.getenv("CORPUS_REQUEST_DELAY", "0.8"))

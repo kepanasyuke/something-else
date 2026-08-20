@@ -111,8 +111,11 @@ class PowerPointRequest(BaseModel):
     intensity: str
     amplitudes: List[float] = Field(default_factory=list)
 
-KNOWLEDGE_BASE_PATH = Path(__file__).with_name("knowledge_base.json")
-MULTILINGUAL_KNOWLEDGE_BASE_PATH = Path(__file__).with_name("multilingual_documents.json")
+PROJECT_ROOT = Path(__file__).parents[1]
+DATA_PATH = PROJECT_ROOT / "data"
+STATIC_PATH = PROJECT_ROOT / "static"
+KNOWLEDGE_BASE_PATH = DATA_PATH / "knowledge_base.json"
+MULTILINGUAL_KNOWLEDGE_BASE_PATH = DATA_PATH / "multilingual_documents.json"
 
 
 def load_knowledge_base() -> List[DocumentSchema]:
@@ -142,10 +145,12 @@ def fold_search_text(value: str) -> str:
 
 def stem_word(value: str) -> str:
     word = fold_search_text(value)
+    stemmed_word = word
     for suffix in sorted(SEARCH_SUFFIXES, key=len, reverse=True):
         if len(word) - len(suffix) >= 3 and word.endswith(suffix):
-            return word[:-len(suffix)]
-    return word
+            stemmed_word = word[:-len(suffix)]
+            break
+    return stemmed_word
 
 
 def stem_phrase(value: str) -> str:
@@ -314,11 +319,11 @@ def compute_and_render_plots(omega: float) -> dict:
 
 @app.get("/", response_class=FileResponse)
 async def root():
-    return FileResponse(Path(__file__).with_name("guilbert.html"), media_type="text/html")
+    return FileResponse(STATIC_PATH / "guilbert.html", media_type="text/html")
 
 @app.get("/guilbert.css", response_class=FileResponse)
 async def stylesheet():
-    return FileResponse(Path(__file__).with_name("guilbert.css"), media_type="text/css")
+    return FileResponse(STATIC_PATH / "guilbert.css", media_type="text/css")
 
 
 @app.get("/languages")
