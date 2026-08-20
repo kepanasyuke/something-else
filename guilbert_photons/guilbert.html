@@ -179,7 +179,10 @@
         <!-- Header -->
         <div class="hub-header">
             <div>
-                <h1 class="hub-title">Guilbert Photons <span class="title-kicker">/ Photon Observatory</span></h1>
+                <div class="brand-lockup">
+                    <span class="thermal-logo" aria-hidden="true"><i></i><b></b></span>
+                    <h1 class="hub-title">Guilbert Photons <span class="title-kicker">/ Photon Observatory</span></h1>
+                </div>
                 <p class="hub-subtitle">Наблюдайте, как поисковый запрос проходит через фазовое поле и превращается в проверяемые документы.</p>
             </div>
             <div id="matrixLatency" class="live-badge">CPU: 0.00мс</div>
@@ -351,6 +354,7 @@
         let isMusicActive = false;
 
         const hub = document.getElementById('enterpriseHub');
+        const hubHeader = document.querySelector('.hub-header');
         const searchBtn = document.getElementById('hubActionBtn');
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
@@ -382,6 +386,7 @@
         const viewportField = document.getElementById('viewportField');
         const thermalState = document.getElementById('thermalState');
         const heatCoordinates = document.getElementById('heatCoordinates');
+        const logoHeat = document.querySelector('.thermal-logo');
 
         let currentPage = 0;
         const pageSize = 30;
@@ -399,6 +404,11 @@
         let heatFrame = 0;
         let heatActive = false;
 
+        function setObservatoryState(state) {
+            hub.dataset.state = state;
+            hubHeader.dataset.state = state;
+        }
+
         function updateThermalField(event) {
             if (!motionEnabled) return;
             heatActive = true;
@@ -407,6 +417,7 @@
             const y = Math.max(0, Math.min(100, ((event.clientY - bounds.top) / bounds.height) * 100));
             viewportField.style.setProperty('--heat-x', x + '%');
             viewportField.style.setProperty('--heat-y', y + '%');
+            logoHeat.style.setProperty('--logo-heat', heatStrength.toFixed(2));
             heatCoordinates.textContent = 'КУРСОР · ' + Math.round(x) + '% / ' + Math.round(y) + '%';
             thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · НАБЛЮДЕНИЕ';
             heatLastMovedAt = performance.now();
@@ -425,6 +436,7 @@
             }
             viewportField.style.setProperty('--heat-alpha', (0.08 + heatStrength * 0.34).toFixed(3));
             viewportField.style.setProperty('--heat-scale', (0.86 + heatStrength * 0.28).toFixed(2));
+            logoHeat.style.setProperty('--logo-heat', heatStrength.toFixed(2));
             if (heatStrength > 0.01) heatFrame = requestAnimationFrame(warmThermalField);
         }
 
@@ -522,6 +534,7 @@
             if (!motionEnabled) {
                 heatStrength = 0;
                 viewportField.style.setProperty('--heat-alpha', '0');
+                logoHeat.style.setProperty('--logo-heat', '0');
                 thermalState.textContent = 'ТЕРМАЛЬНЫЙ СЛОЙ · ПАУЗА';
             } else {
                 viewportField.style.setProperty('--heat-alpha', '0.08');
@@ -692,6 +705,7 @@
             totalResults = 0;
 
             hub.classList.add('processing');
+            setObservatoryState('scanning');
             searchBtn.disabled = true;
             searchBtn.classList.add('loading');
             searchBtn.setAttribute('aria-busy', 'true');
@@ -710,12 +724,14 @@
                 const dur = Math.round(performance.now() - tStart);
                 if (latencyBadge) latencyBadge.textContent = 'API: ' + dur + 'мс';
                 if (searchStatus) searchStatus.textContent = 'Найдено документов: ' + totalResults + ' · Язык: ' + searchLanguage.options[searchLanguage.selectedIndex].text;
+                setObservatoryState('found');
                 } catch (e) {
                     if (latencyBadge) latencyBadge.textContent = 'API: Сбой';
                     if (searchStatus) searchStatus.textContent = 'Поиск завершился с ошибкой. Повторите запрос.';
                     step1.className = "step-item error";
                     step2.className = "step-item error";
                     step3.className = "step-item error";
+                    setObservatoryState('error');
                 } finally {
                     searchBtn.disabled = false;
                     searchBtn.classList.remove('loading');

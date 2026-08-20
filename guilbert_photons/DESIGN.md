@@ -17,6 +17,7 @@ Guilbert Photons is a document observatory: a query enters the optical field, th
 - **Control rhythm:** every secondary control uses the same stack: action, one-line explanation, equal bottom spacing. Atmosphere and animation are presented as a matched pair.
 - **Thermal field:** the phase viewport uses a satellite-style thermal wash instead of a grid. The pointer is a local heat source: movement places the warm spot, stillness increases its intensity, and leaving the field lets it cool down.
 - **Field telemetry:** the viewport always names its current state (`waiting`, `observing`, `cooling`, or `paused`) so animation has an understandable cause and effect.
+- **Thermal logo:** the logo orb mirrors field intensity and search state. It breathes at idle, accelerates during scanning, turns cyan on found, and coral on error.
 
 ## Developer color tokens
 
@@ -43,6 +44,10 @@ Color is never the only state signal: active controls also use text, shape, focu
 3. Observatory: phase portrait on the right and parameter controls below it.
 4. Results: count, export actions, accessible document rows, pagination, empty and error states.
 5. Audio: an independent ambient instrument. It can run while the user searches, reads, or changes the field.
+
+## UX state strategy
+
+The interface has three synchronized feedback channels: status text for clarity, the thermal field for spatial exploration, and the logo orb for peripheral awareness. Search phases are explicit: `idle` invites action, `scanning` confirms work is underway, `found` settles the result, and `error` uses a coral signal without hiding the cause in an animation. No state depends on color alone, and every animated state has a static equivalent.
 
 ## Video animation concept
 

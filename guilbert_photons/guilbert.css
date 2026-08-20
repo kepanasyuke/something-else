@@ -311,6 +311,17 @@ body {
     padding-bottom: 24px;
     border-bottom-color: var(--photon-line);
 }
+.brand-lockup { display: flex; align-items: center; gap: 14px; }
+.thermal-logo { --logo-heat: .08; position: relative; display: inline-grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; border: 1px solid rgba(121,225,210,.38); border-radius: 50%; background: radial-gradient(circle at 38% 32%, rgba(233,241,232,.92) 0 5%, rgba(246,194,103,.9) 18%, rgba(242,127,109,.72) 38%, rgba(7,16,20,.92) 72%); box-shadow: 0 0 calc(10px + var(--logo-heat) * 28px) rgba(242,127,109,calc(.16 + var(--logo-heat) * .44)), inset -8px -10px 18px rgba(7,16,20,.58); transform: rotate(-12deg); }
+.thermal-logo::before { content: ""; position: absolute; inset: -7px; border: 1px solid rgba(246,194,103,.36); border-left-color: transparent; border-radius: 50%; transform: rotate(28deg); animation: logo-orbit 7s linear infinite; }
+.thermal-logo::after { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(233,241,232,.42); border-radius: 50%; opacity: calc(.34 + var(--logo-heat) * .5); }
+.thermal-logo i, .thermal-logo b { position: absolute; display: block; border-radius: 50%; background: var(--photon-paper); }
+.thermal-logo i { width: 4px; height: 4px; top: 9px; right: 10px; opacity: .72; }
+.thermal-logo b { width: 3px; height: 3px; bottom: 11px; left: 10px; opacity: .5; }
+.hub-header .thermal-logo { animation: logo-breathe 4.5s ease-in-out infinite; }
+.processing .thermal-logo { animation: logo-breathe .9s ease-in-out infinite; }
+.hub-header[data-state="found"] .thermal-logo { border-color: var(--photon-cyan); }
+.hub-header[data-state="error"] .thermal-logo { border-color: var(--photon-coral); }
 .hub-title { font-size: clamp(24px, 3vw, 36px); line-height: 1; letter-spacing: -1.2px; }
 .title-kicker { display: block; margin-top: 8px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
 .hub-subtitle { max-width: 620px; margin-top: 15px; font-size: 14px; line-height: 1.65; }
@@ -394,6 +405,8 @@ body {
 .chevron-indicator { border-radius: 3px; }
 
 @keyframes observatory-arrive { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes logo-orbit { to { transform: rotate(388deg); } }
+@keyframes logo-breathe { 50% { transform: rotate(-12deg) scale(1.05); } }
 @keyframes results-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes signal-pulse { 50% { opacity: .45; transform: scale(.72); } }
 @keyframes photon-travel { 0% { opacity: 0; transform: scale(.6); } 18% { opacity: 1; } 72% { opacity: 1; transform: scale(1.45); } 100% { opacity: 0; transform: scale(.7); } }
