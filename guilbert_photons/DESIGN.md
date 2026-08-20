@@ -40,6 +40,7 @@ The UI preview should animate only the SVG field. JPEG is a still snapshot; GIF 
 
 - Search is independent from audio and never waits for a music event.
 - Changing the language reruns the current query immediately and keeps the table state coherent.
+- `All languages` is the default search mode; language selection is an optional refinement, not a navigation requirement.
 - Search normalizes case and diacritics, understands local aliases, and falls back across the supported language dictionaries.
 - Empty input gets an inline message.
 - Network failures remain visible in the interface and do not mark workflow steps as successful.

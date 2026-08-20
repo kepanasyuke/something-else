@@ -217,10 +217,11 @@
             <span id="jazzStatusText">Атмосфера: Выкл</span>
         </button>
         <span id="audioHint" class="control-hint">Фоновый звук работает независимо от поиска</span>
-        <button id="motionToggleBtn" class="motion-toggle" type="button" aria-pressed="true">
+        <button id="motionToggleBtn" class="motion-toggle" type="button" aria-pressed="true" aria-describedby="motionHint">
             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4l2-7 4 14 2-7h4"/></svg>
-            <span id="motionStatusText">Движение: Вкл</span>
+            <span id="motionStatusText">Анимация интерфейса: Вкл</span>
         </button>
+        <span id="motionHint" class="control-hint motion-hint">Только визуальные эффекты; поиск и таблица работают всегда</span>
 
         <!-- Search -->
         <form id="searchForm" class="search-input-group">
@@ -229,13 +230,14 @@
                 <input type="search" id="searchInput" placeholder="Найти документ или рубрику" autocomplete="off" required>
                 <label class="language-select-label" for="searchLanguage">Язык поиска
                     <select id="searchLanguage" aria-label="Язык поиска">
+                        <option value="all" selected>ALL · Все языки</option>
                         <option value="ru">RU · Русский</option>
                         <option value="fr">FR · Français</option>
                         <option value="de">DE · Deutsch</option>
                     </select>
                 </label>
             </div>
-            <p id="searchStatus" class="search-status" role="status" aria-live="polite">5021 научная запись · Поиск: русский, français, deutsch</p>
+            <p id="searchStatus" class="search-status" role="status" aria-live="polite">5021 научная запись · Поиск по всем языкам</p>
             <div class="quick-query-row" aria-label="Быстрые тематические запросы">
                 <span class="quick-query-label">Фокус</span>
                 <button class="query-chip" type="button" data-query="гравитационные волны">Гравитационные волны</button>
@@ -463,7 +465,7 @@
         function applyMotionPreference() {
             document.documentElement.classList.toggle('motion-off', !motionEnabled);
             motionBtn.setAttribute('aria-pressed', String(motionEnabled));
-            motionText.textContent = motionEnabled ? 'Движение: Вкл' : 'Движение: Выкл';
+            motionText.textContent = motionEnabled ? 'Анимация интерфейса: Вкл' : 'Анимация интерфейса: Выкл';
         }
 
         motionBtn.addEventListener('click', () => {

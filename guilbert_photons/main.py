@@ -37,7 +37,7 @@ class DocumentSchema(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str = Field(min_length=1, max_length=200)
-    language: Literal["ru", "fr", "de"] = "ru"
+    language: Literal["all", "ru", "fr", "de"] = "all"
     limit: int = Field(default=30, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
 
@@ -48,6 +48,7 @@ class SearchResponse(BaseModel):
 
 
 SUPPORTED_LANGUAGES = {
+    "all": "Все языки",
     "ru": "Русский",
     "fr": "Français",
     "de": "Deutsch",
@@ -90,6 +91,11 @@ SEARCH_ALIASES = {
         "plasma": "plasma", "weltraumwetter": "space weather",
     },
 }
+
+SEARCH_SUFFIXES = (
+    "ами", "ями", "ого", "ему", "ому", "ах", "ях", "ам", "ям", "ов", "ев", "ей", "ых", "их", "ым", "им", "ом", "ем",
+    "ами", "ями", "ées", "ées", "ent", "aux", "es", "er", "ez", "en", "er", "em", "es", "e", "s", "ы", "и", "а", "я", "у", "ю", "е", "о", "ь", "n",
+)
 
 # Новая Pydantic-модель для реактивного управления графиками
 class PlotRequest(BaseModel):
@@ -134,35 +140,47 @@ def fold_search_text(value: str) -> str:
     return "".join(character for character in decomposed if not unicodedata.combining(character))
 
 
+def stem_word(value: str) -> str:
+    word = fold_search_text(value)
+    for suffix in sorted(SEARCH_SUFFIXES, key=len, reverse=True):
+        if len(word) - len(suffix) >= 3 and word.endswith(suffix):
+            return word[:-len(suffix)]
+    return word
+
+
+def stem_phrase(value: str) -> str:
+    return " ".join(stem_word(word) for word in fold_search_text(value).split())
+
+
 def search_terms_for(query: str, language: str) -> List[str]:
     normalized_query = fold_search_text(query)
-    translated_query = next(
-        (
-            fold_search_text(term)
-            for alias, term in SEARCH_ALIASES[language].items()
-            if fold_search_text(alias) == normalized_query
-        ),
-        "",
-    )
+    stemmed_query = stem_phrase(query)
+    dictionaries = SEARCH_ALIASES.values() if language == "all" else [SEARCH_ALIASES[language]]
+    translated_query = next((
+        fold_search_text(term)
+        for aliases in dictionaries
+        for alias, term in aliases.items()
+        if stem_phrase(alias) in (normalized_query, stemmed_query)
+    ), "")
     if not translated_query:
         translated_query = next(
             (
                 fold_search_text(term)
                 for aliases in SEARCH_ALIASES.values()
                 for alias, term in aliases.items()
-                if fold_search_text(alias) == normalized_query
+                if stem_phrase(alias) == stemmed_query
             ),
             normalized_query,
         )
-    terms = [translated_query]
+    terms = [translated_query, stemmed_query]
     if translated_query != normalized_query:
         terms.append(normalized_query)
-    return terms
+    return list(dict.fromkeys(term for term in terms if len(term) >= 3))
 
 
 def document_matches(document: DocumentSchema, terms: List[str]) -> bool:
     return any(
-        term in fold_search_text(value)
+        term in fold_search_text(value) or term in stem_phrase(value)
         for term in terms
         for value in searchable_values(document)
     )

@@ -225,6 +225,7 @@ body {
 .live-badge { margin-left: auto; color: var(--photon-cyan); background: rgba(98, 217, 208, 0.08); border-color: rgba(98, 217, 208, 0.24); }
 .control-label, .grid-header { color: var(--photon-muted); }
 .control-hint { display: block; margin: -7px 0 18px; color: var(--photon-muted); font-size: 11px; }
+.jazz-btn + .control-hint { margin: 3px 0 18px 6px; padding-left: 10px; border-left: 1px solid rgba(121,225,210,.28); }
 .search-input-group { margin-bottom: 18px; }
 .search-input-group input[type="search"] { width: 100%; padding: 15px 18px; border: 1px solid rgba(98, 217, 208, 0.2); border-radius: 10px; background: rgba(4, 7, 17, 0.72); color: #f1f7f7; font: 500 15px "Space Grotesk", sans-serif; }
 .search-input-group input[type="search"]::placeholder { color: #6f858d; }
