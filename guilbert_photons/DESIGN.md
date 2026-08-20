@@ -52,3 +52,7 @@ Keep the current FastAPI boundary, replace the demo document list with a small S
 The current local corpus contains 1,500 normalized OpenAlex works. Each record keeps a title, abstract, topic labels, publication date, journal, authors, DOI, source URL, and Open Access flag. The corpus is bibliographic discovery data: the interface presents abstracts and links, not copied full-text articles.
 
 Run `make build-corpus` to refresh it. The generator records its provider, query families, timestamp, and licensing note in `knowledge_base.meta.json`. Search ranks the local corpus by simple field matching for now; the next indexing step is SQLite FTS5 when result ranking and larger imports become necessary.
+
+## Supported search languages
+
+The search interface supports Russian (`ru`), French (`fr`), and German (`de`). The corpus remains bibliographic and primarily English; a local terminology map translates common astronomy, astrophysics, cosmology, quantum, particle, and space terms into searchable corpus terms without duplicating source records.

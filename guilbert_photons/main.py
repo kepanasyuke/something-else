@@ -18,11 +18,12 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pptx import Presentation
 from pptx.util import Inches
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 # --- СХЕМЫ ДАННЫХ КОНТРАКТА ---
 class DocumentSchema(BaseModel):
     id: int
+    language: Optional[str] = None
     rubrics: List[str] = Field(default_factory=list)
     title: Optional[str] = None
     text: str
@@ -35,12 +36,50 @@ class DocumentSchema(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str = Field(min_length=1, max_length=200)
+    language: Literal["ru", "fr", "de"] = "ru"
     limit: int = Field(default=30, ge=1, le=100)
     offset: int = Field(default=0, ge=0)
 
 class SearchResponse(BaseModel):
     results: List[DocumentSchema]
     total: int
+    language: str
+
+
+SUPPORTED_LANGUAGES = {
+    "ru": "Русский",
+    "fr": "Français",
+    "de": "Deutsch",
+}
+
+# The corpus is English, so local aliases make the three supported search
+# languages useful without duplicating source records.
+SEARCH_ALIASES = {
+    "ru": {
+        "звезда": "star", "звезды": "stars", "галактика": "galaxy",
+        "галактики": "galaxies", "космос": "space", "квантовый": "quantum",
+        "квантовая": "quantum", "частица": "particle", "частицы": "particles",
+        "гравитационные волны": "gravitational waves", "черная дыра": "black hole",
+        "черные дыры": "black holes", "астрономия": "astronomy",
+        "астрофизика": "astrophysics", "космология": "cosmology",
+    },
+    "fr": {
+        "étoile": "star", "étoiles": "stars", "galaxie": "galaxy",
+        "galaxies": "galaxies", "espace": "space", "quantique": "quantum",
+        "particule": "particle", "particules": "particles",
+        "ondes gravitationnelles": "gravitational waves", "trou noir": "black hole",
+        "trous noirs": "black holes", "astronomie": "astronomy",
+        "astrophysique": "astrophysics", "cosmologie": "cosmology",
+    },
+    "de": {
+        "stern": "star", "sterne": "stars", "galaxie": "galaxy",
+        "galaxien": "galaxies", "weltraum": "space", "quanten": "quantum",
+        "quantum": "quantum", "teilchen": "particles", "teilchenphysik": "particle physics",
+        "gravitationswellen": "gravitational waves", "schwarzes loch": "black hole",
+        "schwarze löcher": "black holes", "astronomie": "astronomy",
+        "astrophysik": "astrophysics", "kosmologie": "cosmology",
+    },
+}
 
 # Новая Pydantic-модель для реактивного управления графиками
 class PlotRequest(BaseModel):
@@ -57,11 +96,16 @@ class PowerPointRequest(BaseModel):
     amplitudes: List[float] = Field(default_factory=list)
 
 KNOWLEDGE_BASE_PATH = Path(__file__).with_name("knowledge_base.json")
+MULTILINGUAL_KNOWLEDGE_BASE_PATH = Path(__file__).with_name("multilingual_documents.json")
 
 
 def load_knowledge_base() -> List[DocumentSchema]:
     with KNOWLEDGE_BASE_PATH.open(encoding="utf-8") as source:
-        return [DocumentSchema.model_validate(document) for document in json.load(source)]
+        documents = json.load(source)
+    if MULTILINGUAL_KNOWLEDGE_BASE_PATH.exists():
+        with MULTILINGUAL_KNOWLEDGE_BASE_PATH.open(encoding="utf-8") as source:
+            documents.extend(json.load(source))
+    return [DocumentSchema.model_validate(document) for document in documents]
 
 
 knowledge_base = load_knowledge_base()
@@ -175,6 +219,11 @@ async def root():
 async def stylesheet():
     return FileResponse(Path(__file__).with_name("guilbert.css"), media_type="text/css")
 
+
+@app.get("/languages")
+async def supported_languages():
+    return {"languages": SUPPORTED_LANGUAGES}
+
 def build_powerpoint(request: PowerPointRequest) -> io.BytesIO:
     presentation = Presentation()
     title_slide = presentation.slides.add_slide(presentation.slide_layouts[0])
@@ -231,21 +280,22 @@ async def generate_quantum_plots(request: PlotRequest):
 async def search(request: SearchRequest):
     logger.info("Локальный поиск мини-вики. Запрос: '%s'", request.query)
     query = request.query.casefold()
+    aliases = SEARCH_ALIASES[request.language]
+    search_terms = [aliases.get(query, query)]
+    if query in aliases:
+        search_terms.append(query)
     matching_documents = [
         document for document in knowledge_base
-        if not query or any(
-            query in value.casefold()
-            for value in (
-                document.text,
-                document.title or "",
-                document.journal or "",
-                *document.rubrics,
-                *document.authors,
-            )
-        )
+        if not query or any(term in value.casefold() for term in search_terms for value in (
+            document.text,
+            document.title or "",
+            document.journal or "",
+            *document.rubrics,
+            *document.authors,
+        ))
     ]
     page = matching_documents[request.offset:request.offset + request.limit]
-    return SearchResponse(results=page, total=len(matching_documents))
+    return SearchResponse(results=page, total=len(matching_documents), language=request.language)
 
 @app.delete("/documents/{doc_id}")
 async def delete_doc(doc_id: int):
