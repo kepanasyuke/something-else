@@ -1,0 +1,6 @@
+.unity-license/
+Builds/WebGL/
+Library/
+Temp/
+obj/
+Logs/
