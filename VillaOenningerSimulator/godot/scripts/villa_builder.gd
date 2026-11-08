@@ -72,12 +72,12 @@ func _init() -> void:
 	wood = _mat(Color(0.30, 0.23, 0.17), 0.0, 0.7)
 	deck = _mat(Color(0.24, 0.19, 0.15), 0.0, 0.82)
 	fabric = _mat(Color(0.24, 0.21, 0.20), 0.0, 0.95)
-	water = _glass(Color(0.04, 0.19, 0.27, 0.62))
+	water = _glass(Color(0.05, 0.22, 0.30, 0.66))
 	water.metallic = 0.35
 	water.roughness = 0.03
 	water.emission_enabled = true
-	water.emission = Color(0.05, 0.20, 0.24)
-	water.emission_energy_multiplier = 0.55
+	water.emission = Color(0.06, 0.24, 0.28)
+	water.emission_energy_multiplier = 0.90
 	ripple = _emissive(Color(0.42, 0.80, 0.92), 0.30)
 	rock = _mat(Color(0.16, 0.16, 0.17), 0.0, 0.95)
 	grass = _mat(Color(0.10, 0.15, 0.09), 0.0, 0.95)
@@ -640,10 +640,17 @@ func _build_terrace(root: Node3D) -> void:
 	for i in range(9):
 		var x := -12.0 + i * 3.0
 		part_box(terrace, "Railing_S_%d" % i, Vector3(x, 0.7, 18.9), Vector3(2.9, 1.1, 0.05), glass)
+		decor_box(terrace, "RailingTop_S_%d" % i, Vector3(x, 1.29, 18.9), Vector3(2.94, 0.07, 0.09), metal_light)
 	for i in range(3):
 		var z := 10.5 + i * 3.0
 		part_box(terrace, "Railing_E_%d" % i, Vector3(14.9, 0.7, z), Vector3(0.05, 1.1, 2.9), glass)
 		part_box(terrace, "Railing_W_%d" % i, Vector3(-14.9, 0.7, z), Vector3(0.05, 1.1, 2.9), glass)
+		decor_box(terrace, "RailingTop_E_%d" % i, Vector3(14.9, 1.29, z), Vector3(0.09, 0.07, 2.94), metal_light)
+		decor_box(terrace, "RailingTop_W_%d" % i, Vector3(-14.9, 1.29, z), Vector3(0.09, 0.07, 2.94), metal_light)
+	for i in range(11):
+		decor_cyl(terrace, "RailPost_%d" % i, Vector3(-15.0 + i * 3.0, 0.66, 18.9), 0.035, 1.32, Vector3.ZERO, metal_light)
+	for i in range(13):
+		decor_box(terrace, "DeckPlank_%d" % i, Vector3(-12.0 + i * 2.0, 0.035, 14.0), Vector3(0.06, 0.02, 9.5), concrete_dark)
 
 	part_box(terrace, "Lounger_0", Vector3(3.0, 0.22, 16.5), Vector3(2.0, 0.22, 0.8), fabric)
 	part_box(terrace, "Lounger_1", Vector3(6.0, 0.22, 16.5), Vector3(2.0, 0.22, 0.8), fabric)
@@ -766,9 +773,9 @@ func make_car() -> Node3D:
 	decor_box(car, "Car_Splitter", Vector3(1.94, 0.280, 0.0), Vector3(0.24, 0.04, 0.92), car_trim)
 	decor_box(car, "Car_Grille", Vector3(2.010, 0.390, 0.0), Vector3(0.04, 0.08, 0.66), car_trim)
 	decor_box(car, "Car_Diffuser", Vector3(-1.94, 0.280, 0.0), Vector3(0.26, 0.05, 0.96), car_trim)
-	decor_box(car, "Car_RearWing", Vector3(-1.62, 0.830, 0.0), Vector3(0.24, 0.04, 1.06), car_body)
-	decor_box(car, "Car_WingL", Vector3(-1.62, 0.800, 0.52), Vector3(0.22, 0.06, 0.05), car_body)
-	decor_box(car, "Car_WingR", Vector3(-1.62, 0.800, -0.52), Vector3(0.22, 0.06, 0.05), car_body)
+	decor_box(car, "Car_RearWing", Vector3(-1.66, 0.790, 0.0), Vector3(0.34, 0.05, 1.02), car_body)
+	decor_box(car, "Car_WingPostL", Vector3(-1.72, 0.755, 0.40), Vector3(0.10, 0.09, 0.06), car_trim)
+	decor_box(car, "Car_WingPostR", Vector3(-1.72, 0.755, -0.40), Vector3(0.10, 0.09, 0.06), car_trim)
 
 	decor_box(car, "Car_SeatL", Vector3(-0.30, 0.62, 0.30), Vector3(0.40, 0.15, 0.34), car_seat)
 	decor_box(car, "Car_SeatR", Vector3(-0.30, 0.62, -0.30), Vector3(0.40, 0.15, 0.34), car_seat)
@@ -800,26 +807,18 @@ func make_car() -> Node3D:
 		beam.spot_angle = 26.0
 		car.add_child(beam)
 
-	var wheel_pos := [Vector3(1.28, 0.32, 0.72), Vector3(1.28, 0.32, -0.72), Vector3(-1.28, 0.32, 0.72), Vector3(-1.28, 0.32, -0.72)]
+	var wheel_pos := [Vector3(1.28, 0.34, 0.80), Vector3(1.28, 0.34, -0.80), Vector3(-1.28, 0.34, 0.80), Vector3(-1.28, 0.34, -0.80)]
 	var index := 0
 	for wp in wheel_pos:
 		var out_sign := 1.0 if wp.z > 0.0 else -1.0
-		var wheel := mesh_sphere(0.32, 0.64, rubber)
-		wheel.name = "BallWheel_%d" % index
-		wheel.position = wp
-		wheel.scale = Vector3(1.0, 1.0, 0.52)
-		car.add_child(wheel)
-
-		var rim := mesh_sphere(0.175, 0.35, metal_light)
-		rim.name = "BallRim_%d" % index
-		rim.position = wp + Vector3(0, 0, 0.095 * out_sign)
-		rim.scale = Vector3(1.0, 1.0, 0.22)
-		car.add_child(rim)
+		decor_cyl(car, "Wheel_%d" % index, wp, 0.34, 0.24, Vector3(90, 0, 0), rubber)
+		decor_cyl(car, "WheelRim_%d" % index, wp + Vector3(0, 0, 0.09 * out_sign), 0.205, 0.10, Vector3(90, 0, 0), metal_light)
+		decor_cyl(car, "WheelHub_%d" % index, wp + Vector3(0, 0, 0.145 * out_sign), 0.075, 0.05, Vector3(90, 0, 0), car_trim)
 
 		var flare := mesh_sphere(1.0, 2.0, car_silver)
 		flare.name = "FenderFlare_%d" % index
-		flare.position = wp + Vector3(0, 0.07, 0.02 * out_sign)
-		flare.scale = Vector3(0.52, 0.24, 0.30)
+		flare.position = wp + Vector3(0, 0.10, 0.01 * out_sign)
+		flare.scale = Vector3(0.46, 0.17, 0.33)
 		car.add_child(flare)
 		index += 1
 	return car
