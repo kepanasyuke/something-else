@@ -3,23 +3,18 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class AdvancedRobotWrecker : MonoBehaviour
 {
-    [Header("Navigation")]
-    [SerializeField] private float movementSpeed = 10f;
-    [SerializeField] private float rotationSpeed = 7f;
-    [SerializeField] private float scanRadius = 50f;
-
-    [Header("Demolition")]
-    [SerializeField] private float shockwaveRadius = 5f;
-    [SerializeField] private float kineticImpactForce = 1100f;
-    [SerializeField] private Material wallInsideMaterial;
-
-    [Header("FX")]
-    [SerializeField] private GameObject concreteDustPrefab;
+    public float movementSpeed = 4f;
+    public float rotationSpeed = 5f;
+    public float scanRadius = 40f;
+    public float shockwaveRadius = 6f;
+    public float kineticImpactForce = 700f;
+    public Material wallInsideMaterial;
+    public GameObject concreteDustPrefab;
+    public string activeZoneLayer = "";
 
     private GameObject currentTarget;
-    private bool isActive = false;
+    private bool isActive;
     private Rigidbody rb;
-    private string activeZoneLayer = "";
 
     private void Start()
     {
@@ -43,17 +38,17 @@ public class AdvancedRobotWrecker : MonoBehaviour
         if (currentTarget == null)
         {
             FindNextTarget();
-            if (currentTarget == null) { isActive = false; return; }
+            if (currentTarget == null) return;
         }
 
         Vector3 dir = currentTarget.transform.position - transform.position;
-        dir.y = 0;
-        if (dir.magnitude > 0.2f)
-        {
-            Quaternion look = Quaternion.LookRotation(dir);
-            rb.MoveRotation(Quaternion.Slerp(transform.rotation, look, Time.fixedDeltaTime * rotationSpeed));
-            rb.MovePosition(rb.position + transform.forward * movementSpeed * Time.fixedDeltaTime);
-        }
+        dir.y = 0f;
+
+        if (dir.sqrMagnitude < 0.04f) return;
+
+        Quaternion look = Quaternion.LookRotation(dir, Vector3.up);
+        transform.rotation = Quaternion.Slerp(transform.rotation, look, Time.fixedDeltaTime * rotationSpeed);
+        transform.position += transform.forward * movementSpeed * Time.fixedDeltaTime;
     }
 
     private void FindNextTarget()
@@ -61,48 +56,37 @@ public class AdvancedRobotWrecker : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(transform.position, scanRadius);
         float minDist = float.MaxValue;
         GameObject closest = null;
-        int targetLayer = LayerMask.NameToLayer(activeZoneLayer);
-        foreach (var col in hits)
+
+        foreach (Collider col in hits)
         {
-            if (col.CompareTag("Destructible") && col.gameObject.layer == targetLayer)
+            if (!col.CompareTag("Destructible")) continue;
+
+            CollapsePart part = col.GetComponent<CollapsePart>();
+            if (part == null || part.IsCollapsed()) continue;
+
+            float d = Vector3.Distance(transform.position, col.transform.position);
+            if (d < minDist)
             {
-                var body = col.GetComponent<Rigidbody>();
-                if (body != null && body.isKinematic)
-                {
-                    float d = Vector3.Distance(transform.position, col.transform.position);
-                    if (d < minDist) { minDist = d; closest = col.gameObject; }
-                }
+                minDist = d;
+                closest = col.gameObject;
             }
         }
+
         currentTarget = closest;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Destructible")) return;
+
         Vector3 contact = other.ClosestPointOnBounds(transform.position);
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayCrashSound(contact);
-        ExecuteSlice(other.gameObject, contact);
-    }
 
-    private void ExecuteSlice(GameObject wall, Vector3 contact)
-    {
-        if (concreteDustPrefab != null)
-            Destroy(Instantiate(concreteDustPrefab, contact, Quaternion.identity), 3f);
+        CollapsePart part = other.GetComponent<CollapsePart>();
+        if (part != null)
+            part.Collapse(contact, 0.6f);
 
-        var pieces = MeshSlicer.Slice(wall, contact, transform.right, wallInsideMaterial);
-        if (pieces != null)
-        {
-            Destroy(wall);
-            foreach (var piece in pieces)
-            {
-                var body = piece.GetComponent<Rigidbody>();
-                if (body != null)
-                    body.AddExplosionForce(kineticImpactForce, contact, shockwaveRadius, 2f, ForceMode.Impulse);
-                HouseDestructionManager.Instance?.ReportBlockDestroyed(piece);
-            }
-        }
         FindNextTarget();
     }
 }

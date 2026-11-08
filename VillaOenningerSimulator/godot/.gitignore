@@ -1,0 +1,10 @@
+.godot/
+refs/
+*.exe
+*.pck
+
+build/*
+!build/shots/
+!build/shots/**
+
+*.import

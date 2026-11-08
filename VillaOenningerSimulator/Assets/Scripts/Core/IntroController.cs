@@ -1,61 +1,90 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(HouseDestructionManager))]
 public class IntroController : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private GameObject introPanel;
-    [SerializeField] private CanvasGroup introCanvasGroup;
-    [SerializeField] private TextMeshProUGUI lawsTextMesh;
-    [SerializeField] private GameObject gameplayHUD;
+    public GameObject introPanel;
+    public CanvasGroup introCanvasGroup;
+    public Text lawsText;
+    public GameObject gameplayHUD;
 
-    [Header("Timing Settings")]
-    [SerializeField] private float delayBetweenLaws = 4.0f;
-    [SerializeField] private float fadeDuration = 1.5f;
+    [Header("Timing")]
+    public float delayBetweenLaws = 4.0f;
+    public float fadeDuration = 1.5f;
+    public float holdBeforeDrive = 1.0f;
+
+    [Header("Scene")]
+    public ArrivalSequence arrival;
+    public CollapseDirector collapseDirector;
+    public float collapseDelayAfterArrival = 5f;
 
     private readonly string[] asimovLaws = new string[]
     {
-        "<color=#FF3333>ЗАКОН I</color>\n\nРобот не может причинить вред человеку или своим бездействием допустить, чтобы человеку был причинён вред.",
-        "<color=#FF3333>ЗАКОН II</color>\n\nРобот должен повиноваться всем приказам, которые даёт человек, кроме случаев, когда эти приказы противоречат Первому Закону.",
-        "<color=#FF3333>ЗАКОН III</color>\n\nРобот должен заботиться о своей безопасности в той мере, в какой это не противоречит Первому и Второму Законам."
+        "ЗАКОН I\n\nРобот не может причинить вред человеку или своим бездействием допустить, чтобы человеку был причинён вред.",
+        "ЗАКОН II\n\nРобот должен повиноваться всем приказам, которые даёт человек, кроме случаев, когда эти приказы противоречат Первому Закону.",
+        "ЗАКОН III\n\nРобот должен заботиться о своей безопасности в той мере, в какой это не противоречит Первому и Второму Законам."
     };
 
     private void Start()
     {
-        gameplayHUD.SetActive(false);
-        introPanel.SetActive(true);
-        introCanvasGroup.alpha = 1f;
+        if (gameplayHUD != null)
+            gameplayHUD.SetActive(false);
+
+        if (introPanel != null)
+            introPanel.SetActive(true);
+
+        if (introCanvasGroup != null)
+            introCanvasGroup.alpha = 1f;
+
         StartCoroutine(ExecuteIntroSequence());
     }
 
     private IEnumerator ExecuteIntroSequence()
     {
-        for (int i = 0; i < asimovLaws.Length; i++)
+        if (lawsText != null)
         {
-            lawsTextMesh.text = asimovLaws[i];
-            lawsTextMesh.canvasRenderer.SetAlpha(0.0f);
-            lawsTextMesh.CrossFadeAlpha(1.0f, 0.5f, false);
-            yield return new WaitForSeconds(delayBetweenLaws);
-            if (i < asimovLaws.Length - 1)
+            for (int i = 0; i < asimovLaws.Length; i++)
             {
-                lawsTextMesh.CrossFadeAlpha(0.0f, 0.5f, false);
-                yield return new WaitForSeconds(0.6f);
+                lawsText.text = asimovLaws[i];
+                lawsText.canvasRenderer.SetAlpha(0f);
+                lawsText.CrossFadeAlpha(1f, 0.5f, false);
+                yield return new WaitForSeconds(delayBetweenLaws);
+
+                if (i < asimovLaws.Length - 1)
+                {
+                    lawsText.CrossFadeAlpha(0f, 0.5f, false);
+                    yield return new WaitForSeconds(0.6f);
+                }
             }
         }
 
-        float elapsedTime = 0f;
-        while (elapsedTime < fadeDuration)
+        yield return new WaitForSeconds(holdBeforeDrive);
+
+        if (introCanvasGroup != null)
         {
-            elapsedTime += Time.deltaTime;
-            introCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeDuration);
-            yield return null;
+            float elapsed = 0f;
+            while (elapsed < fadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                introCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+                yield return null;
+            }
         }
 
-        introPanel.SetActive(false);
-        gameplayHUD.SetActive(true);
-        if (Camera.main != null && Camera.main.TryGetComponent<AdvancedSimsCamera>(out var simsCam))
-            simsCam.enabled = true;
+        if (introPanel != null)
+            introPanel.SetActive(false);
+
+        if (gameplayHUD != null)
+            gameplayHUD.SetActive(true);
+
+        if (arrival != null)
+            arrival.Play();
+
+        yield return new WaitForSeconds(collapseDelayAfterArrival);
+
+        if (collapseDirector != null)
+            collapseDirector.StartCollapse();
     }
 }

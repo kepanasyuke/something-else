@@ -1,57 +1,44 @@
 using UnityEngine;
-using TMPro;
-using System.Collections.Generic;
 
 public class HouseDestructionManager : MonoBehaviour
 {
     public static HouseDestructionManager Instance { get; private set; }
 
-    [Header("Core References")]
-    [SerializeField] private AdvancedRobotWrecker robotInstance;
-    [SerializeField] private TextMeshProUGUI percentageUItext;
-    
-    [Header("Interactive Zones")]
-    [SerializeField] private Transform zoneA_TargetPoint;
-    [SerializeField] private Transform zoneB_TargetPoint;
+    public Transform zoneA_TargetPoint;
+    public Transform zoneB_TargetPoint;
+    public AdvancedRobotWrecker robotInstance;
 
-    private int totalDestructibleBlocksCount;
-    private HashSet<GameObject> destroyedBlocksList = new HashSet<GameObject>();
-    private Transform selectedZonePoint;
-
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
-        var blocks = GameObject.FindGameObjectsWithTag("Destructible");
-        totalDestructibleBlocksCount = blocks.Length;
-        UpdateUIProgressDisplay();
+        int count = FindObjectsOfType<CollapsePart>().Length;
+
+        if (DestructionProgress.Instance != null)
+            DestructionProgress.Instance.SetTotal(count);
     }
 
     public void SelectTargetZone(string zoneName)
     {
-        if (zoneName == "ZoneA") selectedZonePoint = zoneA_TargetPoint;
-        if (zoneName == "ZoneB") selectedZonePoint = zoneB_TargetPoint;
+        if (zoneName == "ZoneA")
+            zoneA_TargetPoint = transform;
+        if (zoneName == "ZoneB")
+            zoneB_TargetPoint = transform;
     }
 
     public void CommandRobotToStart()
     {
-        if (selectedZonePoint != null && robotInstance != null)
-        {
-            string zone = selectedZonePoint.gameObject.layer == LayerMask.NameToLayer("ZoneA") ? "ZoneA" : "ZoneB";
-            robotInstance.AssignTargetTask(zone);
-        }
+        if (robotInstance != null)
+            robotInstance.AssignTargetTask("ZoneA");
     }
 
     public void ReportBlockDestroyed(GameObject blockObject)
     {
-        if (destroyedBlocksList.Add(blockObject))
-            UpdateUIProgressDisplay();
-    }
-
-    private void UpdateUIProgressDisplay()
-    {
-        if (totalDestructibleBlocksCount == 0) return;
-        float progress = (float)destroyedBlocksList.Count / totalDestructibleBlocksCount;
-        percentageUItext.text = $"Здание демонтировано: {progress * 100f:F1}%";
+        CollapsePart part = blockObject != null ? blockObject.GetComponent<CollapsePart>() : null;
+        if (part != null && DestructionProgress.Instance != null)
+            DestructionProgress.Instance.ReportDestroyed(part);
     }
 }
