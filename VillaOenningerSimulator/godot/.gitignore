@@ -6,5 +6,7 @@ refs/
 build/*
 !build/shots/
 !build/shots/**
+!build/preview/
+!build/preview/**
 
 *.import
