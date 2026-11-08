@@ -14,12 +14,6 @@
 godot\build\VillaOenninger.exe
 ```
 
-Запуск проекта из исходников (путь к Godot подставьте свой):
-
-```powershell
-& "D:\MultiTool-build\tools\godot\Godot_v4.7.2-stable_win64_console.exe" --path godot
-```
-
 Открыть и редактировать в редакторе — File → Import → `godot\project.godot`.
 
 ## 🎮 Управление
