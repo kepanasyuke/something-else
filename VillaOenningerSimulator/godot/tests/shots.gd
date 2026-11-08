@@ -48,38 +48,44 @@ func _process(_delta: float) -> bool:
 	if frames == 19:
 		_shot("02-terrace")
 
-	if frames == 21:
-		_view(Vector3(0.5, 1.85, -8.2), Vector3(1.5, 1.2, 4.0))
+	if frames == 20:
+		_view(Vector3(2.0, 2.4, 15.4), Vector3(-7.0, 0.0, 14.0))
+
+	if frames == 26:
+		_shot("10-pool")
 
 	if frames == 28:
+		_view(Vector3(0.5, 1.85, -8.2), Vector3(1.5, 1.2, 4.0))
+
+	if frames == 35:
 		_shot("03-interior")
 
-	if frames == 29:
+	if frames == 36:
 		cam.fov = 50.0
 		_view(Vector3(1.2, 2.6, -21.5), Vector3(7.9, 2.7, -14.8))
 
-	if frames == 33:
+	if frames == 40:
 		_shot("08-globe")
 		cam.fov = 70.0
 
-	if frames == 34:
+	if frames == 41:
 		_view(Vector3(8.6, 2.0, 19.6), Vector3(11.5, 1.4, 15.5))
 
-	if frames == 36:
+	if frames == 43:
 		_shot("04-robot")
 
-	if frames == 38:
+	if frames == 45:
 		game.hero.visible = true
 		game.hero.global_position = Vector3(-18.4, 0.05, -14.2)
 		game.hero.look_at(Vector3(0.0, 1.0, 0.0), Vector3.UP)
 		cam.fov = 45.0
 		_view(Vector3(-16.0, 1.55, -12.0), Vector3(-18.4, 1.05, -14.2))
 
-	if frames == 44:
+	if frames == 51:
 		_shot("05-hero")
 		cam.fov = 70.0
 
-	if frames == 46:
+	if frames == 53:
 		_view(Vector3(-26, 9, -22), Vector3(0, 5, 0))
 		game.director.start_delay = 0.4
 		game.director.wave_step = 0.12
@@ -99,6 +105,20 @@ func _process(_delta: float) -> bool:
 
 	if frames == 366:
 		_shot("09-wide")
+
+	if frames == 368:
+		_view(Vector3(-2, 8, 44), Vector3(-2, 4, 2))
+		cam.fov = 55.0
+
+	if frames == 376:
+		_shot("11-sea")
+
+	if frames == 378:
+		_view(Vector3(6, 40, 34), Vector3(-1, 2, 3))
+		cam.fov = 58.0
+
+	if frames == 386:
+		_shot("12-aerial")
 		quit(0)
 		return true
 
