@@ -94,20 +94,20 @@ func _spawn_dust(pos: Vector3) -> void:
 
 	var dust := CPUParticles3D.new()
 	dust.name = "Dust"
-	dust.amount = 26
-	dust.lifetime = 3.4
+	dust.amount = 30
+	dust.lifetime = 5.6
 	dust.one_shot = true
 	dust.explosiveness = 0.95
 	dust.direction = Vector3(0, 0.4, 0)
 	dust.spread = 85.0
 	dust.initial_velocity_min = 0.9
-	dust.initial_velocity_max = 3.0
-	dust.gravity = Vector3(0, -1.2, 0)
+	dust.initial_velocity_max = 3.4
+	dust.gravity = Vector3(0, -0.9, 0)
 	dust.damping_min = 0.5
 	dust.damping_max = 1.4
-	dust.scale_amount_min = 0.25
-	dust.scale_amount_max = 0.85
-	dust.color = Color(0.62, 0.60, 0.56, 0.30)
+	dust.scale_amount_min = 0.30
+	dust.scale_amount_max = 1.15
+	dust.color = Color(0.62, 0.60, 0.56, 0.34)
 
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.8, 0.8)

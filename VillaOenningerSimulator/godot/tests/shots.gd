@@ -34,9 +34,10 @@ func _shot(file_name: String) -> void:
 func _process(_delta: float) -> bool:
 	frames += 1
 
+	if game.hud != null and game.hud.intro_root != null:
+		game.hud.intro_root.hide()
+
 	if frames == 3:
-		if game.hud != null and game.hud.intro_root != null:
-			game.hud.intro_root.hide()
 		_view(Vector3(-24, 7, -24), Vector3(0, 4, 0))
 
 	if frames == 10:
@@ -88,36 +89,36 @@ func _process(_delta: float) -> bool:
 	if frames == 53:
 		_view(Vector3(-26, 9, -22), Vector3(0, 5, 0))
 		game.director.start_delay = 0.4
-		game.director.wave_step = 0.12
+		game.director.wave_step = 0.006
 		game.director.start_collapse()
 		game.robot.activate(Vector3(2.0, 0.0, 12.0))
 
-	if frames == 170:
+	if frames == 150:
 		_shot("06-collapse")
 
-	if frames == 340:
+	if frames == 400:
 		_shot("07-aftermath")
 		print("ACTIVE=", game.director.active_parts(), "/", game.director.total_parts())
 
-	if frames == 358:
+	if frames == 412:
 		_view(Vector3(-30, 16, -34), Vector3(0, 5, -2))
 		cam.fov = 60.0
 
-	if frames == 366:
+	if frames == 420:
 		_shot("09-wide")
 
-	if frames == 368:
+	if frames == 422:
 		_view(Vector3(-2, 8, 44), Vector3(-2, 4, 2))
 		cam.fov = 55.0
 
-	if frames == 376:
+	if frames == 430:
 		_shot("11-sea")
 
-	if frames == 378:
+	if frames == 432:
 		_view(Vector3(6, 40, 34), Vector3(-1, 2, 3))
 		cam.fov = 58.0
 
-	if frames == 386:
+	if frames == 440:
 		_shot("12-aerial")
 		quit(0)
 		return true

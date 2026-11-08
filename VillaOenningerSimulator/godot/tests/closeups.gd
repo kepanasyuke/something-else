@@ -53,37 +53,41 @@ func _shot(file_name: String) -> void:
 func _process(_delta: float) -> bool:
 	frames += 1
 
+	if game.hud != null and game.hud.intro_root != null:
+		game.hud.intro_root.hide()
+
 	if frames == 4:
-		if game.hud != null and game.hud.intro_root != null:
-			game.hud.intro_root.hide()
 		game.player.visible = false
 		game.robot.global_position = ROBOT_POS
-		game.robot.rotation.y = 0.0
+		game.robot.rotation.y = PI
 		game.hero.visible = true
 		game.hero.global_position = HERO_POS
 		game.hero.rotation.y = 0.0
 
 	if frames == 8:
-		_view(ROBOT_POS + Vector3(0, 1.6, 5.2), ROBOT_POS + Vector3(0, 1.45, 0))
+		cam.fov = 40.0
+		_view(ROBOT_POS + Vector3(-1.2, 2.55, -8.6), ROBOT_POS + Vector3(0, 1.55, -0.4))
 
 	if frames == 14:
 		_shot("robot-front")
 
 	if frames == 16:
-		_view(ROBOT_POS + Vector3(5.2, 1.6, 0), ROBOT_POS + Vector3(0, 1.45, 0))
+		cam.fov = 36.0
+		_view(ROBOT_POS + Vector3(8.4, 1.85, -0.9), ROBOT_POS + Vector3(0, 1.55, -0.9))
 
 	if frames == 22:
 		_shot("robot-profile")
 
 	if frames == 24:
-		_view(ROBOT_POS + Vector3(0, 1.6, -5.2), ROBOT_POS + Vector3(0, 1.45, 0))
+		cam.fov = 40.0
+		_view(ROBOT_POS + Vector3(0.8, 2.2, 5.2), ROBOT_POS + Vector3(0, 1.15, 0.2))
 
 	if frames == 30:
 		_shot("robot-back")
 
 	if frames == 32:
-		cam.fov = 30.0
-		_view(ROBOT_POS + Vector3(-1.7, 2.5, 4.6), ROBOT_POS + Vector3(0, 2.05, 2.4))
+		cam.fov = 34.0
+		_view(ROBOT_POS + Vector3(3.9, 3.0, -4.6), ROBOT_POS + Vector3(0, 2.25, -2.3))
 
 	if frames == 38:
 		_shot("robot-hammer")

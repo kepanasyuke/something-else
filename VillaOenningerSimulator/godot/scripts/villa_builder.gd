@@ -204,8 +204,8 @@ func mesh_sphere(radius: float, height: float, material: Material) -> MeshInstan
 	var sphere := SphereMesh.new()
 	sphere.radius = radius
 	sphere.height = height
-	sphere.radial_segments = 16
-	sphere.rings = 8
+	sphere.radial_segments = 22
+	sphere.rings = 11
 	var mi := MeshInstance3D.new()
 	mi.mesh = sphere
 	mi.material_override = material
@@ -359,7 +359,7 @@ func _build_villa(root: Node3D) -> void:
 	var column_z := [-8.0, 0.0, 8.0]
 	for x in column_x:
 		for z in column_z:
-			static_box(villa, "Column_%d_%d" % [int(x), int(z)], Vector3(x, 2.1, z), Vector3(0.36, 4.2, 0.36), concrete)
+			part_box(villa, "Column_%d_%d" % [int(x), int(z)], Vector3(x, 2.1, z), Vector3(0.36, 4.2, 0.36), concrete)
 
 	var win_mats: Array[StandardMaterial3D] = []
 	for e in [1.05, 0.74, 0.52, 0.90, 0.44, 0.82]:
@@ -367,21 +367,22 @@ func _build_villa(root: Node3D) -> void:
 
 	var index := 0
 	for x in [-10.9, -6.55, -2.2, 2.2, 6.55, 10.9]:
-		decor_box(villa, "Pier_S_%d" % index, Vector3(x + 2.18, 4.3, -9.0), Vector3(0.55, 8.6, 0.5), brick)
+		part_box(villa, "Pier_S_%d" % index, Vector3(x + 2.18, 4.3, -9.0), Vector3(0.55, 8.6, 0.5), brick)
 		part_box(villa, "Window_S_G_%d" % index, Vector3(x, 2.55, -8.92), Vector3(3.7, 3.3, 0.12), win_mats[index])
 		part_box(villa, "Window_S_F1_%d" % index, Vector3(x, 6.85, -8.92), Vector3(3.7, 3.1, 0.12), win_mats[(index + 3) % 6])
-		decor_box(villa, "WinBarH_S_G_%d" % index, Vector3(x, 2.55, -8.84), Vector3(3.72, 0.07, 0.1), concrete_dark)
-		decor_box(villa, "WinBarH_S_F1_%d" % index, Vector3(x, 6.85, -8.84), Vector3(3.72, 0.07, 0.1), concrete_dark)
-		decor_box(villa, "Sill_S_G_%d" % index, Vector3(x, 0.82, -9.05), Vector3(3.9, 0.18, 0.34), stone_trim)
-		decor_box(villa, "Sill_S_F1_%d" % index, Vector3(x, 5.22, -9.05), Vector3(3.9, 0.18, 0.34), stone_trim)
-		decor_box(villa, "Lintel_S_G_%d" % index, Vector3(x, 4.28, -9.05), Vector3(3.9, 0.22, 0.34), stone_trim)
-		decor_box(villa, "Lintel_S_F1_%d" % index, Vector3(x, 8.45, -9.05), Vector3(3.9, 0.22, 0.34), stone_trim)
-		decor_box(villa, "WinBar_S_G_%d" % index, Vector3(x, 2.55, -8.86), Vector3(0.08, 3.3, 0.1), stone_trim)
-		decor_box(villa, "WinBar_S_F1_%d" % index, Vector3(x, 6.85, -8.86), Vector3(0.08, 3.1, 0.1), stone_trim)
+		part_box(villa, "WinBarH_S_G_%d" % index, Vector3(x, 2.55, -8.84), Vector3(3.72, 0.07, 0.1), concrete_dark)
+		part_box(villa, "WinBarH_S_F1_%d" % index, Vector3(x, 6.85, -8.84), Vector3(3.72, 0.07, 0.1), concrete_dark)
+		part_box(villa, "Sill_S_G_%d" % index, Vector3(x, 0.82, -9.05), Vector3(3.9, 0.18, 0.34), stone_trim)
+		part_box(villa, "Sill_S_F1_%d" % index, Vector3(x, 5.22, -9.05), Vector3(3.9, 0.18, 0.34), stone_trim)
+		part_box(villa, "Lintel_S_G_%d" % index, Vector3(x, 4.28, -9.05), Vector3(3.9, 0.22, 0.34), stone_trim)
+		part_box(villa, "Lintel_S_F1_%d" % index, Vector3(x, 8.45, -9.05), Vector3(3.9, 0.22, 0.34), stone_trim)
+		part_box(villa, "WinBar_S_G_%d" % index, Vector3(x, 2.55, -8.86), Vector3(0.08, 3.3, 0.1), stone_trim)
+		part_box(villa, "WinBar_S_F1_%d" % index, Vector3(x, 6.85, -8.86), Vector3(0.08, 3.1, 0.1), stone_trim)
 		index += 1
 
-	decor_box(villa, "Plinth_S", Vector3(0, 0.55, -9.25), Vector3(26.4, 1.1, 0.6), stone_trim)
-	decor_box(villa, "Cornice_S", Vector3(0, 8.05, -9.3), Vector3(26.6, 0.4, 0.7), stone_trim)
+	for i in range(5):
+		part_box(villa, "Plinth_S_%d" % i, Vector3(-10.56 + 5.28 * i, 0.55, -9.25), Vector3(5.28, 1.1, 0.6), stone_trim)
+		part_box(villa, "Cornice_S_%d" % i, Vector3(-10.64 + 5.32 * i, 8.05, -9.3), Vector3(5.32, 0.4, 0.7), stone_trim)
 
 	for i in range(5):
 		decor_box(villa, "RustG_%d" % i, Vector3(0, 0.24 + i * 0.15, -9.32), Vector3(26.2, 0.05, 0.14), concrete_dark)
@@ -394,9 +395,9 @@ func _build_villa(root: Node3D) -> void:
 		decor_box(villa, "QuoinW_%d" % i, Vector3(-13.28, qy, -8.72), Vector3(0.42, 0.5, qw), stone_trim)
 	for jx in [-10.9, -6.55, -2.2, 2.2, 6.55, 10.9]:
 		for side in [-1.0, 1.0]:
-			decor_box(villa, "JambG_%d_%d" % [int(jx * 10.0), int(side)], Vector3(jx + 1.95 * side, 2.55, -9.06), Vector3(0.18, 3.5, 0.26), stone_trim)
-			decor_box(villa, "JambF1_%d_%d" % [int(jx * 10.0), int(side)], Vector3(jx + 1.95 * side, 6.85, -9.06), Vector3(0.18, 3.3, 0.26), stone_trim)
-		decor_box(villa, "KeyStone_%d" % int(jx * 10.0), Vector3(jx, 4.42, -9.02), Vector3(0.46, 0.34, 0.3), stone_trim)
+			part_box(villa, "JambG_%d_%d" % [int(jx * 10.0), int(side)], Vector3(jx + 1.95 * side, 2.55, -9.06), Vector3(0.18, 3.5, 0.26), stone_trim)
+			part_box(villa, "JambF1_%d_%d" % [int(jx * 10.0), int(side)], Vector3(jx + 1.95 * side, 6.85, -9.06), Vector3(0.18, 3.3, 0.26), stone_trim)
+		part_box(villa, "KeyStone_%d" % int(jx * 10.0), Vector3(jx, 4.42, -9.02), Vector3(0.46, 0.34, 0.3), stone_trim)
 
 	static_box(villa, "Portico_Step0", Vector3(0, 0.09, -10.5), Vector3(24.5, 0.18, 4.0), stone_trim)
 	static_box(villa, "Portico_Step1", Vector3(0, 0.28, -10.15), Vector3(23.5, 0.2, 3.4), stone_trim)
@@ -445,9 +446,18 @@ func _build_villa(root: Node3D) -> void:
 
 	index = 0
 	for x in [-11.15, -7.45, -3.75, 3.75, 7.45, 11.15]:
-		part_box(villa, "Glass_N_G_%d" % index, Vector3(x, 2.1, 9.0), Vector3(3.2, 4.0, 0.09), glass)
+		part_box(villa, "Glass_N_G_%d" % index, Vector3(x, 2.1, 9.0), Vector3(3.72, 4.0, 0.09), glass)
 		part_box(villa, "Wall_N_F1_%d" % index, Vector3(x, 6.4, 9.0), Vector3(3.73, 4.1, 0.35), concrete)
 		index += 1
+
+	part_box(villa, "Glass_N_DoorL", Vector3(-1.30, 2.1, 9.0), Vector3(1.35, 4.0, 0.09), glass)
+	part_box(villa, "Glass_N_DoorR", Vector3(1.30, 2.1, 9.0), Vector3(1.35, 4.0, 0.09), glass)
+	decor_box(villa, "Door_N_Leaf", Vector3(-1.34, 2.05, 8.86), Vector3(1.28, 3.9, 0.05), glass)
+	decor_box(villa, "Door_N_Handle", Vector3(-0.74, 2.10, 8.80), Vector3(0.04, 0.42, 0.05), metal)
+	decor_box(villa, "Door_N_Head", Vector3(0, 4.06, 9.0), Vector3(2.86, 0.18, 0.30), concrete_warm)
+	for mx in [-9.30, -5.60, -0.70, 0.70, 5.60, 9.30]:
+		part_box(villa, "Mullion_N_%.1f" % mx, Vector3(mx, 2.1, 9.0), Vector3(0.14, 4.0, 0.16), metal)
+	decor_box(villa, "Threshold_N", Vector3(0, 0.06, 9.0), Vector3(2.9, 0.12, 0.44), stone_trim)
 
 	part_box(villa, "Wall_W_G_0", Vector3(-13.0, 2.1, -4.45), Vector3(0.35, 4.2, 8.9), concrete)
 	part_box(villa, "Wall_W_G_1", Vector3(-13.0, 2.1, 4.45), Vector3(0.35, 4.2, 8.9), concrete)
@@ -463,8 +473,10 @@ func _build_villa(root: Node3D) -> void:
 	for lz in [-6.0, 0.0, 6.0]:
 		_lamp(villa, Vector3(7.0, 2.4, lz), 1.35, Color(1.0, 0.82, 0.62), 10.0)
 
-	decor_box(villa, "CeilingStrip_G", Vector3(0, 4.08, 0), Vector3(24.0, 0.05, 0.05), warm_strip)
-	decor_box(villa, "CeilingStrip_F1", Vector3(0, 8.42, 0), Vector3(24.0, 0.05, 0.05), warm_strip)
+	for i in range(4):
+		var cx := -9.0 + 6.0 * i
+		part_box(villa, "CeilingStrip_G_%d" % i, Vector3(cx, 4.08, 0), Vector3(6.0, 0.05, 0.05), warm_strip)
+		part_box(villa, "CeilingStrip_F1_%d" % i, Vector3(cx, 8.42, 0), Vector3(6.0, 0.05, 0.05), warm_strip)
 
 	for i in range(15):
 		decor_box(villa, "Stair_%d" % i, Vector3(8.4, 0.14 + i * 0.28, -1.2 + i * 0.6), Vector3(3.4, 0.16, 0.6), wood)
@@ -514,8 +526,10 @@ func _build_villa(root: Node3D) -> void:
 		part_box(villa, "Eave_E_%d" % i, Vector3(13.9, 8.62, ez), Vector3(1.4, 0.3, 5.90), concrete)
 		part_box(villa, "Eave_W_%d" % i, Vector3(-13.9, 8.62, ez), Vector3(1.4, 0.3, 5.90), concrete)
 
-	decor_box(villa, "EaveStrip_S", Vector3(0, 8.42, -9.2), Vector3(27.0, 0.06, 0.06), warm_strip)
-	decor_box(villa, "EaveStrip_N", Vector3(0, 8.42, 9.2), Vector3(27.0, 0.06, 0.06), warm_strip)
+	for i in range(6):
+		var sx := -11.25 + 4.5 * i
+		part_box(villa, "EaveStrip_S_%d" % i, Vector3(sx, 8.42, -9.2), Vector3(4.5, 0.06, 0.06), warm_strip)
+		part_box(villa, "EaveStrip_N_%d" % i, Vector3(sx, 8.42, 9.2), Vector3(4.5, 0.06, 0.06), warm_strip)
 
 	for i in range(6):
 		decor_box(villa, "Column_Glass_%d" % i, Vector3(-8.0 + i * 3.2, 4.5, -9.05), Vector3(0.22, 4.2, 0.22), metal_light)
@@ -738,63 +752,64 @@ func make_car() -> Node3D:
 	var hull := mesh_sphere(1.0, 2.0, car_silver)
 	hull.name = "Car_Hull"
 	hull.position = Vector3(0.0, 0.62, 0.0)
-	hull.scale = Vector3(2.00, 0.34, 1.02)
+	hull.scale = Vector3(2.00, 0.34, 0.94)
 	car.add_child(hull)
 
 	var nose := mesh_sphere(1.0, 2.0, car_silver)
 	nose.name = "Car_Nose"
 	nose.position = Vector3(1.62, 0.46, 0.0)
-	nose.scale = Vector3(0.46, 0.18, 0.62)
+	nose.scale = Vector3(0.46, 0.18, 0.58)
 	car.add_child(nose)
 
 	var tail := mesh_sphere(1.0, 2.0, car_silver)
 	tail.name = "Car_Tail"
 	tail.position = Vector3(-1.62, 0.54, 0.0)
-	tail.scale = Vector3(0.44, 0.26, 0.74)
+	tail.scale = Vector3(0.44, 0.26, 0.66)
 	car.add_child(tail)
 
 	var skirt := mesh_sphere(1.0, 2.0, car_body)
 	skirt.name = "Car_Skirt"
 	skirt.position = Vector3(0.0, 0.44, 0.0)
-	skirt.scale = Vector3(1.94, 0.30, 0.95)
+	skirt.scale = Vector3(1.94, 0.30, 0.87)
 	car.add_child(skirt)
 
 	var canopy := mesh_sphere(1.0, 2.0, glass_car)
 	canopy.name = "Car_Canopy"
 	canopy.position = Vector3(-0.20, 0.92, 0.0)
-	canopy.scale = Vector3(1.10, 0.22, 0.74)
+	canopy.scale = Vector3(1.10, 0.22, 0.66)
 	car.add_child(canopy)
 
-	decor_box(car, "Car_CanopyRimL", Vector3(-0.20, 0.880, 0.720), Vector3(1.86, 0.04, 0.06), car_silver)
-	decor_box(car, "Car_CanopyRimR", Vector3(-0.20, 0.880, -0.720), Vector3(1.86, 0.04, 0.06), car_silver)
-	decor_box(car, "Car_CabinTrimL", Vector3(-0.20, 0.860, 0.700), Vector3(1.70, 0.05, 0.05), car_trim)
-	decor_box(car, "Car_CabinTrimR", Vector3(-0.20, 0.860, -0.700), Vector3(1.70, 0.05, 0.05), car_trim)
+	decor_box(car, "Car_CanopyRimL", Vector3(-0.20, 0.880, 0.645), Vector3(1.86, 0.04, 0.06), car_silver)
+	decor_box(car, "Car_CanopyRimR", Vector3(-0.20, 0.880, -0.645), Vector3(1.86, 0.04, 0.06), car_silver)
+	decor_box(car, "Car_CabinTrimL", Vector3(-0.20, 0.860, 0.630), Vector3(1.70, 0.05, 0.05), car_trim)
+	decor_box(car, "Car_CabinTrimR", Vector3(-0.20, 0.860, -0.630), Vector3(1.70, 0.05, 0.05), car_trim)
 
 	decor_box(car, "Car_Splitter", Vector3(1.94, 0.280, 0.0), Vector3(0.24, 0.04, 0.92), car_trim)
 	decor_box(car, "Car_Grille", Vector3(2.010, 0.390, 0.0), Vector3(0.04, 0.08, 0.66), car_trim)
 	decor_box(car, "Car_Diffuser", Vector3(-1.94, 0.280, 0.0), Vector3(0.26, 0.05, 0.96), car_trim)
-	decor_box(car, "Car_RearWing", Vector3(-1.66, 0.790, 0.0), Vector3(0.34, 0.05, 1.02), car_body)
-	decor_box(car, "Car_WingPostL", Vector3(-1.72, 0.755, 0.40), Vector3(0.10, 0.09, 0.06), car_trim)
-	decor_box(car, "Car_WingPostR", Vector3(-1.72, 0.755, -0.40), Vector3(0.10, 0.09, 0.06), car_trim)
+	decor_box(car, "Car_RearWing", Vector3(-1.66, 0.740, 0.0), Vector3(0.34, 0.05, 0.94), car_body)
+	decor_box(car, "Car_WingPostL", Vector3(-1.68, 0.700, 0.38), Vector3(0.12, 0.09, 0.06), car_trim)
+	decor_box(car, "Car_WingPostR", Vector3(-1.68, 0.700, -0.38), Vector3(0.12, 0.09, 0.06), car_trim)
 
 	decor_box(car, "Car_SeatL", Vector3(-0.30, 0.62, 0.30), Vector3(0.40, 0.15, 0.34), car_seat)
 	decor_box(car, "Car_SeatR", Vector3(-0.30, 0.62, -0.30), Vector3(0.40, 0.15, 0.34), car_seat)
 	decor_box(car, "Car_Dash", Vector3(0.22, 0.68, 0.0), Vector3(0.20, 0.09, 0.98), car_trim)
 	decor_box(car, "Car_Wheel_L", Vector3(0.32, 0.72, 0.26), Vector3(0.04, 0.16, 0.04), metal)
 
-	decor_box(car, "Car_DayBar", Vector3(2.045, 0.500, 0.0), Vector3(0.04, 0.022, 0.58), headlight)
-	decor_box(car, "Car_HeadlightL", Vector3(2.045, 0.470, 0.40), Vector3(0.05, 0.050, 0.20), headlight)
-	decor_box(car, "Car_HeadlightR", Vector3(2.045, 0.470, -0.40), Vector3(0.05, 0.050, 0.20), headlight)
-	decor_box(car, "Car_TaillightL", Vector3(-2.060, 0.610, 0.44), Vector3(0.04, 0.065, 0.32), taillight)
-	decor_box(car, "Car_TaillightR", Vector3(-2.060, 0.610, -0.44), Vector3(0.04, 0.065, 0.32), taillight)
+	decor_box(car, "Car_LightSurround", Vector3(2.038, 0.480, 0.0), Vector3(0.05, 0.135, 0.50), car_trim)
+	decor_box(car, "Car_DayBar", Vector3(2.050, 0.520, 0.0), Vector3(0.03, 0.016, 0.40), headlight)
+	decor_box(car, "Car_HeadlightL", Vector3(2.050, 0.478, 0.32), Vector3(0.03, 0.038, 0.13), headlight)
+	decor_box(car, "Car_HeadlightR", Vector3(2.050, 0.478, -0.32), Vector3(0.03, 0.038, 0.13), headlight)
+	decor_box(car, "Car_TaillightL", Vector3(-2.050, 0.610, 0.40), Vector3(0.04, 0.055, 0.28), taillight)
+	decor_box(car, "Car_TaillightR", Vector3(-2.050, 0.610, -0.40), Vector3(0.04, 0.055, 0.28), taillight)
 
-	decor_box(car, "Car_MirrorStalkL", Vector3(0.38, 0.82, 0.84), Vector3(0.10, 0.04, 0.12), car_body)
-	decor_box(car, "Car_MirrorStalkR", Vector3(0.38, 0.82, -0.84), Vector3(0.10, 0.04, 0.12), car_body)
-	decor_box(car, "Car_MirrorL", Vector3(0.40, 0.86, 0.92), Vector3(0.08, 0.070, 0.13), car_body)
-	decor_box(car, "Car_MirrorR", Vector3(0.40, 0.86, -0.92), Vector3(0.08, 0.070, 0.13), car_body)
+	decor_box(car, "Car_MirrorStalkL", Vector3(0.38, 0.82, 0.80), Vector3(0.10, 0.04, 0.12), car_body)
+	decor_box(car, "Car_MirrorStalkR", Vector3(0.38, 0.82, -0.80), Vector3(0.10, 0.04, 0.12), car_body)
+	decor_box(car, "Car_MirrorL", Vector3(0.40, 0.86, 0.88), Vector3(0.08, 0.070, 0.13), car_body)
+	decor_box(car, "Car_MirrorR", Vector3(0.40, 0.86, -0.88), Vector3(0.08, 0.070, 0.13), car_body)
 
-	decor_box(car, "Car_SillL", Vector3(0.10, 0.40, 0.905), Vector3(1.96, 0.10, 0.05), car_trim)
-	decor_box(car, "Car_SillR", Vector3(0.10, 0.40, -0.905), Vector3(1.96, 0.10, 0.05), car_trim)
+	decor_box(car, "Car_SillL", Vector3(0.10, 0.40, 0.855), Vector3(1.96, 0.10, 0.05), car_trim)
+	decor_box(car, "Car_SillR", Vector3(0.10, 0.40, -0.855), Vector3(1.96, 0.10, 0.05), car_trim)
 
 	for side in [1.0, -1.0]:
 		var beam := SpotLight3D.new()
@@ -807,7 +822,7 @@ func make_car() -> Node3D:
 		beam.spot_angle = 26.0
 		car.add_child(beam)
 
-	var wheel_pos := [Vector3(1.28, 0.34, 0.80), Vector3(1.28, 0.34, -0.80), Vector3(-1.28, 0.34, 0.80), Vector3(-1.28, 0.34, -0.80)]
+	var wheel_pos := [Vector3(1.28, 0.34, 0.855), Vector3(1.28, 0.34, -0.855), Vector3(-1.28, 0.34, 0.855), Vector3(-1.28, 0.34, -0.855)]
 	var index := 0
 	for wp in wheel_pos:
 		var out_sign := 1.0 if wp.z > 0.0 else -1.0
@@ -817,8 +832,8 @@ func make_car() -> Node3D:
 
 		var flare := mesh_sphere(1.0, 2.0, car_silver)
 		flare.name = "FenderFlare_%d" % index
-		flare.position = wp + Vector3(0, 0.10, 0.01 * out_sign)
-		flare.scale = Vector3(0.46, 0.17, 0.33)
+		flare.position = wp + Vector3(0, 0.14, 0.02 * out_sign)
+		flare.scale = Vector3(0.44, 0.10, 0.20)
 		car.add_child(flare)
 		index += 1
 	return car
@@ -899,10 +914,11 @@ func make_robot() -> Node3D:
 	chisel.name = "Chisel"
 	decor_cyl(hammer, "ChiselTip", Vector3(0, -0.86, 0), 0.035, 0.12, Vector3.ZERO, metal_light)
 
-	decor_cyl(boom, "Hose_Main", mid * 0.5 + Vector3(0.16, 0.10, 0), 0.035, 1.10, Vector3(-40, 0, 0), robot_hose)
-	decor_cyl(boom, "Hose_Tool", tip + Vector3(-0.15, -0.20, 0.05), 0.032, 0.82, Vector3(64, 0, 0), robot_hose)
-	decor_box(boom, "HoseClamp_A", Vector3(0.14, 0.70, 0.55), Vector3(0.06, 0.10, 0.10), robot_black)
-	decor_box(boom, "HoseClamp_B", Vector3(0.14, 1.42, 1.45), Vector3(0.06, 0.10, 0.10), robot_black)
+	decor_cyl(boom, "Hose_Main", Vector3(0.19, 0.614, 0.43), 0.035, 1.34, Vector3(32, 0, 0), robot_hose)
+	decor_cyl(boom, "Hose_Tool", Vector3(-0.17, 1.458, 1.366), 0.032, 1.04, Vector3(72, 0, 0), robot_hose)
+	decor_box(boom, "HoseClamp_A", Vector3(0.16, 0.996, 0.669), Vector3(0.07, 0.11, 0.11), robot_black)
+	decor_box(boom, "HoseClamp_B", Vector3(-0.15, 1.551, 1.651), Vector3(0.07, 0.11, 0.11), robot_black)
+	decor_box(boom, "HoseClamp_C", Vector3(0.16, 0.318, 0.246), Vector3(0.07, 0.11, 0.11), robot_black)
 
 	var work := OmniLight3D.new()
 	work.name = "WorkLight"
@@ -991,35 +1007,44 @@ func make_hero() -> Node3D:
 	head.name = "Head"
 	head.scale = Vector3(0.95, 1.15, 1.0)
 	hero.add_child(head)
-	decor_box(hero, "Jaw", Vector3(0, 1.725, 0.025), Vector3(0.155, 0.09, 0.155), hero_skin)
-	decor_box(hero, "CheekL", Vector3(-0.062, 1.80, 0.048), Vector3(0.05, 0.06, 0.04), hero_skin)
-	decor_box(hero, "CheekR", Vector3(0.062, 1.80, 0.048), Vector3(0.05, 0.06, 0.04), hero_skin)
-	decor_box(hero, "EarL", Vector3(-0.107, 1.815, 0.0), Vector3(0.025, 0.065, 0.045), hero_skin)
-	decor_box(hero, "EarR", Vector3(0.107, 1.815, 0.0), Vector3(0.025, 0.065, 0.045), hero_skin)
-	decor_box(hero, "Nose", Vector3(0, 1.788, 0.092), Vector3(0.036, 0.070, 0.040), hero_skin)
-	decor_box(hero, "NoseTip", Vector3(0, 1.772, 0.108), Vector3(0.032, 0.026, 0.026), hero_skin)
-	decor_box(hero, "EyeL", Vector3(-0.045, 1.827, 0.089), Vector3(0.034, 0.020, 0.012), hero_eye)
-	decor_box(hero, "EyeR", Vector3(0.045, 1.827, 0.089), Vector3(0.034, 0.020, 0.012), hero_eye)
-	decor_box(hero, "IrisL", Vector3(-0.045, 1.827, 0.095), Vector3(0.015, 0.016, 0.006), hero_iris)
-	decor_box(hero, "IrisR", Vector3(0.045, 1.827, 0.095), Vector3(0.015, 0.016, 0.006), hero_iris)
-	decor_box(hero, "PupilL", Vector3(-0.045, 1.827, 0.098), Vector3(0.007, 0.008, 0.004), hero_pupil)
-	decor_box(hero, "PupilR", Vector3(0.045, 1.827, 0.098), Vector3(0.007, 0.008, 0.004), hero_pupil)
-	decor_box_rot(hero, "BrowL", Vector3(-0.049, 1.852, 0.094), Vector3(0.055, 0.014, 0.02), Vector3(0, 0, -6), hero_hair)
-	decor_box_rot(hero, "BrowR", Vector3(0.049, 1.852, 0.094), Vector3(0.055, 0.014, 0.02), Vector3(0, 0, 6), hero_hair)
-	decor_box(hero, "Mouth", Vector3(0, 1.742, 0.098), Vector3(0.062, 0.012, 0.02), hero_pupil)
-	decor_box(hero, "Moustache", Vector3(0, 1.756, 0.098), Vector3(0.072, 0.014, 0.02), hero_hair)
-	decor_box(hero, "Goatee", Vector3(0, 1.708, 0.088), Vector3(0.072, 0.05, 0.045), hero_hair)
-	decor_box(hero, "BeardLineL", Vector3(-0.062, 1.742, 0.072), Vector3(0.03, 0.05, 0.04), hero_hair)
-	decor_box(hero, "BeardLineR", Vector3(0.062, 1.742, 0.072), Vector3(0.03, 0.05, 0.04), hero_hair)
+	var jaw := _sphere_at(Vector3(0, 1.728, 0.016), 0.064, hero_skin)
+	jaw.name = "Jaw"
+	jaw.scale = Vector3(1.20, 1.00, 0.95)
+	hero.add_child(jaw)
+	var ear_l := _sphere_at(Vector3(-0.100, 1.812, -0.002), 0.026, hero_skin)
+	ear_l.name = "EarL"
+	ear_l.scale = Vector3(0.45, 1.15, 0.80)
+	hero.add_child(ear_l)
+	var ear_r := _sphere_at(Vector3(0.100, 1.812, -0.002), 0.026, hero_skin)
+	ear_r.name = "EarR"
+	ear_r.scale = Vector3(0.45, 1.15, 0.80)
+	hero.add_child(ear_r)
+	var nose := _sphere_at(Vector3(0, 1.786, 0.094), 0.030, hero_skin)
+	nose.name = "Nose"
+	nose.scale = Vector3(0.62, 1.10, 1.05)
+	hero.add_child(nose)
+	var nose_tip := _sphere_at(Vector3(0, 1.768, 0.101), 0.022, hero_skin)
+	nose_tip.name = "NoseTip"
+	nose_tip.scale = Vector3(1.15, 0.72, 1.0)
+	hero.add_child(nose_tip)
+	var eye_r := decor_box_rot(hero, "EyeR", Vector3(0.0404, 1.8282, 0.0996), Vector3(0.026, 0.0135, 0.010), Vector3(0, 24.2, 0), hero_eye)
+	var iris_r := decor_box(eye_r, "IrisR", Vector3(0, 0, 0.0055), Vector3(0.011, 0.011, 0.004), hero_iris)
+	decor_box(iris_r, "PupilR", Vector3(0, 0, 0.003), Vector3(0.005, 0.0055, 0.003), hero_pupil)
+	decor_box(eye_r, "LidR", Vector3(0, 0.0068, 0.0012), Vector3(0.027, 0.0045, 0.010), hero_hair)
+	var eye_l := decor_box_rot(hero, "EyeL", Vector3(-0.0404, 1.8282, 0.0996), Vector3(0.026, 0.0135, 0.010), Vector3(0, -24.2, 0), hero_eye)
+	var iris_l := decor_box(eye_l, "IrisL", Vector3(0, 0, 0.0055), Vector3(0.011, 0.011, 0.004), hero_iris)
+	decor_box(iris_l, "PupilL", Vector3(0, 0, 0.003), Vector3(0.005, 0.0055, 0.003), hero_pupil)
+	decor_box(eye_l, "LidL", Vector3(0, 0.0068, 0.0012), Vector3(0.027, 0.0045, 0.010), hero_hair)
+	decor_box_rot(hero, "BrowR", Vector3(0.0386, 1.8414, 0.0969), Vector3(0.034, 0.009, 0.014), Vector3(0, 23.7, 5), hero_hair)
+	decor_box_rot(hero, "BrowL", Vector3(-0.0386, 1.8414, 0.0969), Vector3(0.034, 0.009, 0.014), Vector3(0, -23.7, -5), hero_hair)
+	decor_box(hero, "Mouth", Vector3(0, 1.739, 0.093), Vector3(0.042, 0.007, 0.013), hero_pupil)
 
-	var beanie := _sphere_at(Vector3(0, 1.895, -0.004), 0.124, hero_hair)
+	var beanie := _sphere_at(Vector3(0, 1.888, -0.006), 0.107, hero_hair)
 	beanie.name = "Beanie"
-	beanie.scale = Vector3(1.02, 0.74, 1.02)
+	beanie.scale = Vector3(1.03, 0.84, 1.03)
 	hero.add_child(beanie)
-	decor_box(hero, "BeanieRim", Vector3(0, 1.884, -0.002), Vector3(0.243, 0.05, 0.243), hero_hair)
-	decor_box(hero, "BeanieKnot", Vector3(0, 1.962, -0.01), Vector3(0.05, 0.03, 0.05), hero_hair)
-	decor_box(hero, "SideburnL", Vector3(-0.100, 1.856, 0.030), Vector3(0.022, 0.085, 0.060), hero_hair)
-	decor_box(hero, "SideburnR", Vector3(0.100, 1.856, 0.030), Vector3(0.022, 0.085, 0.060), hero_hair)
+	decor_cyl(hero, "BeanieRim", Vector3(0, 1.8765, -0.004), 0.1095, 0.032, Vector3.ZERO, hero_hair)
+	decor_cyl(hero, "BeanieKnot", Vector3(0, 1.974, -0.012), 0.026, 0.026, Vector3.ZERO, hero_hair)
 
 	decor_box(hero, "Badge", Vector3(0.165, 1.435, 0.152), Vector3(0.075, 0.095, 0.018), hero_buckle)
 	decor_box(hero, "BadgeStar", Vector3(0.165, 1.435, 0.164), Vector3(0.040, 0.048, 0.010), hero_skin)
